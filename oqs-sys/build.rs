@@ -1,5 +1,6 @@
 use bindgen;
 use cmake;
+use build_deps;
 
 use std::path::PathBuf;
 
@@ -14,14 +15,14 @@ fn generate_bindings(outdir: &PathBuf, headerfile: &str, filter: &str) {
                 .to_str()
                 .unwrap(),
         )
-        // Tell cargo to invalidate the built crate whenever any of the
-        // included header files changed.
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks))
         // Options
         .default_enum_style(bindgen::EnumVariation::Rust {
             non_exhaustive: false,
         })
         .size_t_is_usize(true)
+        // Don't generate docs unless enabled
+        // Otherwise it breaks tests
+        .generate_comments(cfg!(feature = "docs"))
         // Whitelist OQS stuff
         .whitelist_recursively(false)
         .whitelist_type(filter)
@@ -38,14 +39,12 @@ fn generate_bindings(outdir: &PathBuf, headerfile: &str, filter: &str) {
 fn main() {
     let mut config = cmake::Config::new("liboqs");
     config.profile("Optimized");
-    config.define(
-        "OQS_USE_OPENSSL",
-        if cfg!(feature = "openssl") {
-            "Yes"
-        } else {
-            "No"
-        },
-    );
+    if cfg!(feature = "openssl") {
+        config.define("OQS_USE_OPENSSL", "Yes");
+        println!("cargo:rustc-link-lib=crypto");
+    } else {
+        config.define("OQS_USE_OPENSSL", "No");
+    }
     let outdir = config.build_target("oqs").build();
 
     // lib is put into $outdir/build/lib
@@ -57,4 +56,7 @@ fn main() {
     gen_bindings("common", "OQS_.*");
     gen_bindings("kem", "OQS_KEM.*");
     gen_bindings("sig", "OQS_SIG.*");
+
+    build_deps::rerun_if_changed_paths("liboqs/**").unwrap();
+    build_deps::rerun_if_changed_paths("liboqs").unwrap();
 }
