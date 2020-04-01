@@ -152,6 +152,48 @@ impl Kem {
         NonNull::new(kem).map_or_else(|| Err(Error::AlgorithmDisabled), |kem| Ok(Self{ kem }))
     }
 
+    pub fn name(&self) -> std::borrow::Cow<str> {
+        let kem = unsafe { self.kem.as_ref() };
+        let cstr = unsafe { std::ffi::CStr::from_ptr(kem.method_name) };
+        cstr.to_string_lossy()
+    }
+
+    pub fn version(&self) -> std::borrow::Cow<str> {
+        let kem = unsafe { self.kem.as_ref() };
+        let cstr = unsafe { std::ffi::CStr::from_ptr(kem.method_name) };
+        cstr.to_string_lossy()
+    }
+
+    pub fn claimed_nist_level(&self) -> u8 {
+        let kem = unsafe { self.kem.as_ref() };
+        kem.claimed_nist_level
+    }
+
+    pub fn is_ind_cca(&self) -> bool {
+        let kem = unsafe { self.kem.as_ref() };
+        kem.ind_cca
+    }
+
+    pub fn length_public_key(&self) -> usize {
+        let kem = unsafe { self.kem.as_ref() };
+        kem.length_public_key
+    }
+
+    pub fn length_secret_key(&self) -> usize {
+        let kem = unsafe { self.kem.as_ref() };
+        kem.length_secret_key
+    }
+
+    pub fn length_ciphertext(&self) -> usize {
+        let kem = unsafe { self.kem.as_ref() };
+        kem.length_ciphertext
+    }
+
+    pub fn length_shared_secret(&self) -> usize {
+        let kem = unsafe { self.kem.as_ref() };
+        kem.length_shared_secret
+    }
+
     pub fn keypair(&self) -> Result<(PublicKey, SecretKey)> {
         let kem = unsafe { self.kem.as_ref() };
         let func = kem.keypair.unwrap();
