@@ -208,6 +208,9 @@ dependencies = [
 [[package]]
 name = "oqs"
 version = "0.1.0"
+dependencies = [
+ "oqs-sys",
+]
 
 [[package]]
 name = "oqs-sys"
