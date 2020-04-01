@@ -1,9 +1,8 @@
+use crate::ffi::kem as ffi;
 use crate::*;
 use std::ptr::NonNull;
-use crate::ffi::kem as ffi;
 
 use std::os::raw;
-
 
 macro_rules! newtype_buffer {
     ($name: ident) => {
@@ -23,14 +22,13 @@ macro_rules! newtype_buffer {
                 self.bytes.len()
             }
         }
-   }
+    };
 }
 
 newtype_buffer!(PublicKey);
 newtype_buffer!(SecretKey);
 newtype_buffer!(Ciphertext);
 newtype_buffer!(SharedSecret);
-
 
 macro_rules! implement_kems {
     { $( $kem: ident: $oqs_id: ident),* $(,)? } => (
@@ -134,8 +132,6 @@ implement_kems! {
     SikeP751Compressed: OQS_KEM_alg_sike_p751_compressed,
 }
 
-
-
 pub struct Kem {
     kem: NonNull<ffi::OQS_KEM>,
 }
@@ -149,7 +145,7 @@ impl Drop for Kem {
 impl Kem {
     pub fn new(algorithm: Algorithm) -> Result<Self> {
         let kem = unsafe { ffi::OQS_KEM_new(algorithm_to_id(algorithm)) };
-        NonNull::new(kem).map_or_else(|| Err(Error::AlgorithmDisabled), |kem| Ok(Self{ kem }))
+        NonNull::new(kem).map_or_else(|| Err(Error::AlgorithmDisabled), |kem| Ok(Self { kem }))
     }
 
     pub fn name(&self) -> std::borrow::Cow<str> {
@@ -197,9 +193,13 @@ impl Kem {
     pub fn keypair(&self) -> Result<(PublicKey, SecretKey)> {
         let kem = unsafe { self.kem.as_ref() };
         let func = kem.keypair.unwrap();
-        let mut pk = PublicKey { bytes: Vec::with_capacity(kem.length_public_key) };
-        let mut sk = SecretKey { bytes: Vec::with_capacity(kem.length_secret_key) };
-        let status = unsafe { func(pk.bytes.as_mut_ptr(), sk.bytes.as_mut_ptr())};
+        let mut pk = PublicKey {
+            bytes: Vec::with_capacity(kem.length_public_key),
+        };
+        let mut sk = SecretKey {
+            bytes: Vec::with_capacity(kem.length_secret_key),
+        };
+        let status = unsafe { func(pk.bytes.as_mut_ptr(), sk.bytes.as_mut_ptr()) };
         // update the lengths of the vecs
         unsafe {
             pk.bytes.set_len(kem.length_public_key);
@@ -213,9 +213,19 @@ impl Kem {
         let kem = unsafe { self.kem.as_ref() };
         assert_eq!(pk.len(), kem.length_public_key);
         let func = kem.encaps.unwrap();
-        let mut ct = Ciphertext { bytes: Vec::with_capacity(kem.length_ciphertext) };
-        let mut ss = SharedSecret { bytes: Vec::with_capacity(kem.length_shared_secret) };
-        let status = unsafe { func(ct.bytes.as_mut_ptr(), ss.bytes.as_mut_ptr(), pk.bytes.as_ptr()) };
+        let mut ct = Ciphertext {
+            bytes: Vec::with_capacity(kem.length_ciphertext),
+        };
+        let mut ss = SharedSecret {
+            bytes: Vec::with_capacity(kem.length_shared_secret),
+        };
+        let status = unsafe {
+            func(
+                ct.bytes.as_mut_ptr(),
+                ss.bytes.as_mut_ptr(),
+                pk.bytes.as_ptr(),
+            )
+        };
         status_to_result(status)?;
         unsafe {
             ct.bytes.set_len(kem.length_ciphertext);
@@ -228,7 +238,9 @@ impl Kem {
         let kem = unsafe { self.kem.as_ref() };
         assert_eq!(sk.len(), kem.length_secret_key);
         assert_eq!(ct.len(), kem.length_ciphertext);
-        let mut ss = SharedSecret { bytes: Vec::with_capacity(kem.length_shared_secret) };
+        let mut ss = SharedSecret {
+            bytes: Vec::with_capacity(kem.length_shared_secret),
+        };
         let func = kem.decaps.unwrap();
         let status = unsafe { func(ss.bytes.as_mut_ptr(), ct.bytes.as_ptr(), sk.bytes.as_ptr()) };
         status_to_result(status)?;

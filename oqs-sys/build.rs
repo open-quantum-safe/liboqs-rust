@@ -1,7 +1,3 @@
-use bindgen;
-use cmake;
-use build_deps;
-
 use std::path::PathBuf;
 
 fn generate_bindings(outdir: &PathBuf, headerfile: &str, filter: &str) {

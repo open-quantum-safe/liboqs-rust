@@ -4,9 +4,8 @@ use std::sync::{Arc, Mutex};
 
 use lazy_static::lazy_static;
 
-pub use oqs_sys as ffi;
 use ffi::common::OQS_STATUS;
-
+pub use oqs_sys as ffi;
 
 pub fn init() {
     lazy_static! {
