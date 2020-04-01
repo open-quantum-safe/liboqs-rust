@@ -12,7 +12,7 @@ fn generate_bindings(outdir: &PathBuf, headerfile: &str, filter: &str) {
         // included header files changed.
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
         // Options
-        .default_enum_style(bindgen::EnumVariation::Rust { non_exhaustive: true })
+        .default_enum_style(bindgen::EnumVariation::Rust { non_exhaustive: false })
         .size_t_is_usize(true)
         // Whitelist OQS stuff
         .whitelist_recursively(false)
