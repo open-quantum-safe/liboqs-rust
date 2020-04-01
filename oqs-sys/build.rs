@@ -1,5 +1,5 @@
-use cmake;
 use bindgen;
+use cmake;
 
 use std::path::PathBuf;
 
@@ -7,12 +7,20 @@ fn generate_bindings(outdir: &PathBuf, headerfile: &str, filter: &str) {
     let includedir = outdir.join("build").join("include");
     bindgen::Builder::default()
         .clang_arg(format!("-I{}", includedir.display()))
-        .header(includedir.join("oqs").join(format!("{}.h", headerfile)).to_str().unwrap())
+        .header(
+            includedir
+                .join("oqs")
+                .join(format!("{}.h", headerfile))
+                .to_str()
+                .unwrap(),
+        )
         // Tell cargo to invalidate the built crate whenever any of the
         // included header files changed.
         .parse_callbacks(Box::new(bindgen::CargoCallbacks))
         // Options
-        .default_enum_style(bindgen::EnumVariation::Rust { non_exhaustive: false })
+        .default_enum_style(bindgen::EnumVariation::Rust {
+            non_exhaustive: false,
+        })
         .size_t_is_usize(true)
         // Whitelist OQS stuff
         .whitelist_recursively(false)
@@ -24,15 +32,21 @@ fn generate_bindings(outdir: &PathBuf, headerfile: &str, filter: &str) {
         // Unwrap the Result and panic on failure.
         .expect("Unable to generate bindings")
         .write_to_file(outdir.join(format!("{}_bindings.rs", headerfile)))
-
         .expect("Couldn't write bindings!");
 }
 
 fn main() {
-    let outdir = cmake::Config::new("liboqs")
-        .profile("Optimized")
-        .build_target("oqs")
-        .build();
+    let mut config = cmake::Config::new("liboqs");
+    config.profile("Optimized");
+    config.define(
+        "OQS_USE_OPENSSL",
+        if cfg!(feature = "openssl") {
+            "Yes"
+        } else {
+            "No"
+        },
+    );
+    let outdir = config.build_target("oqs").build();
 
     // lib is put into $outdir/build/lib
     let libdir = outdir.join("build").join("lib");

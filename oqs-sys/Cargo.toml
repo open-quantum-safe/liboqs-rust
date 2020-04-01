@@ -11,3 +11,7 @@ edition = "2018"
 [build-dependencies]
 cmake = "0.1"
 bindgen = "0.53"
+
+[features]
+default = ["openssl"]
+openssl = []
