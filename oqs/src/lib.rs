@@ -9,6 +9,7 @@ pub use oqs_sys as ffi;
 
 mod macros;
 
+/// Initialize liboqs
 pub fn init() {
     lazy_static! {
         static ref OQS_INITIALIZED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));

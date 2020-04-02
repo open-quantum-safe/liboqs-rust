@@ -39,6 +39,7 @@ macro_rules! implement_sigs {
 
                 #[test]
                 fn test_signing() -> Result<()> {
+                    crate::init();
                     let message = [0u8; 100];
                     let sig = Sig::new(Algorithm::$sig)?;
                     let (pk, sk) = sig.keypair()?;
@@ -48,6 +49,7 @@ macro_rules! implement_sigs {
 
                 #[test]
                 fn test_enabled() {
+                    crate::init();
                     assert!(Algorithm::$sig.is_enabled());
                 }
             }

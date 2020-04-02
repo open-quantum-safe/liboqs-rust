@@ -38,6 +38,8 @@ macro_rules! implement_kems {
                 use super::*;
                 #[test]
                 fn test_encaps_decaps() -> Result<()> {
+                    crate::init();
+
                     let alg = Algorithm::$kem;
                     let kem = Kem::new(alg)?;
                     let (pk, sk) = kem.keypair()?;
@@ -49,6 +51,8 @@ macro_rules! implement_kems {
 
                 #[test]
                 fn test_enabled() {
+                    crate::init();
+
                     assert!(Algorithm::$kem.is_enabled());
                 }
             }
