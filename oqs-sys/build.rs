@@ -48,7 +48,10 @@ fn main() {
     println!("cargo:rustc-link-search=native={}", libdir.display());
     println!("cargo:rustc-link-lib=static=oqs");
     let cpufeatures_libdir = outdir.join("build").join("cpu_features-build");
-    println!("cargo:rustc-link-search=native={}", cpufeatures_libdir.display());
+    println!(
+        "cargo:rustc-link-search=native={}",
+        cpufeatures_libdir.display()
+    );
     println!("cargo:rustc-link-lib=static=cpu_features");
     let gen_bindings = |file, filter| generate_bindings(&outdir, file, filter);
 
