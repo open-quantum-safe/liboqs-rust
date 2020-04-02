@@ -1,37 +1,20 @@
 use crate::ffi::kem as ffi;
 use crate::*;
+use std::os::raw;
 use std::ptr::NonNull;
 
-use std::os::raw;
+use crate::newtype_buffer;
 
-macro_rules! newtype_buffer {
-    ($name: ident) => {
-        #[derive(Debug, Clone, PartialEq)]
-        pub struct $name {
-            bytes: Vec<u8>,
-        }
-
-        impl AsRef<[u8]> for $name {
-            fn as_ref(&self) -> &[u8] {
-                self.bytes.as_ref()
-            }
-        }
-
-        impl $name {
-            pub fn len(&self) -> usize {
-                self.bytes.len()
-            }
-        }
-    };
-}
-
-newtype_buffer!(PublicKey);
-newtype_buffer!(SecretKey);
-newtype_buffer!(Ciphertext);
-newtype_buffer!(SharedSecret);
+newtype_buffer!(PublicKey, PublicKeyRef);
+newtype_buffer!(SecretKey, SecretKeyRef);
+newtype_buffer!(Ciphertext, CiphertextRef);
+newtype_buffer!(SharedSecret, SharedSecretRef);
 
 macro_rules! implement_kems {
     { $( $kem: ident: $oqs_id: ident),* $(,)? } => (
+        /// Supported algorithms by OQS
+        ///
+        /// Note that this doesn't mean that they'll be available.
         #[derive(Clone, Copy, Debug)]
         pub enum Algorithm {
             $(
@@ -62,6 +45,11 @@ macro_rules! implement_kems {
                     let ss2 = kem.decapsulate(&sk, &ct)?;
                     assert_eq!(ss1, ss2, "shared secret not equal!");
                     Ok(())
+                }
+
+                #[test]
+                fn test_enabled() {
+                    assert!(Algorithm::$kem.is_enabled());
                 }
             }
         )*
@@ -132,6 +120,27 @@ implement_kems! {
     SikeP751Compressed: OQS_KEM_alg_sike_p751_compressed,
 }
 
+impl std::default::Default for Algorithm {
+    fn default() -> Self {
+        Algorithm::Default
+    }
+}
+
+impl Algorithm {
+    /// Returns true if this algorithm is enabled in the linked version
+    /// of liboqs
+    pub fn is_enabled(self) -> bool {
+        unsafe { ffi::OQS_KEM_alg_is_enabled(algorithm_to_id(self)) == 1 }
+    }
+
+    /// Provides a pointer to the id of the algorithm
+    ///
+    /// For use with the FFI api methods
+    pub fn to_id(self) -> *const raw::c_char {
+        algorithm_to_id(self)
+    }
+}
+
 pub struct Kem {
     kem: NonNull<ffi::OQS_KEM>,
 }
@@ -143,53 +152,91 @@ impl Drop for Kem {
 }
 
 impl Kem {
+    /// Construct a new algorithm
     pub fn new(algorithm: Algorithm) -> Result<Self> {
         let kem = unsafe { ffi::OQS_KEM_new(algorithm_to_id(algorithm)) };
         NonNull::new(kem).map_or_else(|| Err(Error::AlgorithmDisabled), |kem| Ok(Self { kem }))
     }
 
+    /// Get the name of the algorithm
     pub fn name(&self) -> std::borrow::Cow<str> {
         let kem = unsafe { self.kem.as_ref() };
         let cstr = unsafe { std::ffi::CStr::from_ptr(kem.method_name) };
         cstr.to_string_lossy()
     }
 
+    /// Get the version of the implementation
     pub fn version(&self) -> std::borrow::Cow<str> {
         let kem = unsafe { self.kem.as_ref() };
         let cstr = unsafe { std::ffi::CStr::from_ptr(kem.method_name) };
         cstr.to_string_lossy()
     }
 
+    /// Get the claimed nist level
     pub fn claimed_nist_level(&self) -> u8 {
         let kem = unsafe { self.kem.as_ref() };
         kem.claimed_nist_level
     }
 
+    /// Is the algorithm ind_cca secure
     pub fn is_ind_cca(&self) -> bool {
         let kem = unsafe { self.kem.as_ref() };
         kem.ind_cca
     }
 
+    /// Get the length of the public key
     pub fn length_public_key(&self) -> usize {
         let kem = unsafe { self.kem.as_ref() };
         kem.length_public_key
     }
 
+    /// Get the length of the secret key
     pub fn length_secret_key(&self) -> usize {
         let kem = unsafe { self.kem.as_ref() };
         kem.length_secret_key
     }
 
+    /// Get the length of the ciphertext
     pub fn length_ciphertext(&self) -> usize {
         let kem = unsafe { self.kem.as_ref() };
         kem.length_ciphertext
     }
 
+    /// Get the length of a shared secret
     pub fn length_shared_secret(&self) -> usize {
         let kem = unsafe { self.kem.as_ref() };
         kem.length_shared_secret
     }
 
+    /// Obtain a secret key objects from bytes
+    pub fn secret_key_from_bytes<'a>(&self, buf: &'a [u8]) -> SecretKeyRef<'a> {
+        let kem = unsafe { self.kem.as_ref() };
+        assert_eq!(buf.len(), kem.length_secret_key);
+        SecretKeyRef::new(buf)
+    }
+
+    /// Obtain a public key from bytes
+    pub fn public_key_from_bytes<'a>(&self, buf: &'a [u8]) -> PublicKeyRef<'a> {
+        let kem = unsafe { self.kem.as_ref() };
+        assert_eq!(buf.len(), kem.length_public_key);
+        PublicKeyRef::new(buf)
+    }
+
+    /// Obtain a ciphertext from bytes
+    pub fn ciphertext_from_bytes<'a>(&self, buf: &'a [u8]) -> CiphertextRef<'a> {
+        let kem = unsafe { self.kem.as_ref() };
+        assert_eq!(buf.len(), kem.length_ciphertext);
+        CiphertextRef::new(buf)
+    }
+
+    /// Obtain a secret key from bytes
+    pub fn shared_secret_from_bytes<'a>(&self, buf: &'a [u8]) -> SharedSecretRef<'a> {
+        let kem = unsafe { self.kem.as_ref() };
+        assert_eq!(buf.len(), kem.length_shared_secret);
+        SharedSecretRef::new(buf)
+    }
+
+    /// Generate a new keypair
     pub fn keypair(&self) -> Result<(PublicKey, SecretKey)> {
         let kem = unsafe { self.kem.as_ref() };
         let func = kem.keypair.unwrap();
@@ -209,9 +256,14 @@ impl Kem {
         Ok((pk, sk))
     }
 
-    pub fn encapsulate(&self, pk: &PublicKey) -> Result<(Ciphertext, SharedSecret)> {
+    /// Encapsulate to the provided public key
+    pub fn encapsulate<'a, P: Into<PublicKeyRef<'a>>>(
+        &self,
+        pk: P,
+    ) -> Result<(Ciphertext, SharedSecret)> {
+        let pk = pk.into();
         let kem = unsafe { self.kem.as_ref() };
-        assert_eq!(pk.len(), kem.length_public_key);
+        debug_assert_eq!(pk.len(), kem.length_public_key);
         let func = kem.encaps.unwrap();
         let mut ct = Ciphertext {
             bytes: Vec::with_capacity(kem.length_ciphertext),
@@ -234,10 +286,17 @@ impl Kem {
         Ok((ct, ss))
     }
 
-    pub fn decapsulate(&self, sk: &SecretKey, ct: &Ciphertext) -> Result<SharedSecret> {
+    /// Decapsulate the provided ciphertext
+    pub fn decapsulate<'a, 'b, S: Into<SecretKeyRef<'a>>, C: Into<CiphertextRef<'b>>>(
+        &self,
+        sk: S,
+        ct: C,
+    ) -> Result<SharedSecret> {
         let kem = unsafe { self.kem.as_ref() };
-        assert_eq!(sk.len(), kem.length_secret_key);
-        assert_eq!(ct.len(), kem.length_ciphertext);
+        let sk = sk.into();
+        let ct = ct.into();
+        debug_assert_eq!(sk.len(), kem.length_secret_key);
+        debug_assert_eq!(ct.len(), kem.length_ciphertext);
         let mut ss = SharedSecret {
             bytes: Vec::with_capacity(kem.length_shared_secret),
         };

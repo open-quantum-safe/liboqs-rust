@@ -7,6 +7,8 @@ use lazy_static::lazy_static;
 use ffi::common::OQS_STATUS;
 pub use oqs_sys as ffi;
 
+mod macros;
+
 pub fn init() {
     lazy_static! {
         static ref OQS_INITIALIZED: Arc<Mutex<bool>> = Arc::new(Mutex::new(false));
@@ -27,6 +29,7 @@ pub enum Error {
 }
 impl std::error::Error for Error {}
 
+#[must_use]
 pub type Result<T> = std::result::Result<T, Error>;
 
 impl std::fmt::Display for Error {
@@ -47,3 +50,4 @@ fn status_to_result(status: OQS_STATUS) -> Result<()> {
 }
 
 pub mod kem;
+pub mod sig;
