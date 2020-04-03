@@ -286,7 +286,12 @@ impl Sig {
     }
 
     /// Verify a message
-    pub fn verify<'a, 'b>(&self, message: &Message, signature: impl Into<SignatureRef<'a>>, pk: impl Into<PublicKeyRef<'b>>) -> Result<()> {
+    pub fn verify<'a, 'b>(
+        &self,
+        message: &Message,
+        signature: impl Into<SignatureRef<'a>>,
+        pk: impl Into<PublicKeyRef<'b>>,
+    ) -> Result<()> {
         let signature = signature.into();
         let pk = pk.into();
         let sig = unsafe { self.sig.as_ref() };

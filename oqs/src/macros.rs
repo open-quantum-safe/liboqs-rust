@@ -37,7 +37,7 @@ macro_rules! newtype_buffer {
             }
         }
 
-        impl <'a> From<&'a $name_ref<'a>> for $name_ref<'a> {
+        impl<'a> From<&'a $name_ref<'a>> for $name_ref<'a> {
             fn from(buf: &'a $name_ref) -> $name_ref<'a> {
                 *buf
             }
