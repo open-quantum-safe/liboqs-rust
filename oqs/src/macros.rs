@@ -10,7 +10,7 @@ macro_rules! newtype_buffer {
 
         impl $name {
             /// Obtain the contained vector
-            pub fn to_vec(self) -> Vec<u8> {
+            pub fn into_vec(self) -> Vec<u8> {
                 self.bytes
             }
         }
@@ -79,10 +79,10 @@ mod test {
     }
 
     #[test]
-    fn test_to_vec() {
+    fn test_into_vec() {
         let buf = TestBuf {
             bytes: vec![1, 2, 3],
         };
-        assert_eq!(buf.to_vec(), vec![1, 2, 3]);
+        assert_eq!(buf.into_vec(), vec![1, 2, 3]);
     }
 }
