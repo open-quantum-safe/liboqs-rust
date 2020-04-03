@@ -19,6 +19,7 @@ macro_rules! newtype_buffer {
         ///
         /// Allows for copy-less usage
         /// Construct it through the algorithm API functions
+        #[derive(Debug, Clone, Copy, PartialEq)]
         pub struct $name_ref<'a> {
             bytes: &'a [u8],
         }
@@ -33,6 +34,12 @@ macro_rules! newtype_buffer {
         impl<'a> From<&'a $name> for $name_ref<'a> {
             fn from(buf: &'a $name) -> $name_ref<'a> {
                 $name_ref::new(&buf.bytes)
+            }
+        }
+
+        impl <'a> From<&'a $name_ref<'a>> for $name_ref<'a> {
+            fn from(buf: &'a $name_ref) -> $name_ref<'a> {
+                *buf
             }
         }
 
