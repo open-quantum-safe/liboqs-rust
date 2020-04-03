@@ -1,3 +1,6 @@
+//! KEM API
+//!
+//! See [`Kem`] for the main functionality
 use crate::ffi::kem as ffi;
 use crate::*;
 use std::os::raw;
@@ -16,6 +19,7 @@ macro_rules! implement_kems {
         ///
         /// Note that this doesn't mean that they'll be available.
         #[derive(Clone, Copy, Debug)]
+        #[allow(missing_docs)]
         pub enum Algorithm {
             $(
                 $kem,
@@ -145,9 +149,12 @@ impl Algorithm {
     }
 }
 
+/// Contains a KEM algorithm
 pub struct Kem {
     kem: NonNull<ffi::OQS_KEM>,
 }
+
+unsafe impl Sync for Kem {}
 
 impl Drop for Kem {
     fn drop(&mut self) {

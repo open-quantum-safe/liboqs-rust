@@ -8,9 +8,6 @@ repository = "https://github.com/thomwiggers/oqs-rs"
 license = "MIT or Apache-2.0"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
-lazy_static = "1"
-
 [dependencies.oqs-sys]
 path = "../oqs-sys"
 version = "0.1.0"

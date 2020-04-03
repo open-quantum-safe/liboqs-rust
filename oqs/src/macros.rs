@@ -1,9 +1,18 @@
+/// Implements a buffer for cryptographic objects
 #[macro_export]
 macro_rules! newtype_buffer {
     ($name: ident, $name_ref: ident) => {
+        /// New owned buffer
         #[derive(Debug, Clone, PartialEq)]
         pub struct $name {
             bytes: Vec<u8>,
+        }
+
+        impl $name {
+            /// Obtain the contained vector
+            pub fn to_vec(self) -> Vec<u8> {
+                self.bytes
+            }
         }
 
         /// Reference version of this type.
@@ -67,5 +76,11 @@ mod test {
             bytes: vec![1, 2, 3],
         };
         assert_eq!(buf.len(), buf.bytes.len());
+    }
+
+    #[test]
+    fn test_to_vec() {
+        let buf = TestBuf { bytes: vec![1, 2, 3] };
+        assert_eq!(buf.to_vec(), vec![1, 2, 3]);
     }
 }

@@ -1,3 +1,8 @@
+//! Signature API
+//!
+//! See [`Sig`] for the main functionality
+
+
 use crate::ffi::sig as ffi;
 use crate::*;
 use std::os::raw;
@@ -9,6 +14,7 @@ newtype_buffer!(PublicKey, PublicKeyRef);
 newtype_buffer!(SecretKey, SecretKeyRef);
 newtype_buffer!(Signature, SignatureRef);
 
+/// Message type
 pub type Message = [u8];
 
 macro_rules! implement_sigs {
@@ -16,6 +22,7 @@ macro_rules! implement_sigs {
         /// Supported algorithms by liboqs
         /// They may not all be enabled
         #[derive(Clone, Copy, Debug)]
+        #[allow(missing_docs)]
         pub enum Algorithm {
             $(
                 $sig,
