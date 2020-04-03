@@ -80,7 +80,9 @@ mod test {
 
     #[test]
     fn test_to_vec() {
-        let buf = TestBuf { bytes: vec![1, 2, 3] };
+        let buf = TestBuf {
+            bytes: vec![1, 2, 3],
+        };
         assert_eq!(buf.to_vec(), vec![1, 2, 3]);
     }
 }

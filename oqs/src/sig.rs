@@ -2,7 +2,6 @@
 //!
 //! See [`Sig`] for the main functionality
 
-
 use crate::ffi::sig as ffi;
 use crate::*;
 use std::os::raw;
