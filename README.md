@@ -10,7 +10,7 @@ Safe wrappers are offered via the `oqs` crate.
 
 1. Update the Git submodule
 1. `oqs-sys` will now update when you build again
-1. Add it to the ``implement_kems!`` macro call in ``oqs/src/kems.rs``
+1. Add it to the ``implement_kems!`` macro call in ``oqs/src/kem.rs``
 
 ### Signature schemes:
 
