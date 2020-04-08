@@ -16,7 +16,7 @@ Safe wrappers are offered via the `oqs` crate.
 
 1. Update the Git submodule
 1. `oqs-sys` is now up-to-date when you build again
-1. Add it to ``implement_sigs!`` macro call in ``oqs/src/sigs.rs``.
+1. Add it to ``implement_sigs!`` macro call in ``oqs/src/sig.rs``.
 
 [oqs]: https://openquantumsafe.org
 [liboqs]: https://github.com/Open-Quantum-Safe/liboqs
