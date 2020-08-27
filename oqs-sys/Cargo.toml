@@ -14,7 +14,7 @@ license = "MIT or Apache-2.0"
 
 [build-dependencies]
 cmake = "0.1"
-bindgen = "0.53"
+bindgen = "0.55"
 build-deps = "0.1"
 
 [features]
