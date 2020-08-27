@@ -27,7 +27,7 @@ macro_rules! newtype_buffer {
         impl<'a> $name_ref<'a> {
             /// Construct a new container around this reference version
             fn new(bytes: &'a [u8]) -> $name_ref<'a> {
-                $name_ref { bytes: bytes }
+                $name_ref { bytes }
             }
         }
 
