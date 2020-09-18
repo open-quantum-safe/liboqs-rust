@@ -77,4 +77,4 @@ We'd like to make a special acknowledgement to the companies who have dedicated 
 
 Research projects which developed specific components of OQS have been supported by various research grants, including funding from the Natural Sciences and Engineering Research Council of Canada (NSERC); see the source papers for funding acknowledgments.
 
-<span style="color: red;">TODO: Thom, your/Peter's grants?</span>
+Thom Wiggers was supported by the European Research Council through Starting Grant No. 805031 (EPOQUE).
