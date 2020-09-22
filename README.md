@@ -5,12 +5,14 @@ liboqs-rust: Rust bindings for liboqs
 
 **liboqs-rust** offers two Rust wrappers for the [Open Quantum Safe](https://openquantumsafe.org/) [liboqs](https://github.com/open-quantum-safe/liboqs/) C library, which is a C library for quantum-resistant cryptographic algorithms.
 
+* The ``oqs-rs`` crate compiles and builds ``liboqs`` and generates ``unsafe`` bindings to the C library.
+* The ``oqs`` crate offers a Rust-style safe interface to the schemes included in ``liboqs``.
+
 Pre-requisites
 --------------
 
-liboqs-rust depends on the [liboqs](https://github.com/open-quantum-safe/liboqs) C library; liboqs must first be compiled as a Linux/macOS/Windows library (i.e. using `ninja install` with `-DBUILD_SHARED_LIBS=ON` during configuration), see the specific platform building instructions below.
-
-<span style="color: red;">TODO: Check?</span>
+``oqs-sys`` depends on the [liboqs](https://github.com/open-quantum-safe/liboqs) C library.
+It will build ``liboqs`` automatically.
 
 Contents
 --------
@@ -20,12 +22,52 @@ This crate provides unsafe `ffi` bindings in the `oqs-sys` crate, and safe wrapp
 Usage
 -----
 
-<span style="color: red;">TODO</span>
+Update your ``Cargo.toml`` and include ``oqs``:
+
+```toml
+[dependencies]
+oqs = { git = "https://github.com/Open-Quantum-Safe/liboqs-rs" }
+```
+
+``oqs-sys`` can be specified equivalently.
 
 Running
 -------
 
-<span style="color: red;">TODO</span>
+```rust
+/// # Example: Some signed KEX
+/// This protocol has no replay protection!
+///
+use oqs::*;
+fn main() -> Result<()> {
+    let sigalg = sig::Sig::new(sig::Algorithm::Dilithium2)?;
+    let kemalg = kem::Kem::new(kem::Algorithm::Kyber512)?;
+    // A's long-term secrets
+    let (a_sig_pk, a_sig_sk) = sigalg.keypair()?;
+    // B's long-term secrets
+    let (b_sig_pk, b_sig_sk) = sigalg.keypair()?;
+
+    // assumption: A has (a_sig_sk, a_sig_pk, b_sig_pk)
+    // assumption: B has (b_sig_sk, b_sig_pk, a_sig_pk)
+
+    // A -> B: kem_pk, signature
+    let (kem_pk, kem_sk) = kemalg.keypair()?;
+    let signature = sigalg.sign(kem_pk.as_ref(), &a_sig_sk)?;
+
+    // B -> A: kem_ct, signature
+    sigalg.verify(kem_pk.as_ref(), &signature, &a_sig_pk)?;
+    let (kem_ct, b_kem_ss) = kemalg.encapsulate(&kem_pk)?;
+    let signature = sigalg.sign(kem_ct.as_ref(), &b_sig_sk)?;
+
+    // A verifies, decapsulates, now both have kem_ss
+    sigalg.verify(kem_ct.as_ref(), &signature, &b_sig_pk)?;
+    let a_kem_ss = kemalg.decapsulate(&kem_sk, &kem_ct)?;
+    assert_eq!(a_kem_ss, b_kem_ss);
+
+    Ok(())
+}
+```
+
 
 Adding new algorithms
 ---------------------
@@ -58,9 +100,9 @@ Just like liboqs, liboqs-rust is provided "as is", without warranty of any kind.
 License
 -------
 
-<span style="color: red;">TODO: Is this the correct license, Thom?</span>
+liboqs-rust is dual-licensed under the MIT and Apache-2.0 licenses.
 
-liboqs-rust is licensed under the MIT License; see [LICENSE.txt](https://github.com/open-quantum-safe/liboqs-rust/blob/master/LICENSE.txt) for details.
+The included library ``liboqs`` is covered by the [``liboqs`` license](https://github.com/open-quantum-safe/liboqs/blob/master/LICENSE.txt).
 
 Team
 ----
