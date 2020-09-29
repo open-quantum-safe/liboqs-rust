@@ -72,7 +72,6 @@ pub enum Error {
 impl std::error::Error for Error {}
 
 /// Result type for operations that may fail
-#[must_use]
 pub type Result<T> = std::result::Result<T, Error>;
 
 impl std::fmt::Display for Error {
