@@ -52,13 +52,10 @@ mod macros;
 ///
 /// This method is thread-safe and can be called more than once.
 pub fn init() {
-    static mut INIT: Once = Once::new();
-    // Unsafe is necessary for mutually accessing static var INIT
-    unsafe {
-        INIT.call_once(|| {
-            ffi::common::OQS_init();
-        });
-    }
+    static INIT: Once = Once::new();
+    INIT.call_once(|| {
+        unsafe { ffi::common::OQS_init() };
+    });
 }
 
 #[derive(Debug)]
