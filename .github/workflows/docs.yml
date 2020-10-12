@@ -34,10 +34,11 @@ jobs:
 
       - name: Deploy documentation
         if: success()
-        uses: crazy-max/ghaction-github-pages@v1
+        uses: crazy-max/ghaction-github-pages@v2
         with:
           build_dir: target/doc
+          target_branch: gh-pages
         env:
-          GITHUB_PAT: ${{ secrets.THOM_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 #  vim: set ft=yaml ts=2 sw=2 tw=0 et :
