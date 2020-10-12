@@ -1,7 +1,7 @@
 liboqs-rust: Rust bindings for liboqs
 =====================================
 
-[![Build status](https://github.com/dstebila/oqs-rs/workflows/Continuous%20integration/badge.svg)](https://github.com/dstebila/oqs-rs/actions?query=workflow%3A"Continuous+integration")
+[![Build status](https://github.com/open-quantum-safe/oqs-rs/workflows/Continuous%20integration/badge.svg)](https://github.com/open-quantum-safe/oqs-rs/actions?query=workflow%3A"Continuous+integration")
 
 **liboqs-rust** offers two Rust wrappers for the [Open Quantum Safe](https://openquantumsafe.org/) [liboqs](https://github.com/open-quantum-safe/liboqs/) C library, which is a C library for quantum-resistant cryptographic algorithms.
 
