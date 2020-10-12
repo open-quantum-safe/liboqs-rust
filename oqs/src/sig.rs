@@ -10,8 +10,7 @@ use std::ptr::NonNull;
 use crate::newtype_buffer;
 
 #[cfg(feature = "serde")]
-use serde::{Serialize, Deserialize};
-
+use serde::{Deserialize, Serialize};
 
 newtype_buffer!(PublicKey, PublicKeyRef);
 newtype_buffer!(SecretKey, SecretKeyRef);

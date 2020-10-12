@@ -4,7 +4,6 @@
 #[macro_export]
 macro_rules! newtype_buffer {
     ($name: ident, $name_ref: ident) => {
-
         /// New owned buffer
         ///
         /// Optional support for `serde` if that feature is enabled.

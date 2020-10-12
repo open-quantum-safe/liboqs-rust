@@ -7,7 +7,7 @@ use std::os::raw;
 use std::ptr::NonNull;
 
 #[cfg(feature = "serde")]
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::newtype_buffer;
 
