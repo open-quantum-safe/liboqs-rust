@@ -1,9 +1,15 @@
+//! Defines macros to implement buffers for public/private keys
+
 /// Implements a buffer for cryptographic objects
 #[macro_export]
 macro_rules! newtype_buffer {
     ($name: ident, $name_ref: ident) => {
+
         /// New owned buffer
+        ///
+        /// Optional support for `serde` if that feature is enabled.
         #[derive(Debug, Clone, PartialEq)]
+        #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
         pub struct $name {
             bytes: Vec<u8>,
         }

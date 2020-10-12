@@ -9,6 +9,10 @@ use std::ptr::NonNull;
 
 use crate::newtype_buffer;
 
+#[cfg(feature = "serde")]
+use serde::{Serialize, Deserialize};
+
+
 newtype_buffer!(PublicKey, PublicKeyRef);
 newtype_buffer!(SecretKey, SecretKeyRef);
 newtype_buffer!(Signature, SignatureRef);
@@ -19,8 +23,12 @@ pub type Message = [u8];
 macro_rules! implement_sigs {
     { $( $sig: ident: $oqs_id: ident),* $(,)? } => (
         /// Supported algorithms by liboqs
+        ///
         /// They may not all be enabled
+        ///
+        /// Optional support for `serde` if that feature is enabled.
         #[derive(Clone, Copy, Debug)]
+        #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
         #[allow(missing_docs)]
         pub enum Algorithm {
             $(
