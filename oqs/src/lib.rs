@@ -9,6 +9,7 @@
 //! ```
 //! use oqs::*;
 //! fn main() -> Result<()> {
+//!     oqs::init(); // Important: initialize liboqs
 //!     let sigalg = sig::Sig::new(sig::Algorithm::Dilithium2)?;
 //!     let kemalg = kem::Kem::new(kem::Algorithm::Kyber512)?;
 //!     // A's long-term secrets
