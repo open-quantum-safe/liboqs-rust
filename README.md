@@ -1,7 +1,7 @@
 liboqs-rust: Rust bindings for liboqs
 =====================================
 
-[![Build status](https://github.com/open-quantum-safe/oqs-rs/workflows/Continuous%20integration/badge.svg)](https://github.com/open-quantum-safe/oqs-rs/actions?query=workflow%3A"Continuous+integration")
+[![Build status](https://github.com/open-quantum-safe/liboqs-rust/workflows/Continuous%20integration/badge.svg)](https://github.com/open-quantum-safe/liboqs-rust/actions?query=workflow%3A"Continuous+integration")
 
 **liboqs-rust** offers two Rust wrappers for the [Open Quantum Safe](https://openquantumsafe.org/) [liboqs](https://github.com/open-quantum-safe/liboqs/) C library, which is a C library for quantum-resistant cryptographic algorithms.
 
@@ -18,7 +18,7 @@ Contents
 --------
 
 This crate provides unsafe `ffi` bindings in the `oqs-sys` crate, and safe wrappers are offered via the `oqs` crate.
-The rendered rustdoc documentation can be [found here](https://open-quantum-safe.github.io/liboqs-rust/)
+The rendered rustdoc documentation can be [found here](https://open-quantum-safe.github.io/liboqs-rust/oqs/)
 
 Usage
 -----
@@ -27,7 +27,7 @@ Update your ``Cargo.toml`` and include ``oqs``:
 
 ```toml
 [dependencies]
-oqs = { git = "https://github.com/Open-Quantum-Safe/liboqs-rs" }
+oqs = { git = "https://github.com/Open-Quantum-Safe/liboqs-rust" }
 ```
 
 ``oqs-sys`` can be specified equivalently.
