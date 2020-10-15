@@ -54,6 +54,6 @@ fn main() {
     gen_bindings("sig", "OQS_SIG.*");
 
     // https://docs.rs/build-deps/0.1.4/build_deps/fn.rerun_if_changed_paths.html
-    build_deps::rerun_if_changed_paths("liboqs/**").unwrap();
+    build_deps::rerun_if_changed_paths("liboqs/src/**").unwrap();
     build_deps::rerun_if_changed_paths("liboqs").unwrap();
 }
