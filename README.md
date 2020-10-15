@@ -18,6 +18,7 @@ Contents
 --------
 
 This crate provides unsafe `ffi` bindings in the `oqs-sys` crate, and safe wrappers are offered via the `oqs` crate.
+The rendered rustdoc documentation can be [found here](https://open-quantum-safe.github.io/liboqs-rust/)
 
 Usage
 -----
