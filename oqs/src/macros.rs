@@ -73,6 +73,7 @@ macro_rules! newtype_buffer {
 #[cfg(test)]
 mod test {
     use alloc::vec::Vec;
+    use alloc::vec;
 
     #[cfg(feature = "serde")]
     use serde::{Deserialize, Serialize};
