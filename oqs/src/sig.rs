@@ -1,13 +1,19 @@
 //! Signature API
 //!
 //! See [`Sig`] for the main functionality
+use alloc::borrow;
+use alloc::vec::Vec;
+
+use core::ptr::NonNull;
+
+#[cfg(feature = "no_std")]
+use cstr_core::CStr;
+#[cfg(not(feature = "no_std"))]
+use std::ffi::CStr;
 
 use crate::ffi::sig as ffi;
-use crate::*;
-use std::os::raw;
-use std::ptr::NonNull;
-
 use crate::newtype_buffer;
+use crate::*;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -35,7 +41,7 @@ macro_rules! implement_sigs {
             )*
         }
 
-        fn algorithm_to_id(algorithm: Algorithm) -> *const raw::c_char {
+        fn algorithm_to_id(algorithm: Algorithm) -> *const libc::c_char {
             let id: &[u8] = match algorithm {
                 $(
                     Algorithm::$sig => &ffi::$oqs_id[..],
@@ -136,7 +142,7 @@ implement_sigs! {
     SphincsShake256256sSimple: OQS_SIG_alg_sphincs_shake256_256s_simple,
 }
 
-impl std::default::Default for Algorithm {
+impl core::default::Default for Algorithm {
     fn default() -> Self {
         Algorithm::Default
     }
@@ -152,7 +158,7 @@ impl Algorithm {
     /// Provides a pointer to the id of the algorithm
     ///
     /// For use with the FFI api methods
-    pub fn to_id(self) -> *const raw::c_char {
+    pub fn to_id(self) -> *const libc::c_char {
         algorithm_to_id(self)
     }
 }
@@ -178,16 +184,16 @@ impl Sig {
     }
 
     /// Get the name of this signature algorithm
-    pub fn name(&self) -> std::borrow::Cow<str> {
+    pub fn name(&self) -> borrow::Cow<str> {
         let sig = unsafe { self.sig.as_ref() };
-        let cstr = unsafe { std::ffi::CStr::from_ptr(sig.method_name) };
+        let cstr = unsafe { CStr::from_ptr(sig.method_name) };
         cstr.to_string_lossy()
     }
 
     /// Version of this implementation
-    pub fn version(&self) -> std::borrow::Cow<str> {
+    pub fn version(&self) -> borrow::Cow<str> {
         let sig = unsafe { self.sig.as_ref() };
-        let cstr = unsafe { std::ffi::CStr::from_ptr(sig.method_name) };
+        let cstr = unsafe { CStr::from_ptr(sig.method_name) };
         cstr.to_string_lossy()
     }
 

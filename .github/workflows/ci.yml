@@ -41,6 +41,16 @@ jobs:
 
       - uses: actions-rs/cargo@v1
         with:
+          command: test
+          args: --no-default-features --features serde --manifest-path oqs/Cargo.toml
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --no-default-features --features no_std,serde --manifest-path oqs/Cargo.toml
+
+      - uses: actions-rs/cargo@v1
+        with:
           command: fmt
           args: --all -- --check
 

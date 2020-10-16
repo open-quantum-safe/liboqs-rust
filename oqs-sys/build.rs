@@ -24,6 +24,9 @@ fn generate_bindings(outdir: &PathBuf, headerfile: &str, filter: &str) {
         .whitelist_type(filter)
         .whitelist_function(filter)
         .whitelist_var(filter)
+        // Use core and libc
+        .use_core()
+        .ctypes_prefix("::libc")
         // Finish the builder and generate the bindings.
         .generate()
         // Unwrap the Result and panic on failure.

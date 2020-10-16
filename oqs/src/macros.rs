@@ -48,7 +48,7 @@ macro_rules! newtype_buffer {
             }
         }
 
-        impl<'a> std::ops::Deref for $name_ref<'a> {
+        impl<'a> core::ops::Deref for $name_ref<'a> {
             type Target = [u8];
             fn deref(&self) -> &Self::Target {
                 &self.bytes
@@ -72,6 +72,11 @@ macro_rules! newtype_buffer {
 
 #[cfg(test)]
 mod test {
+    use alloc::vec::Vec;
+
+    #[cfg(feature = "serde")]
+    use serde::{Deserialize, Serialize};
+
     newtype_buffer!(TestBuf, TestBufRef);
 
     #[test]

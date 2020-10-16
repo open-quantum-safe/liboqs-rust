@@ -32,6 +32,16 @@ oqs = "0.2"
 
 ``oqs-sys`` can be specified equivalently.
 
+`no_std` support
+----------------
+
+The ``oqs-sys`` crate does not use `std` at all.
+Note that the default features do enable building liboqs with ``openssl``, so use ``default-features = false``.
+
+For ``no_std`` suport in the ``oqs`` crate, enable the ``no_std`` feature.
+Make sure to also disable the ``oqs-sys/openssl`` feature by specifying ``default-features = false``.
+
+
 Running
 -------
 

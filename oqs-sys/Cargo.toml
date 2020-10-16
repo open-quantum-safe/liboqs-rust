@@ -15,6 +15,7 @@ exclude = ["liboqs/tests/**", "liboqs/docs/**", "liboqs/scripts/**", "build/**/*
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+libc = "0.2"
 
 [build-dependencies]
 cmake = "0.1"
