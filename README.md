@@ -27,7 +27,7 @@ Update your ``Cargo.toml`` and include ``oqs``:
 
 ```toml
 [dependencies]
-oqs = { git = "https://github.com/Open-Quantum-Safe/liboqs-rust" }
+oqs = "0.2"
 ```
 
 ``oqs-sys`` can be specified equivalently.
