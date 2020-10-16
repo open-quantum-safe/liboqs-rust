@@ -32,6 +32,11 @@ oqs = "0.2"
 
 ``oqs-sys`` can be specified equivalently.
 
+Serde support
+-------------
+
+You can enable ``serde`` serialization support by enabling the ``serde`` feature on the ``oqs`` rcate.
+
 `no_std` support
 ----------------
 
