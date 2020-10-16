@@ -35,6 +35,7 @@ fn generate_bindings(outdir: &PathBuf, headerfile: &str, filter: &str) {
 fn main() {
     let mut config = cmake::Config::new("liboqs");
     config.profile("Release");
+    config.define("OQS_BUILD_ONLY_LIB", "Yes");
     if cfg!(feature = "openssl") {
         config.define("OQS_USE_OPENSSL", "Yes");
         println!("cargo:rustc-link-lib=crypto");
@@ -54,6 +55,6 @@ fn main() {
     gen_bindings("sig", "OQS_SIG.*");
 
     // https://docs.rs/build-deps/0.1.4/build_deps/fn.rerun_if_changed_paths.html
-    build_deps::rerun_if_changed_paths("liboqs/**").unwrap();
+    build_deps::rerun_if_changed_paths("liboqs/src/**").unwrap();
     build_deps::rerun_if_changed_paths("liboqs").unwrap();
 }
