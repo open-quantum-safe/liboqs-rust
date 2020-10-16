@@ -6,6 +6,9 @@ use crate::*;
 use std::os::raw;
 use std::ptr::NonNull;
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 use crate::newtype_buffer;
 
 newtype_buffer!(PublicKey, PublicKeyRef);
@@ -15,10 +18,14 @@ newtype_buffer!(SharedSecret, SharedSecretRef);
 
 macro_rules! implement_kems {
     { $( $kem: ident: $oqs_id: ident),* $(,)? } => (
+
         /// Supported algorithms by OQS
         ///
         /// Note that this doesn't mean that they'll be available.
+        ///
+        /// Optional support for `serde` if that feature is enabled.
         #[derive(Clone, Copy, Debug)]
+        #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
         #[allow(missing_docs)]
         pub enum Algorithm {
             $(
