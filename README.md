@@ -5,7 +5,7 @@ liboqs-rust: Rust bindings for liboqs
 
 **liboqs-rust** offers two Rust wrappers for the [Open Quantum Safe](https://openquantumsafe.org/) [liboqs](https://github.com/open-quantum-safe/liboqs/) C library, which is a C library for quantum-resistant cryptographic algorithms.
 
-* The ``oqs-rs`` crate compiles and builds ``liboqs`` and generates ``unsafe`` bindings to the C library.
+* The ``oqs-sys`` crate compiles and builds ``liboqs`` and generates ``unsafe`` bindings to the C library.
 * The ``oqs`` crate offers a Rust-style safe interface to the schemes included in ``liboqs``.
 
 Pre-requisites
