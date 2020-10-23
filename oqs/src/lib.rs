@@ -1,4 +1,5 @@
 #![warn(missing_docs)]
+#![cfg_attr(feature = "no_std", no_std)]
 //! Friendly bindings to liboqs
 //!
 //! See the [`kem::Kem`] and [`sig::Sig`] structs for how to use this crate.
@@ -37,7 +38,10 @@
 //!     Ok(())
 //! }
 //! ```
+// needs to be imported to be made available
+extern crate alloc;
 
+#[cfg(not(feature = "no_std"))]
 use std::sync::Once;
 
 use ffi::common::OQS_STATUS;
@@ -51,12 +55,24 @@ mod macros;
 ///
 /// Make sure to call this before you use any of the functions.
 ///
-/// This method is thread-safe and can be called more than once.
+/// When the `no_std` feature is not enabled, this method is thread-safe
+/// and can be called more than once.
+#[cfg(not(feature = "no_std"))]
 pub fn init() {
     static INIT: Once = Once::new();
     INIT.call_once(|| {
         unsafe { ffi::common::OQS_init() };
     });
+}
+
+/// Initialize liboqs
+///
+/// Needs to be called before you use any of the functions.
+///
+/// This no_std variant is not thread-safe.
+#[cfg(feature = "no_std")]
+pub fn init() {
+    unsafe { ffi::common::OQS_init() };
 }
 
 #[derive(Debug)]
@@ -70,13 +86,14 @@ pub enum Error {
     /// Error occurred in OpenSSL functions external to liboqs
     ErrorExternalOpenSSL,
 }
+#[cfg(not(feature = "no_std"))]
 impl std::error::Error for Error {}
 
 /// Result type for operations that may fail
-pub type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = core::result::Result<T, Error>;
 
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for Error {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             Error::AlgorithmDisabled => write!(f, "Algorithm has been disabled"),
             _ => write!(f, "OQS Error!"),

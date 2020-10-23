@@ -1,15 +1,22 @@
 //! KEM API
 //!
 //! See [`Kem`] for the main functionality
-use crate::ffi::kem as ffi;
-use crate::*;
-use std::os::raw;
-use std::ptr::NonNull;
+use alloc::borrow;
+use alloc::vec::Vec;
+
+use core::ptr::NonNull;
+
+#[cfg(feature = "no_std")]
+use cstr_core::CStr;
+#[cfg(not(feature = "no_std"))]
+use std::ffi::CStr;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
+use crate::ffi::kem as ffi;
 use crate::newtype_buffer;
+use crate::*;
 
 newtype_buffer!(PublicKey, PublicKeyRef);
 newtype_buffer!(SecretKey, SecretKeyRef);
@@ -33,7 +40,7 @@ macro_rules! implement_kems {
             )*
         }
 
-        fn algorithm_to_id(algorithm: Algorithm) -> *const raw::c_char {
+        fn algorithm_to_id(algorithm: Algorithm) -> *const libc::c_char {
             let id: &[u8] = match algorithm {
                 $(
                     Algorithm::$kem => &ffi::$oqs_id[..],
@@ -130,7 +137,7 @@ implement_kems! {
     SikeP751Compressed: OQS_KEM_alg_sike_p751_compressed,
 }
 
-impl std::default::Default for Algorithm {
+impl core::default::Default for Algorithm {
     fn default() -> Self {
         Algorithm::Default
     }
@@ -146,7 +153,7 @@ impl Algorithm {
     /// Provides a pointer to the id of the algorithm
     ///
     /// For use with the FFI api methods
-    pub fn to_id(self) -> *const raw::c_char {
+    pub fn to_id(self) -> *const libc::c_char {
         algorithm_to_id(self)
     }
 }
@@ -172,16 +179,16 @@ impl Kem {
     }
 
     /// Get the name of the algorithm
-    pub fn name(&self) -> std::borrow::Cow<str> {
+    pub fn name(&self) -> borrow::Cow<str> {
         let kem = unsafe { self.kem.as_ref() };
-        let cstr = unsafe { std::ffi::CStr::from_ptr(kem.method_name) };
+        let cstr = unsafe { CStr::from_ptr(kem.method_name) };
         cstr.to_string_lossy()
     }
 
     /// Get the version of the implementation
-    pub fn version(&self) -> std::borrow::Cow<str> {
+    pub fn version(&self) -> borrow::Cow<str> {
         let kem = unsafe { self.kem.as_ref() };
-        let cstr = unsafe { std::ffi::CStr::from_ptr(kem.method_name) };
+        let cstr = unsafe { CStr::from_ptr(kem.method_name) };
         cstr.to_string_lossy()
     }
 

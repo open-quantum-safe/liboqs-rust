@@ -9,9 +9,10 @@ repository = "https://github.com/open-quantum-safe/liboqs-rust"
 license = "MIT OR Apache-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-serde = { version = "1.0", optional = true, features = ["derive"] }
+libc = "0.2"
+cstr_core = { version = "0.2", default-features = false, features = ["alloc"], optional = true }
+serde = { version = "1.0", optional = true, default-features = false, features = ["derive", "alloc"] }
 
 [dependencies.oqs-sys]
 path = "../oqs-sys"
@@ -19,4 +20,5 @@ version = "0.2.0"
 default-features = false
 
 [features]
+no_std = ["cstr_core"]
 default = ["oqs-sys/openssl"]
