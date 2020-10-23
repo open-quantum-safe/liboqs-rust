@@ -55,7 +55,7 @@ mod macros;
 ///
 /// Make sure to call this before you use any of the functions.
 ///
-/// When the default `std` method is enabled, this method is thread-safe
+/// When the `no_std` feature is not enabled, this method is thread-safe
 /// and can be called more than once.
 #[cfg(not(feature = "no_std"))]
 pub fn init() {
