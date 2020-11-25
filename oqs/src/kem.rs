@@ -158,16 +158,44 @@ impl Algorithm {
     }
 }
 
-/// Contains a KEM algorithm
+/// KEM algorithm
+///
+/// # Example
+/// ```rust
+/// use oqs;
+/// oqs::init();
+/// let kem = oqs::kem::Kem::default();
+/// let (pk, sk) = kem.keypair().unwrap();
+/// let (ct, ss) = kem.encapsulate(&pk).unwrap();
+/// let ss2 = kem.decapsulate(&sk, &ct).unwrap();
+/// assert_eq!(ss, ss2);
+/// ```
 pub struct Kem {
     kem: NonNull<ffi::OQS_KEM>,
 }
 
 unsafe impl Sync for Kem {}
+unsafe impl Send for Kem {}
 
 impl Drop for Kem {
     fn drop(&mut self) {
         unsafe { ffi::OQS_KEM_free(self.kem.as_ptr()) };
+    }
+}
+
+impl core::default::Default for Kem {
+    /// Get the default KEM algorithm in liboqs
+    ///
+    /// Panics if the default algorithm is not enabled in liboqs.
+    fn default() -> Self {
+        Kem::new(Algorithm::Default).expect("Expected default algorithm to be enabled")
+    }
+}
+
+impl core::convert::TryFrom<Algorithm> for Kem {
+    type Error = crate::Error;
+    fn try_from(alg: Algorithm) -> Result<Kem> {
+        Kem::new(alg)
     }
 }
 
@@ -229,31 +257,47 @@ impl Kem {
     }
 
     /// Obtain a secret key objects from bytes
-    pub fn secret_key_from_bytes<'a>(&self, buf: &'a [u8]) -> SecretKeyRef<'a> {
-        let kem = unsafe { self.kem.as_ref() };
-        assert_eq!(buf.len(), kem.length_secret_key);
-        SecretKeyRef::new(buf)
+    ///
+    /// Returns None if the secret key is not the correct length.
+    pub fn secret_key_from_bytes<'a>(&self, buf: &'a [u8]) -> Option<SecretKeyRef<'a>> {
+        if self.length_secret_key() != buf.len() {
+            None
+        } else {
+            Some(SecretKeyRef::new(buf))
+        }
     }
 
     /// Obtain a public key from bytes
-    pub fn public_key_from_bytes<'a>(&self, buf: &'a [u8]) -> PublicKeyRef<'a> {
-        let kem = unsafe { self.kem.as_ref() };
-        assert_eq!(buf.len(), kem.length_public_key);
-        PublicKeyRef::new(buf)
+    ///
+    /// Returns None if the public key is not the correct length.
+    pub fn public_key_from_bytes<'a>(&self, buf: &'a [u8]) -> Option<PublicKeyRef<'a>> {
+        if self.length_public_key() != buf.len() {
+            None
+        } else {
+            Some(PublicKeyRef::new(buf))
+        }
     }
 
     /// Obtain a ciphertext from bytes
-    pub fn ciphertext_from_bytes<'a>(&self, buf: &'a [u8]) -> CiphertextRef<'a> {
-        let kem = unsafe { self.kem.as_ref() };
-        assert_eq!(buf.len(), kem.length_ciphertext);
-        CiphertextRef::new(buf)
+    ///
+    /// Returns None if the ciphertext is not the correct length.
+    pub fn ciphertext_from_bytes<'a>(&self, buf: &'a [u8]) -> Option<CiphertextRef<'a>> {
+        if self.length_ciphertext() != buf.len() {
+            None
+        } else {
+            Some(CiphertextRef::new(buf))
+        }
     }
 
     /// Obtain a secret key from bytes
-    pub fn shared_secret_from_bytes<'a>(&self, buf: &'a [u8]) -> SharedSecretRef<'a> {
-        let kem = unsafe { self.kem.as_ref() };
-        assert_eq!(buf.len(), kem.length_shared_secret);
-        SharedSecretRef::new(buf)
+    ///
+    /// Returns None if the shared secret is not the correct length.
+    pub fn shared_secret_from_bytes<'a>(&self, buf: &'a [u8]) -> Option<SharedSecretRef<'a>> {
+        if self.length_shared_secret() != buf.len() {
+            None
+        } else {
+            Some(SharedSecretRef::new(buf))
+        }
     }
 
     /// Generate a new keypair
@@ -267,12 +311,13 @@ impl Kem {
             bytes: Vec::with_capacity(kem.length_secret_key),
         };
         let status = unsafe { func(pk.bytes.as_mut_ptr(), sk.bytes.as_mut_ptr()) };
+        status_to_result(status)?;
         // update the lengths of the vecs
+        // this is safe to do, as we have initialised them now.
         unsafe {
             pk.bytes.set_len(kem.length_public_key);
             sk.bytes.set_len(kem.length_secret_key);
         }
-        status_to_result(status)?;
         Ok((pk, sk))
     }
 
@@ -282,8 +327,10 @@ impl Kem {
         pk: P,
     ) -> Result<(Ciphertext, SharedSecret)> {
         let pk = pk.into();
+        if pk.bytes.len() != self.length_public_key() {
+            return Err(Error::InvalidLength);
+        }
         let kem = unsafe { self.kem.as_ref() };
-        debug_assert_eq!(pk.len(), kem.length_public_key);
         let func = kem.encaps.unwrap();
         let mut ct = Ciphertext {
             bytes: Vec::with_capacity(kem.length_ciphertext),
@@ -291,6 +338,7 @@ impl Kem {
         let mut ss = SharedSecret {
             bytes: Vec::with_capacity(kem.length_shared_secret),
         };
+        // call encapsulate
         let status = unsafe {
             func(
                 ct.bytes.as_mut_ptr(),
@@ -299,6 +347,8 @@ impl Kem {
             )
         };
         status_to_result(status)?;
+        // update the lengths of the vecs
+        // this is safe to do, as we have initialised them now.
         unsafe {
             ct.bytes.set_len(kem.length_ciphertext);
             ss.bytes.set_len(kem.length_shared_secret);
@@ -315,14 +365,19 @@ impl Kem {
         let kem = unsafe { self.kem.as_ref() };
         let sk = sk.into();
         let ct = ct.into();
-        debug_assert_eq!(sk.len(), kem.length_secret_key);
-        debug_assert_eq!(ct.len(), kem.length_ciphertext);
+        if sk.bytes.len() != self.length_secret_key() || ct.bytes.len() != self.length_ciphertext()
+        {
+            return Err(Error::InvalidLength);
+        }
         let mut ss = SharedSecret {
             bytes: Vec::with_capacity(kem.length_shared_secret),
         };
         let func = kem.decaps.unwrap();
+        // Call decapsulate
         let status = unsafe { func(ss.bytes.as_mut_ptr(), ct.bytes.as_ptr(), sk.bytes.as_ptr()) };
         status_to_result(status)?;
+        // update the lengths of the vecs
+        // this is safe to do, as we have initialised them now.
         unsafe { ss.bytes.set_len(kem.length_shared_secret) };
         Ok(ss)
     }
