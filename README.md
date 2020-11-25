@@ -111,7 +111,7 @@ We believe that the NIST Post-Quantum Cryptography standardization project is cu
 
 We acknowledge that some parties may want to begin deploying post-quantum cryptography prior to the conclusion of the NIST standardization project. We strongly recommend that any attempts to do make use of so-called **hybrid cryptography**, in which post-quantum public-key algorithms are used alongside traditional public key algorithms (like RSA or elliptic curves) so that the solution is at least no less secure than existing traditional cryptography.
 
-Just like liboqs, liboqs-rust is provided "as is", without warranty of any kind. See [LICENSE.txt](https://github.com/open-quantum-safe/liboqs-rust/blob/main/LICENSE.txt) for the full disclaimer.
+Just like liboqs, liboqs-rust is provided "as is", without warranty of any kind. See [LICENSE-MIT](https://github.com/open-quantum-safe/liboqs-rust/blob/main/LICENSE-MIT) for the full disclaimer.
 
 License
 -------
