@@ -85,6 +85,8 @@ pub enum Error {
     Error,
     /// Error occurred in OpenSSL functions external to liboqs
     ErrorExternalOpenSSL,
+    /// Invalid length of a public object
+    InvalidLength,
 }
 #[cfg(not(feature = "no_std"))]
 impl std::error::Error for Error {}

@@ -163,14 +163,44 @@ impl Algorithm {
     }
 }
 
-/// Algorithm wrapper
+/// Signature scheme
+///
+/// # Example
+/// ```rust
+/// use oqs;
+/// oqs::init();
+/// let scheme = oqs::sig::Sig::default();
+/// let message = [0u8; 100];
+/// let (pk, sk) = scheme.keypair().unwrap();
+/// let signature = scheme.sign(&message, &sk).unwrap();
+/// assert!(scheme.verify(&message, &signature, &pk).is_ok());
+/// ```
 pub struct Sig {
     sig: NonNull<ffi::OQS_SIG>,
 }
 
+unsafe impl Sync for Sig {}
+unsafe impl Send for Sig {}
+
 impl Drop for Sig {
     fn drop(&mut self) {
         unsafe { ffi::OQS_SIG_free(self.sig.as_ptr()) };
+    }
+}
+
+impl core::convert::TryFrom<Algorithm> for Sig {
+    type Error = crate::Error;
+    fn try_from(alg: Algorithm) -> Result<Sig> {
+        Sig::new(alg)
+    }
+}
+
+impl core::default::Default for Sig {
+    /// Get the default Signature scheme
+    ///
+    /// Panics if the default algorithm is not enabled in liboqs.
+    fn default() -> Self {
+        Sig::new(Algorithm::default()).expect("Expected default algorithm to be enabled")
     }
 }
 
@@ -228,24 +258,30 @@ impl Sig {
     }
 
     /// Construct a secret key object from bytes
-    pub fn secret_key_from_bytes<'a>(&self, buf: &'a [u8]) -> SecretKeyRef<'a> {
-        let sig = unsafe { self.sig.as_ref() };
-        assert_eq!(buf.len(), sig.length_secret_key);
-        SecretKeyRef::new(buf)
+    pub fn secret_key_from_bytes<'a>(&self, buf: &'a [u8]) -> Option<SecretKeyRef<'a>> {
+        if buf.len() != self.length_secret_key() {
+            None
+        } else {
+            Some(SecretKeyRef::new(buf))
+        }
     }
 
     /// Construct a public key object from bytes
-    pub fn public_key_from_bytes<'a>(&self, buf: &'a [u8]) -> PublicKeyRef<'a> {
-        let sig = unsafe { self.sig.as_ref() };
-        assert_eq!(buf.len(), sig.length_public_key);
-        PublicKeyRef::new(buf)
+    pub fn public_key_from_bytes<'a>(&self, buf: &'a [u8]) -> Option<PublicKeyRef<'a>> {
+        if buf.len() != self.length_public_key() {
+            None
+        } else {
+            Some(PublicKeyRef::new(buf))
+        }
     }
 
     /// Construct a signature object from bytes
-    pub fn signature_from_bytes<'a>(&self, buf: &'a [u8]) -> SignatureRef<'a> {
-        let sig = unsafe { self.sig.as_ref() };
-        assert!(buf.len() <= sig.length_signature);
-        SignatureRef::new(buf)
+    pub fn signature_from_bytes<'a>(&self, buf: &'a [u8]) -> Option<SignatureRef<'a>> {
+        if buf.len() != self.length_signature() {
+            None
+        } else {
+            Some(SignatureRef::new(buf))
+        }
     }
 
     /// Generate a new keypair
@@ -291,6 +327,7 @@ impl Sig {
             )
         };
         status_to_result(status)?;
+        // This is safe to do as it's initialised now.
         unsafe {
             sig.bytes.set_len(sig_len);
         }
@@ -306,11 +343,12 @@ impl Sig {
     ) -> Result<()> {
         let signature = signature.into();
         let pk = pk.into();
+        if signature.bytes.len() > self.length_signature()
+            || pk.bytes.len() > self.length_public_key()
+        {
+            return Err(Error::InvalidLength);
+        }
         let sig = unsafe { self.sig.as_ref() };
-        assert!(
-            signature.len() <= sig.length_signature,
-            "Signature is too long?"
-        );
         let func = sig.verify.unwrap();
         let status = unsafe {
             func(
