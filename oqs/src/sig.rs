@@ -344,7 +344,7 @@ impl Sig {
         let signature = signature.into();
         let pk = pk.into();
         if signature.bytes.len() > self.length_signature()
-            || pk.bytes.len() > self.length_public_key()
+            || pk.bytes.len() != self.length_public_key()
         {
             return Err(Error::InvalidLength);
         }
