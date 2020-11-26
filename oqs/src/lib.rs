@@ -2,7 +2,7 @@
 #![cfg_attr(feature = "no_std", no_std)]
 //! Friendly bindings to liboqs
 //!
-//! See the [`kem::Kem`] and [`sig::Sig`] structs for how to use this crate.
+//! See the [`kem::Kem`](crate::kem::Kem) and [`sig::Sig`](crate::sig::Sig) structs for how to use this crate.
 //!
 //! # Example: Some signed KEX
 //!
@@ -55,7 +55,7 @@ mod macros;
 ///
 /// Make sure to call this before you use any of the functions.
 ///
-/// When the `no_std` feature is not enabled, this method is thread-safe
+/// When the ``no_std`` feature is not enabled, this method is thread-safe
 /// and can be called more than once.
 #[cfg(not(feature = "no_std"))]
 pub fn init() {
@@ -69,7 +69,7 @@ pub fn init() {
 ///
 /// Needs to be called before you use any of the functions.
 ///
-/// This no_std variant is not thread-safe.
+/// This ``no_std`` variant is not thread-safe.
 #[cfg(feature = "no_std")]
 pub fn init() {
     unsafe { ffi::common::OQS_init() };
