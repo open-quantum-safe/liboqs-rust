@@ -27,7 +27,7 @@ Update your ``Cargo.toml`` and include ``oqs``:
 
 ```toml
 [dependencies]
-oqs = "0.2"
+oqs = "*"
 ```
 
 ``oqs-sys`` can be specified equivalently.
