@@ -46,6 +46,11 @@ Note that the default features do enable building liboqs with ``openssl``, so us
 For ``no_std`` suport in the ``oqs`` crate, enable the ``no_std`` feature.
 Make sure to also disable the ``oqs-sys/openssl`` feature by specifying ``default-features = false``.
 
+Stack usage
+-----------
+
+Some algorithms use large amounts of stack space. This means that you may need to specify `RUST_MIN_STACK` in your environment.
+
 
 Running
 -------
