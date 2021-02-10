@@ -36,6 +36,9 @@ fn generate_bindings(outdir: &PathBuf, headerfile: &str, filter: &str) {
 }
 
 fn main() {
+    // Check if clang is available before compiling anything.
+    bindgen::clang_version();
+
     let mut config = cmake::Config::new("liboqs");
     config.profile("Release");
     config.define("OQS_BUILD_ONLY_LIB", "Yes");
