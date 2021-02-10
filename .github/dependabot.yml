@@ -8,7 +8,7 @@ updates:
 - package-ecosystem: gitsubmodule
   directory: "/"
   schedule:
-    interval: daily
+    interval: weekly
   open-pull-requests-limit: 10
 - package-ecosystem: github-actions
   directory: "/"
