@@ -82,6 +82,7 @@ mod test {
     use alloc::vec;
     use alloc::vec::Vec;
 
+    // necessary for newtype_buffer call
     #[cfg(feature = "serde")]
     use serde::{Deserialize, Serialize};
 
