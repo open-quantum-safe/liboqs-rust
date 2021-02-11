@@ -84,6 +84,7 @@ pub enum Error {
     /// Generic error
     Error,
     /// Error occurred in OpenSSL functions external to liboqs
+    #[allow(clippy::upper_case_acronyms)]
     ErrorExternalOpenSSL,
     /// Invalid length of a public object
     InvalidLength,
@@ -97,7 +98,8 @@ pub type Result<T> = core::result::Result<T, Error>;
 impl core::fmt::Display for Error {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
-            Error::AlgorithmDisabled => write!(f, "Algorithm has been disabled"),
+            Error::AlgorithmDisabled => write!(f, "OQS Error: Algorithm has been disabled"),
+            Error::ErrorExternalOpenSSL => write!(f, "OQS error: OpenSSL call failed"),
             _ => write!(f, "OQS Error!"),
         }
     }

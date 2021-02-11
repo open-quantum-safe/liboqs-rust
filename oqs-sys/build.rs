@@ -1,6 +1,6 @@
-use std::path::PathBuf;
+use std::path::Path;
 
-fn generate_bindings(outdir: &PathBuf, headerfile: &str, filter: &str) {
+fn generate_bindings(outdir: &Path, headerfile: &str, filter: &str) {
     let includedir = outdir.join("build").join("include");
     bindgen::Builder::default()
         .clang_arg(format!("-I{}", includedir.display()))
