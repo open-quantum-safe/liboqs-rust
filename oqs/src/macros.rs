@@ -34,6 +34,13 @@ macro_rules! newtype_buffer {
             fn new(bytes: &'a [u8]) -> $name_ref<'a> {
                 $name_ref { bytes }
             }
+
+            /// Copy this to the owned variant
+            pub fn to_owned(&self) -> $name {
+                $name {
+                    bytes: self.bytes.to_vec(),
+                }
+            }
         }
 
         impl<'a> From<&'a $name> for $name_ref<'a> {
@@ -102,5 +109,13 @@ mod test {
             bytes: vec![1, 2, 3],
         };
         assert_eq!(buf.into_vec(), vec![1, 2, 3]);
+    }
+
+    #[test]
+    fn test_to_owned() {
+        let bytes = vec![1, 2, 3];
+        let refbuf = TestBufRef::new(bytes.as_ref());
+        let buf = TestBuf { bytes: bytes.clone() };
+        assert_eq!(refbuf.to_owned(), buf)
     }
 }
