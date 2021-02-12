@@ -84,6 +84,7 @@ pub enum Error {
     /// Generic error
     Error,
     /// Error occurred in OpenSSL functions external to liboqs
+    #[allow(clippy::unknown_clippy_lints)]
     #[allow(clippy::upper_case_acronyms)]
     ErrorExternalOpenSSL,
     /// Invalid length of a public object
