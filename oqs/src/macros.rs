@@ -116,7 +116,9 @@ mod test {
     fn test_to_owned() {
         let bytes = vec![1, 2, 3];
         let refbuf = TestBufRef::new(bytes.as_ref());
-        let buf = TestBuf { bytes: bytes.clone() };
+        let buf = TestBuf {
+            bytes: bytes.clone(),
+        };
         assert_eq!(refbuf.to_owned(), buf)
     }
 }
