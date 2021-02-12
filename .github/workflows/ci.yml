@@ -57,6 +57,5 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: -- -D warnings
 
 #  vim: set ft=yaml ts=2 sw=2 tw=0 et :

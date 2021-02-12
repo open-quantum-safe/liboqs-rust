@@ -1,6 +1,7 @@
 //! Signature API
 //!
-//! See [`Sig`] for the main functionality
+//! See [`Sig`] for the main functionality and [`Algorithmm`]
+//! for the list of supported algorithms.
 use alloc::borrow;
 use alloc::vec::Vec;
 
@@ -80,7 +81,7 @@ implement_sigs! {
     Default: OQS_SIG_alg_default,
     Dilithium2: OQS_SIG_alg_dilithium_2,
     Dilithium3: OQS_SIG_alg_dilithium_3,
-    Dilithium4: OQS_SIG_alg_dilithium_4,
+    Dilithium5: OQS_SIG_alg_dilithium_5,
     Falcon512: OQS_SIG_alg_falcon_512,
     Falcon1024: OQS_SIG_alg_falcon_1024,
     Picnic3L1: OQS_SIG_alg_picnic3_L1,
@@ -98,9 +99,9 @@ implement_sigs! {
     RainbowIClassic: OQS_SIG_alg_rainbow_I_classic,
     RainbowICircumzenithal: OQS_SIG_alg_rainbow_I_circumzenithal,
     RainbowICompressed: OQS_SIG_alg_rainbow_I_compressed,
-    RainbowIIIClassic: OQS_SIG_alg_rainbow_III_classic,
-    RainbowIIICircumzenithal: OQS_SIG_alg_rainbow_III_circumzenithal,
-    RainbowIIICompressed: OQS_SIG_alg_rainbow_III_compressed,
+    RainbowIiiClassic: OQS_SIG_alg_rainbow_III_classic,
+    RainbowIiiCircumzenithal: OQS_SIG_alg_rainbow_III_circumzenithal,
+    RainbowIiiCompressed: OQS_SIG_alg_rainbow_III_compressed,
     RainbowVClassic: OQS_SIG_alg_rainbow_V_classic,
     RainbowVCircumzenithal: OQS_SIG_alg_rainbow_V_circumzenithal,
     RainbowVCompressed: OQS_SIG_alg_rainbow_V_compressed,
