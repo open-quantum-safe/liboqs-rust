@@ -42,6 +42,15 @@ fn main() {
     let mut config = cmake::Config::new("liboqs");
     config.profile("Release");
     config.define("OQS_BUILD_ONLY_LIB", "Yes");
+
+    if cfg!(feature = "non_portable") {
+        config.define("OQS_PORTABLE_BUILD", "No");
+    }
+
+    if cfg!(feature = "minimal") {
+        config.define("OQS_MINIMAL_BUILD", "Yes");
+    }
+
     if cfg!(feature = "openssl") {
         config.define("OQS_USE_OPENSSL", "Yes");
         println!("cargo:rustc-link-lib=crypto");

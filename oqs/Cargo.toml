@@ -20,5 +20,7 @@ version = "0.5.0"
 default-features = false
 
 [features]
-no_std = ["cstr_core"]
 default = ["oqs-sys/openssl"]
+no_std = ["cstr_core"]
+minimal = ["oqs-sys/minimal"]
+non_portable = ["oqs-sys/non_portable"]
