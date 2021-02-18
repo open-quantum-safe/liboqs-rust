@@ -106,7 +106,7 @@ implement_kems! {
     Kyber1024_90s: OQS_KEM_alg_kyber_1024_90s,
     NtruHps2048509: OQS_KEM_alg_ntru_hps2048509,
     NtruHps2048677: OQS_KEM_alg_ntru_hps2048677,
-    NtruHps4096812: OQS_KEM_alg_ntru_hps4096821,
+    NtruHps4096821: OQS_KEM_alg_ntru_hps4096821,
     NtruHrss701: OQS_KEM_alg_ntru_hrss701,
     NtruPrimeNtrulpr653: OQS_KEM_alg_ntruprime_ntrulpr653,
     NtruPrimeNtrulpr761: OQS_KEM_alg_ntruprime_ntrulpr761,
