@@ -120,7 +120,7 @@ implement_kems! {
     FrodoKem640Aes: OQS_KEM_alg_frodokem_640_aes,
     FrodoKem640Shake: OQS_KEM_alg_frodokem_640_shake,
     FrodoKem976Aes: OQS_KEM_alg_frodokem_976_aes,
-    FrodoKem967Shake: OQS_KEM_alg_frodokem_976_shake,
+    FrodoKem976Shake: OQS_KEM_alg_frodokem_976_shake,
     FrodoKem1344Aes: OQS_KEM_alg_frodokem_1344_aes,
     FrodoKem1344Shake: OQS_KEM_alg_frodokem_1344_shake,
     SidhP434: OQS_KEM_alg_sidh_p434,
