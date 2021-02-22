@@ -32,6 +32,11 @@ oqs = "*"
 
 ``oqs-sys`` can be specified equivalently.
 
+Minimal builds
+--------------
+
+By specifing the ``minimal`` feature, ``liboqs`` will only support the "OQS default" KEM and Signature algorithms.
+
 Serde support
 -------------
 
@@ -46,10 +51,18 @@ Note that the default features do enable building liboqs with ``openssl``, so us
 For ``no_std`` suport in the ``oqs`` crate, enable the ``no_std`` feature.
 Make sure to also disable the ``oqs-sys/openssl`` feature by specifying ``default-features = false``.
 
+``non_portable`` feature
+------------------------
+
+If compiled with the ``non_portable`` feature, ``liboqs-sys`` will not enable CPU feature detection and
+always use the best implementation on your current platform. This enables support for implementations
+where feature detection is not functional.
+
 Stack usage
 -----------
 
-Some algorithms use large amounts of stack space. This means that you may need to specify `RUST_MIN_STACK` in your environment.
+Some algorithms use large amounts of stack space. This means that you may need to specify ``RUST_MIN_STACK`` in your environment.
+This for example affects tests.
 
 
 Running
