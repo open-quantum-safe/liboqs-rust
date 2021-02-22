@@ -278,7 +278,7 @@ impl Sig {
 
     /// Construct a signature object from bytes
     pub fn signature_from_bytes<'a>(&self, buf: &'a [u8]) -> Option<SignatureRef<'a>> {
-        if buf.len() != self.length_signature() {
+        if buf.len() > self.length_signature() {
             None
         } else {
             Some(SignatureRef::new(buf))
