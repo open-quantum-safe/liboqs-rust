@@ -60,19 +60,15 @@ macro_rules! implement_kems {
                     crate::init();
 
                     let alg = Algorithm::$kem;
+                    if !alg.is_enabled() {
+                        return Ok(());
+                    }
                     let kem = Kem::new(alg)?;
                     let (pk, sk) = kem.keypair()?;
                     let (ct, ss1) = kem.encapsulate(&pk)?;
                     let ss2 = kem.decapsulate(&sk, &ct)?;
                     assert_eq!(ss1, ss2, "shared secret not equal!");
                     Ok(())
-                }
-
-                #[test]
-                fn test_enabled() {
-                    crate::init();
-
-                    assert!(Algorithm::$kem.is_enabled());
                 }
             }
         )*
@@ -384,5 +380,15 @@ impl Kem {
         // this is safe to do, as we have initialised them now.
         unsafe { ss.bytes.set_len(kem.length_shared_secret) };
         Ok(ss)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_default() {
+        Kem::default();
     }
 }

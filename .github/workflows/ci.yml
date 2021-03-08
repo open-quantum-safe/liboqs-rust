@@ -4,7 +4,7 @@ name: Continuous integration
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os:
@@ -24,37 +24,77 @@ jobs:
         with:
           submodules: true
 
-      - uses: actions-rs/toolchain@v1
+      - name: Cache LLVM and Clang
+        if: startsWith(matrix.os, 'windows')
+        id: cache-llvm
+        uses: actions/cache@v2
+        with:
+          path: ${{ runner.temp }}/llvm
+          key: ${{ matrix.os }}-llvm
+
+      - name: Install LLVM and Clang
+        if: startsWith(matrix.os, 'windows')
+        uses: KyleMayes/install-llvm-action@v1
+        with:
+          version: "11.0"
+          directory: ${{ runner.temp }}/llvm
+
+      - name: Set LIBCLANG_PATH
+        if: startsWith(matrix.os, 'windows')
+        run: echo "LIBCLANG_PATH=$((gcm clang).source -replace "clang.exe")" >> $env:GITHUB_ENV
+
+      - name: Install OpenSSL
+        if: startsWith(matrix.os, 'windows')
+        run: choco install openssl --limit-output
+
+      - name: Set OPENSSL_ROOT_DIR
+        if: startsWith(matrix.os, 'windows')
+        run: echo "OPENSSL_ROOT_DIR=C:/Program Files/OpenSSL-Win64" >> $env:GITHUB_ENV
+
+      - name: Set OPENSSL_ROOT_DIR
+        if: startsWith(matrix.os, 'macos')
+        run: echo "OPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1" >> $GITHUB_ENV
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: ${{ matrix.rust }}
           override: true
           components: rustfmt, clippy
 
-      - uses: actions-rs/cargo@v1
+      - uses: Swatinem/rust-cache@v1
+
+      - name: Cargo build
+        uses: actions-rs/cargo@v1
         with:
           command: build
 
-      - uses: actions-rs/cargo@v1
+      - name: Cargo test
+        uses: actions-rs/cargo@v1
         with:
           command: test
 
-      - uses: actions-rs/cargo@v1
+      - name: Cargo test --no-default-features --features serde
+        uses: actions-rs/cargo@v1
         with:
           command: test
           args: --no-default-features --features serde --manifest-path oqs/Cargo.toml
 
-      - uses: actions-rs/cargo@v1
+      - name: Cargo test --no-default-features --features serde,no_std
+        uses: actions-rs/cargo@v1
         with:
           command: test
           args: --no-default-features --features no_std,serde --manifest-path oqs/Cargo.toml
 
-      - uses: actions-rs/cargo@v1
+      - name: Cargo fmt
+        uses: actions-rs/cargo@v1
         with:
           command: fmt
           args: --all -- --check
 
-      - uses: actions-rs/cargo@v1
+      - name: Cargo clippy
+        uses: actions-rs/cargo@v1
         with:
           command: clippy
 

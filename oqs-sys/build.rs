@@ -44,25 +44,54 @@ fn main() {
     config.define("OQS_BUILD_ONLY_LIB", "Yes");
 
     if cfg!(feature = "non_portable") {
+        // Build with CPU feature detection or just enable whatever is available for this CPU
         config.define("OQS_PORTABLE_BUILD", "No");
     }
 
     if cfg!(feature = "minimal") {
+        // Only build Default KEM and Signature
         config.define("OQS_MINIMAL_BUILD", "Yes");
+    }
+
+    if cfg!(windows) {
+        // Select the latest available Windows SDK
+        // SDK version 10.0.17763.0 seems broken
+        config.define("CMAKE_SYSTEM_VERSION", "10.0");
     }
 
     if cfg!(feature = "openssl") {
         config.define("OQS_USE_OPENSSL", "Yes");
-        println!("cargo:rustc-link-lib=crypto");
+        if cfg!(windows) {
+            // Windows doesn't prefix with lib
+            println!("cargo:rustc-link-lib=libcrypto");
+        } else {
+            println!("cargo:rustc-link-lib=crypto");
+        }
+
+        println!("cargo:rerun-if-env-changed=OPENSSL_ROOT_DIR");
+        if let Ok(dir) = std::env::var("OPENSSL_ROOT_DIR") {
+            let dir = Path::new(&dir).join("lib");
+            println!("cargo:rustc-link-search={}", dir.display());
+        } else if cfg!(target_os = "windows") || cfg!(target_os = "macos") {
+            println!("cargo:warning=You may need to specify OPENSSL_ROOT_DIR or disable the default `openssl` feature.");
+        }
     } else {
         config.define("OQS_USE_OPENSSL", "No");
     }
     let outdir = config.build_target("oqs").build();
 
     // lib is put into $outdir/build/lib
-    let libdir = outdir.join("build").join("lib");
+    let mut libdir = outdir.join("build").join("lib");
+    if cfg!(windows) {
+        libdir.push("Release");
+        // Static linking doesn't work on Windows
+        println!("cargo:rustc-link-lib=oqs");
+    } else {
+        // Statically linking makes it easier to use the sys crate
+        println!("cargo:rustc-link-lib=static=oqs");
+    }
     println!("cargo:rustc-link-search=native={}", libdir.display());
-    println!("cargo:rustc-link-lib=static=oqs");
+
     let gen_bindings = |file, filter| generate_bindings(&outdir, file, filter);
 
     gen_bindings("common", "OQS_.*");
