@@ -27,7 +27,7 @@ jobs:
       - name: Cache LLVM and Clang
         if: startsWith(matrix.os, 'windows')
         id: cache-llvm
-        uses: actions/cache@v2
+        uses: actions/cache@v2.1.4
         with:
           path: ${{ runner.temp }}/llvm
           key: ${{ matrix.os }}-llvm
