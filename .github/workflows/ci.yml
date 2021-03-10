@@ -24,14 +24,6 @@ jobs:
         with:
           submodules: true
 
-      - name: Cache LLVM and Clang
-        if: startsWith(matrix.os, 'windows')
-        id: cache-llvm
-        uses: actions/cache@v2
-        with:
-          path: ${{ runner.temp }}/llvm
-          key: ${{ matrix.os }}-llvm
-
       - name: Install LLVM and Clang
         if: startsWith(matrix.os, 'windows')
         uses: KyleMayes/install-llvm-action@v1
