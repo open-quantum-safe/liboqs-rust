@@ -1,0 +1,4 @@
+(function() {var implementors = {};
+implementors["cstr_core"] = [{"text":"impl AsRef&lt;CStr&gt; for CStr","synthetic":false,"types":[]},{"text":"impl AsRef&lt;CStr&gt; for CString","synthetic":false,"types":[]}];
+implementors["oqs"] = [{"text":"impl AsRef&lt;[u8]&gt; for PublicKey","synthetic":false,"types":[]},{"text":"impl AsRef&lt;[u8]&gt; for SecretKey","synthetic":false,"types":[]},{"text":"impl AsRef&lt;[u8]&gt; for Ciphertext","synthetic":false,"types":[]},{"text":"impl AsRef&lt;[u8]&gt; for SharedSecret","synthetic":false,"types":[]},{"text":"impl AsRef&lt;[u8]&gt; for PublicKey","synthetic":false,"types":[]},{"text":"impl AsRef&lt;[u8]&gt; for SecretKey","synthetic":false,"types":[]},{"text":"impl AsRef&lt;[u8]&gt; for Signature","synthetic":false,"types":[]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
