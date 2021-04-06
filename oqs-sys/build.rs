@@ -20,10 +20,10 @@ fn generate_bindings(outdir: &Path, headerfile: &str, filter: &str) {
         // Otherwise it breaks tests
         .generate_comments(cfg!(feature = "docs"))
         // Whitelist OQS stuff
-        .whitelist_recursively(false)
-        .whitelist_type(filter)
-        .whitelist_function(filter)
-        .whitelist_var(filter)
+        .allowlist_recursively(false)
+        .allowlist_type(filter)
+        .allowlist_function(filter)
+        .allowlist_var(filter)
         // Use core and libc
         .use_core()
         .ctypes_prefix("::libc")
