@@ -42,7 +42,7 @@ Serde support
 
 You can enable ``serde`` serialization support by enabling the ``serde`` feature on the ``oqs`` rcate.
 
-`no_std` support
+``no_std`` support
 ----------------
 
 The ``oqs-sys`` crate does not use `std` at all.
@@ -50,6 +50,10 @@ Note that the default features do enable building liboqs with ``openssl``, so us
 
 For ``no_std`` suport in the ``oqs`` crate, enable the ``no_std`` feature.
 Make sure to also disable the ``oqs-sys/openssl`` feature by specifying ``default-features = false``.
+
+You will probably want to change the random-number generator through the [`OQS_RAND` API][] offered by `oqs-sys`.
+
+[`OQS_RAND` API]: https://open-quantum-safe.github.io/liboqs-rust/oqs_sys/rand/index.html
 
 ``non_portable`` feature
 ------------------------
