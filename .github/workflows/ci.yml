@@ -28,6 +28,10 @@ jobs:
           cat /proc/cpuinfo
         if: startsWith(matrix.os ,'ubuntu')
 
+      - name: Set stack size
+        if: startsWith(matrix.os, 'windows')
+        run: echo "RUSTFLAGS=-C link-arg=/STACK:20971520" >> $env:GITHUB_ENV
+
       - name: Install LLVM and Clang
         if: startsWith(matrix.os, 'windows')
         uses: KyleMayes/install-llvm-action@v1.1.1
