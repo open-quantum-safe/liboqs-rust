@@ -95,6 +95,7 @@ fn main() {
     let gen_bindings = |file, filter| generate_bindings(&outdir, file, filter);
 
     gen_bindings("common", "OQS_.*");
+    gen_bindings("rand", "OQS_(randombytes|RAND)_.*");
     gen_bindings("kem", "OQS_KEM.*");
     gen_bindings("sig", "OQS_SIG.*");
 
