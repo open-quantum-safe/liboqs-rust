@@ -45,7 +45,9 @@ fn main() {
 
     if cfg!(feature = "non_portable") {
         // Build with CPU feature detection or just enable whatever is available for this CPU
-        config.define("OQS_PORTABLE_BUILD", "No");
+        config.define("OQS_DIST_BUILD", "No");
+    } else {
+        config.define("OQS_DIST_BUILD", "Yes");
     }
 
     if cfg!(feature = "minimal") {

@@ -24,6 +24,10 @@ jobs:
         with:
           submodules: true
 
+      - name: Set stack size
+        if: startsWith(matrix.os, 'windows')
+        run: echo "RUSTFLAGS=-C link-arg=/STACK:20971520" >> $env:GITHUB_ENV
+
       - name: Install LLVM and Clang
         if: startsWith(matrix.os, 'windows')
         uses: KyleMayes/install-llvm-action@v1.1.1
@@ -78,6 +82,12 @@ jobs:
         with:
           command: test
           args: --no-default-features --features no_std,serde --manifest-path oqs/Cargo.toml
+
+      - name: Cargo test --no-default-features --features non_portable
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --no-default-features --features non_portable --manifest-path oqs/Cargo.toml
 
       - name: Cargo fmt
         uses: actions-rs/cargo@v1
