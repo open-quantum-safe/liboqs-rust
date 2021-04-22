@@ -40,7 +40,7 @@ By specifing the ``minimal`` feature, ``liboqs`` will only support the "OQS defa
 Serde support
 -------------
 
-You can enable ``serde`` serialization support by enabling the ``serde`` feature on the ``oqs`` rcate.
+You can enable ``serde`` serialization support by enabling the ``serde`` feature on the ``oqs`` crate.
 
 ``no_std`` support
 ----------------
