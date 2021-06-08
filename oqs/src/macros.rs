@@ -35,8 +35,8 @@ macro_rules! newtype_buffer {
                 $name_ref { bytes }
             }
 
-            /// Copy this to the owned variant
-            pub fn to_owned(&self) -> $name {
+            /// Clone this into the owned variant
+            pub fn to_owned(self) -> $name {
                 $name {
                     bytes: self.bytes.to_vec(),
                 }
@@ -70,6 +70,7 @@ macro_rules! newtype_buffer {
 
         impl $name {
             /// Length in bytes
+            #[allow(clippy::len_without_is_empty)]
             pub fn len(&self) -> usize {
                 self.bytes.len()
             }
