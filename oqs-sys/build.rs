@@ -60,7 +60,11 @@ fn main() {
     }
 
     // KEMs
-    algorithm_feature!("KEM", "bike");
+    // BIKE is not supported on Windows, so if Windows is in the mix,
+    // have it be opt-in explicitly.
+    if (cfg!(feature = "kems") && !cfg!(windows)) || cfg!(feature = "bike") {
+        algorithm_feature!("KEM", "bike");
+    }
     algorithm_feature!("KEM", "classic_mceliece");
     algorithm_feature!("KEM", "frodokem");
     algorithm_feature!("KEM", "hqc");

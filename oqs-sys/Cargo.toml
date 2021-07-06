@@ -28,8 +28,8 @@ openssl = []
 docs = []
 non_portable = []
 # algorithms: KEMs
-kems = ["bike", "classic_mceliece", "frodokem", "hqc", "kyber", "ntru", "ntruprime", "saber", "sidh", "sike"]
-bike = []
+kems = ["classic_mceliece", "frodokem", "hqc", "kyber", "ntru", "ntruprime", "saber", "sidh", "sike"]
+bike = []  # BIKE is enabled by build.rs on non-windows targets
 classic_mceliece = []
 frodokem = []
 hqc = []

@@ -11,7 +11,7 @@ For the ``ffi`` interface bindings, see ``oqs-sys``.
   features because they pull in OpenSSL through `oqs-sys`).
 * `non_portable`: Don't build a portable library.
 * `kems` (default): Compile with all KEMs enabled
-    * `bike`
+    * `bike`  (only on non-Windows)
     * `classic_mceliece`
     * `frodokem`
     * `hqc`

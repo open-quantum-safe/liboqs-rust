@@ -7,7 +7,7 @@ This crate provides the unsafe `ffi` bindings to [liboqs][].
 * `openssl` (default): Compile with OpenSSL features (mostly symmetric cryptography)
 * `non_portable`: Don't build a portable library.
 * `kems` (default): Compile with all KEMs enabled
-    * `bike`
+    * `bike`  (only on non-Windows)
     * `classic_mceliece`
     * `frodokem`
     * `hqc`
