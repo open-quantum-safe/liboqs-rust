@@ -35,7 +35,8 @@ oqs = "*"
 Minimal builds
 --------------
 
-By specifing the ``minimal`` feature, ``liboqs`` will only support the "OQS default" KEM and Signature algorithms.
+The default-on `kems` and `sigs` features turn on all supported KEMs and signature schemes. If you want a smaller build, turn off these default features and opt-in to individual algorithms.
+Note that if you specify `default-features = false`, you may also want to re-include the `oqs-sys/openssl` feature.
 
 Serde support
 -------------
@@ -50,6 +51,15 @@ Note that the default features do enable building liboqs with ``openssl``, so us
 
 For ``no_std`` suport in the ``oqs`` crate, enable the ``no_std`` feature.
 Make sure to also disable the ``oqs-sys/openssl`` feature by specifying ``default-features = false``.
+
+As `default-features` includes the `kems` and `sigs` features, consider re-adding them as well. This results into:
+
+```toml
+[dependencies.oqs]
+version = "*"
+default-features = false
+features = ["no_std", "sigs", "kems"]
+```
 
 You will probably want to change the random-number generator through the [`OQS_RAND` API][] offered by `oqs-sys`.
 
@@ -67,6 +77,27 @@ Stack usage
 
 Some algorithms use large amounts of stack space. This means that you may need to specify ``RUST_MIN_STACK`` in your environment.
 This for example affects tests.
+
+Algorithm features
+------------------
+
+* `kems` (default): Compile with all KEMs enabled
+    * `bike`
+    * `classic_mceliece`
+    * `frodokem`
+    * `hqc`
+    * `kyber`
+    * `ntru`
+    * `ntruprime`
+    * `saber`
+    * `sidh`
+    * `sike`
+* `sigs` (default): Compile with all signature schemes enabled
+    * `dilithium`
+    * `falcon`
+    * `picnic`
+    * `rainbow`
+    * `sphincs`: SPHINCS+
 
 
 Running
@@ -116,6 +147,7 @@ Adding new algorithms
 2. `oqs-sys` will now update when you build again
 3. Add it to the ``implement_kems!`` macro call in ``oqs/src/kem.rs``:
   - The structure is a name for the algorithm in CamelCase, and the name of the constant of the algorithm (``OQS_KEM_alg_...``)
+4. Add the necessary features to `Cargo.toml` and `oqs-sys/build.rs`.
 
 ### Signature schemes:
 
@@ -123,6 +155,7 @@ Adding new algorithms
 2. `oqs-sys` is now up-to-date when you build again
 3. Add it to ``implement_sigs!`` macro call in ``oqs/src/sig.rs``.
   - The structure is a name for the algorithm in CamelCase, and the name of the constant of the algorithm (``OQS_SIG_alg_...``)
+4. Add the necessary features to `Cargo.toml` and `oqs-sys/build.rs`.
 
 Limitations and security
 ------------------------

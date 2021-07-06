@@ -1,6 +1,6 @@
 [package]
 name = "oqs-sys"
-version = "0.6.0"
+version = "0.7.0"
 authors = ["Thom Wiggers <thom@thomwiggers.nl>"]
 edition = "2018"
 links = "oqs"
@@ -23,11 +23,29 @@ bindgen = "0.58"
 build-deps = "0.1"
 
 [features]
-default = ["openssl"]
+default = ["openssl", "kems"]
 openssl = []
 docs = []
 non_portable = []
-minimal = []
+# algorithms: KEMs
+kems = ["bike", "classic_mceliece", "frodokem", "hqc", "kyber", "ntru", "ntruprime", "saber", "sidh", "sike"]
+bike = []
+classic_mceliece = []
+frodokem = []
+hqc = []
+kyber = []
+ntru = []
+ntruprime = []
+saber = []
+sidh = []
+sike = []
+# algorithms: Signature schemes
+sigs = ["dilithium", "falcon", "picnic", "rainbow", "sphincs"]
+dilithium = []
+falcon = []
+picnic = []
+rainbow = []
+sphincs = []
 
 [package.metadata.docs.rs]
 features = ["docs"]

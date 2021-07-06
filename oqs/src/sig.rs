@@ -27,7 +27,7 @@ newtype_buffer!(Signature, SignatureRef);
 pub type Message = [u8];
 
 macro_rules! implement_sigs {
-    { $( $sig: ident: $oqs_id: ident),* $(,)? } => (
+    { $(($feat: literal) $sig: ident: $oqs_id: ident),* $(,)? } => (
         /// Supported algorithms by liboqs
         ///
         /// They may not all be enabled
@@ -58,6 +58,7 @@ macro_rules! implement_sigs {
                 use super::*;
 
                 #[test]
+                #[cfg(feature = $feat)]
                 fn test_signing() -> Result<()> {
                     crate::init();
                     let message = [0u8; 100];
@@ -70,7 +71,11 @@ macro_rules! implement_sigs {
                 #[test]
                 fn test_enabled() {
                     crate::init();
-                    assert!(Algorithm::$sig.is_enabled());
+                    if cfg!(feature = $feat) {
+                        assert!(Algorithm::$sig.is_enabled());
+                    } else {
+                        assert!(!Algorithm::$sig.is_enabled())
+                    }
                 }
             }
         )*
@@ -78,75 +83,68 @@ macro_rules! implement_sigs {
 }
 
 implement_sigs! {
-    Default: OQS_SIG_alg_default,
-    Dilithium2: OQS_SIG_alg_dilithium_2,
-    Dilithium3: OQS_SIG_alg_dilithium_3,
-    Dilithium5: OQS_SIG_alg_dilithium_5,
-    Falcon512: OQS_SIG_alg_falcon_512,
-    Falcon1024: OQS_SIG_alg_falcon_1024,
-    Picnic3L1: OQS_SIG_alg_picnic3_L1,
-    Picnic3L3: OQS_SIG_alg_picnic3_L3,
-    Picnic3L5: OQS_SIG_alg_picnic3_L5,
-    PicnicL1Fs: OQS_SIG_alg_picnic_L1_FS,
-    PicnicL1Ur: OQS_SIG_alg_picnic_L1_UR,
-    PicnicL1Full: OQS_SIG_alg_picnic_L1_full,
-    PicnicL3Fs: OQS_SIG_alg_picnic_L3_FS,
-    PicnicL3Ur: OQS_SIG_alg_picnic_L3_UR,
-    PicnicL3Full: OQS_SIG_alg_picnic_L3_full,
-    PicnicL5Fs: OQS_SIG_alg_picnic_L5_FS,
-    PicnicL5Ur: OQS_SIG_alg_picnic_L5_UR,
-    PicnicL5Full: OQS_SIG_alg_picnic_L5_full,
-    RainbowIClassic: OQS_SIG_alg_rainbow_I_classic,
-    RainbowICircumzenithal: OQS_SIG_alg_rainbow_I_circumzenithal,
-    RainbowICompressed: OQS_SIG_alg_rainbow_I_compressed,
-    RainbowIiiClassic: OQS_SIG_alg_rainbow_III_classic,
-    RainbowIiiCircumzenithal: OQS_SIG_alg_rainbow_III_circumzenithal,
-    RainbowIiiCompressed: OQS_SIG_alg_rainbow_III_compressed,
-    RainbowVClassic: OQS_SIG_alg_rainbow_V_classic,
-    RainbowVCircumzenithal: OQS_SIG_alg_rainbow_V_circumzenithal,
-    RainbowVCompressed: OQS_SIG_alg_rainbow_V_compressed,
-    SphincsHaraka128fRobust: OQS_SIG_alg_sphincs_haraka_128f_robust,
-    SphincsHaraka128fSimple: OQS_SIG_alg_sphincs_haraka_128f_simple,
-    SphincsHaraka128sRobust: OQS_SIG_alg_sphincs_haraka_128s_robust,
-    SphincsHaraka128sSimple: OQS_SIG_alg_sphincs_haraka_128s_simple,
-    SphincsHaraka192fRobust: OQS_SIG_alg_sphincs_haraka_192f_robust,
-    SphincsHaraka192fSimple: OQS_SIG_alg_sphincs_haraka_192f_simple,
-    SphincsHaraka192sRobust: OQS_SIG_alg_sphincs_haraka_192s_robust,
-    SphincsHaraka192sSimple: OQS_SIG_alg_sphincs_haraka_192s_simple,
-    SphincsHaraka256fRobust: OQS_SIG_alg_sphincs_haraka_256f_robust,
-    SphincsHaraka256fSimple: OQS_SIG_alg_sphincs_haraka_256f_simple,
-    SphincsHaraka256sRobust: OQS_SIG_alg_sphincs_haraka_256s_robust,
-    SphincsHaraka256sSimple: OQS_SIG_alg_sphincs_haraka_256s_simple,
-    SphincsSha256128fRobust: OQS_SIG_alg_sphincs_sha256_128f_robust,
-    SphincsSha256128fSimple: OQS_SIG_alg_sphincs_sha256_128f_simple,
-    SphincsSha256128sRobust: OQS_SIG_alg_sphincs_sha256_128s_robust,
-    SphincsSha256128sSimple: OQS_SIG_alg_sphincs_sha256_128s_simple,
-    SphincsSha256192fRobust: OQS_SIG_alg_sphincs_sha256_192f_robust,
-    SphincsSha256192fSimple: OQS_SIG_alg_sphincs_sha256_192f_simple,
-    SphincsSha256192sRobust: OQS_SIG_alg_sphincs_sha256_192s_robust,
-    SphincsSha256192sSimple: OQS_SIG_alg_sphincs_sha256_192s_simple,
-    SphincsSha256256fRobust: OQS_SIG_alg_sphincs_sha256_256f_robust,
-    SphincsSha256256fSimple: OQS_SIG_alg_sphincs_sha256_256f_simple,
-    SphincsSha256256sRobust: OQS_SIG_alg_sphincs_sha256_256s_robust,
-    SphincsSha256256sSimple: OQS_SIG_alg_sphincs_sha256_256s_simple,
-    SphincsShake256128fRobust: OQS_SIG_alg_sphincs_shake256_128f_robust,
-    SphincsShake256128fSimple: OQS_SIG_alg_sphincs_shake256_128f_simple,
-    SphincsShake256128sRobust: OQS_SIG_alg_sphincs_shake256_128s_robust,
-    SphincsShake256128sSimple: OQS_SIG_alg_sphincs_shake256_128s_simple,
-    SphincsShake256192fRobust: OQS_SIG_alg_sphincs_shake256_192f_robust,
-    SphincsShake256192fSimple: OQS_SIG_alg_sphincs_shake256_192f_simple,
-    SphincsShake256192sRobust: OQS_SIG_alg_sphincs_shake256_192s_robust,
-    SphincsShake256192sSimple: OQS_SIG_alg_sphincs_shake256_192s_simple,
-    SphincsShake256256fRobust: OQS_SIG_alg_sphincs_shake256_256f_robust,
-    SphincsShake256256fSimple: OQS_SIG_alg_sphincs_shake256_256f_simple,
-    SphincsShake256256sRobust: OQS_SIG_alg_sphincs_shake256_256s_robust,
-    SphincsShake256256sSimple: OQS_SIG_alg_sphincs_shake256_256s_simple,
-}
-
-impl core::default::Default for Algorithm {
-    fn default() -> Self {
-        Algorithm::Default
-    }
+    ("dilithium") Dilithium2: OQS_SIG_alg_dilithium_2,
+    ("dilithium") Dilithium3: OQS_SIG_alg_dilithium_3,
+    ("dilithium") Dilithium5: OQS_SIG_alg_dilithium_5,
+    ("falcon") Falcon512: OQS_SIG_alg_falcon_512,
+    ("falcon") Falcon1024: OQS_SIG_alg_falcon_1024,
+    ("picnic") Picnic3L1: OQS_SIG_alg_picnic3_L1,
+    ("picnic") Picnic3L3: OQS_SIG_alg_picnic3_L3,
+    ("picnic") Picnic3L5: OQS_SIG_alg_picnic3_L5,
+    ("picnic") PicnicL1Fs: OQS_SIG_alg_picnic_L1_FS,
+    ("picnic") PicnicL1Ur: OQS_SIG_alg_picnic_L1_UR,
+    ("picnic") PicnicL1Full: OQS_SIG_alg_picnic_L1_full,
+    ("picnic") PicnicL3Fs: OQS_SIG_alg_picnic_L3_FS,
+    ("picnic") PicnicL3Ur: OQS_SIG_alg_picnic_L3_UR,
+    ("picnic") PicnicL3Full: OQS_SIG_alg_picnic_L3_full,
+    ("picnic") PicnicL5Fs: OQS_SIG_alg_picnic_L5_FS,
+    ("picnic") PicnicL5Ur: OQS_SIG_alg_picnic_L5_UR,
+    ("picnic") PicnicL5Full: OQS_SIG_alg_picnic_L5_full,
+    ("rainbow") RainbowIClassic: OQS_SIG_alg_rainbow_I_classic,
+    ("rainbow") RainbowICircumzenithal: OQS_SIG_alg_rainbow_I_circumzenithal,
+    ("rainbow") RainbowICompressed: OQS_SIG_alg_rainbow_I_compressed,
+    ("rainbow") RainbowIiiClassic: OQS_SIG_alg_rainbow_III_classic,
+    ("rainbow") RainbowIiiCircumzenithal: OQS_SIG_alg_rainbow_III_circumzenithal,
+    ("rainbow") RainbowIiiCompressed: OQS_SIG_alg_rainbow_III_compressed,
+    ("rainbow") RainbowVClassic: OQS_SIG_alg_rainbow_V_classic,
+    ("rainbow") RainbowVCircumzenithal: OQS_SIG_alg_rainbow_V_circumzenithal,
+    ("rainbow") RainbowVCompressed: OQS_SIG_alg_rainbow_V_compressed,
+    ("sphincs") SphincsHaraka128fRobust: OQS_SIG_alg_sphincs_haraka_128f_robust,
+    ("sphincs") SphincsHaraka128fSimple: OQS_SIG_alg_sphincs_haraka_128f_simple,
+    ("sphincs") SphincsHaraka128sRobust: OQS_SIG_alg_sphincs_haraka_128s_robust,
+    ("sphincs") SphincsHaraka128sSimple: OQS_SIG_alg_sphincs_haraka_128s_simple,
+    ("sphincs") SphincsHaraka192fRobust: OQS_SIG_alg_sphincs_haraka_192f_robust,
+    ("sphincs") SphincsHaraka192fSimple: OQS_SIG_alg_sphincs_haraka_192f_simple,
+    ("sphincs") SphincsHaraka192sRobust: OQS_SIG_alg_sphincs_haraka_192s_robust,
+    ("sphincs") SphincsHaraka192sSimple: OQS_SIG_alg_sphincs_haraka_192s_simple,
+    ("sphincs") SphincsHaraka256fRobust: OQS_SIG_alg_sphincs_haraka_256f_robust,
+    ("sphincs") SphincsHaraka256fSimple: OQS_SIG_alg_sphincs_haraka_256f_simple,
+    ("sphincs") SphincsHaraka256sRobust: OQS_SIG_alg_sphincs_haraka_256s_robust,
+    ("sphincs") SphincsHaraka256sSimple: OQS_SIG_alg_sphincs_haraka_256s_simple,
+    ("sphincs") SphincsSha256128fRobust: OQS_SIG_alg_sphincs_sha256_128f_robust,
+    ("sphincs") SphincsSha256128fSimple: OQS_SIG_alg_sphincs_sha256_128f_simple,
+    ("sphincs") SphincsSha256128sRobust: OQS_SIG_alg_sphincs_sha256_128s_robust,
+    ("sphincs") SphincsSha256128sSimple: OQS_SIG_alg_sphincs_sha256_128s_simple,
+    ("sphincs") SphincsSha256192fRobust: OQS_SIG_alg_sphincs_sha256_192f_robust,
+    ("sphincs") SphincsSha256192fSimple: OQS_SIG_alg_sphincs_sha256_192f_simple,
+    ("sphincs") SphincsSha256192sRobust: OQS_SIG_alg_sphincs_sha256_192s_robust,
+    ("sphincs") SphincsSha256192sSimple: OQS_SIG_alg_sphincs_sha256_192s_simple,
+    ("sphincs") SphincsSha256256fRobust: OQS_SIG_alg_sphincs_sha256_256f_robust,
+    ("sphincs") SphincsSha256256fSimple: OQS_SIG_alg_sphincs_sha256_256f_simple,
+    ("sphincs") SphincsSha256256sRobust: OQS_SIG_alg_sphincs_sha256_256s_robust,
+    ("sphincs") SphincsSha256256sSimple: OQS_SIG_alg_sphincs_sha256_256s_simple,
+    ("sphincs") SphincsShake256128fRobust: OQS_SIG_alg_sphincs_shake256_128f_robust,
+    ("sphincs") SphincsShake256128fSimple: OQS_SIG_alg_sphincs_shake256_128f_simple,
+    ("sphincs") SphincsShake256128sRobust: OQS_SIG_alg_sphincs_shake256_128s_robust,
+    ("sphincs") SphincsShake256128sSimple: OQS_SIG_alg_sphincs_shake256_128s_simple,
+    ("sphincs") SphincsShake256192fRobust: OQS_SIG_alg_sphincs_shake256_192f_robust,
+    ("sphincs") SphincsShake256192fSimple: OQS_SIG_alg_sphincs_shake256_192f_simple,
+    ("sphincs") SphincsShake256192sRobust: OQS_SIG_alg_sphincs_shake256_192s_robust,
+    ("sphincs") SphincsShake256192sSimple: OQS_SIG_alg_sphincs_shake256_192s_simple,
+    ("sphincs") SphincsShake256256fRobust: OQS_SIG_alg_sphincs_shake256_256f_robust,
+    ("sphincs") SphincsShake256256fSimple: OQS_SIG_alg_sphincs_shake256_256f_simple,
+    ("sphincs") SphincsShake256256sRobust: OQS_SIG_alg_sphincs_shake256_256s_robust,
+    ("sphincs") SphincsShake256256sSimple: OQS_SIG_alg_sphincs_shake256_256s_simple,
 }
 
 impl Algorithm {
@@ -168,9 +166,10 @@ impl Algorithm {
 ///
 /// # Example
 /// ```rust
+/// # if !cfg!(feature = "dilithium") { return; }
 /// use oqs;
 /// oqs::init();
-/// let scheme = oqs::sig::Sig::default();
+/// let scheme = oqs::sig::Sig::new(oqs::sig::Algorithm::Dilithium2).unwrap();
 /// let message = [0u8; 100];
 /// let (pk, sk) = scheme.keypair().unwrap();
 /// let signature = scheme.sign(&message, &sk).unwrap();
@@ -193,15 +192,6 @@ impl core::convert::TryFrom<Algorithm> for Sig {
     type Error = crate::Error;
     fn try_from(alg: Algorithm) -> Result<Sig> {
         Sig::new(alg)
-    }
-}
-
-impl core::default::Default for Sig {
-    /// Get the default Signature scheme
-    ///
-    /// Panics if the default algorithm is not enabled in liboqs.
-    fn default() -> Self {
-        Sig::new(Algorithm::default()).expect("Expected default algorithm to be enabled")
     }
 }
 

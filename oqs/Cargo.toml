@@ -1,6 +1,6 @@
 [package]
 name = "oqs"
-version = "0.6.0"
+version = "0.7.0"
 authors = ["Thom Wiggers <thom@thomwiggers.nl>"]
 edition = "2018"
 description = "A Rusty interface to Open-Quantum-Safe's liboqs"
@@ -16,11 +16,30 @@ serde = { version = "1.0", optional = true, default-features = false, features =
 
 [dependencies.oqs-sys]
 path = "../oqs-sys"
-version = "0.6.0"
+version = "0.7.0"
 default-features = false
 
 [features]
-default = ["oqs-sys/openssl"]
+default = ["oqs-sys/openssl", "kems", "sigs"]
 no_std = ["cstr_core"]
-minimal = ["oqs-sys/minimal"]
 non_portable = ["oqs-sys/non_portable"]
+
+# algorithms: KEMs
+kems = ["bike", "classic_mceliece", "frodokem", "hqc", "kyber", "ntru", "ntruprime", "saber", "sidh", "sike"]
+bike = ["oqs-sys/bike"]
+classic_mceliece = ["oqs-sys/classic_mceliece"]
+frodokem = ["oqs-sys/frodokem"]
+hqc = ["oqs-sys/hqc"]
+kyber = ["oqs-sys/kyber"]
+ntru = ["oqs-sys/ntru"]
+ntruprime = ["oqs-sys/ntruprime"]
+saber = ["oqs-sys/saber"]
+sidh = ["oqs-sys/sidh"]
+sike = ["oqs-sys/sike"]
+# algorithms: Signature schemes
+sigs = ["dilithium", "falcon", "picnic", "rainbow", "sphincs"]
+dilithium = ["oqs-sys/dilithium"]
+falcon = ["oqs-sys/falcon"]
+picnic = ["oqs-sys/picnic"]
+rainbow = ["oqs-sys/rainbow"]
+sphincs = ["oqs-sys/sphincs"]
