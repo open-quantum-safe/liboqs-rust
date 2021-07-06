@@ -3,6 +3,7 @@ name = "oqs-sys"
 version = "0.7.0"
 authors = ["Thom Wiggers <thom@thomwiggers.nl>"]
 edition = "2018"
+resolver = "2"
 links = "oqs"
 description = "Bindings to liboqs"
 readme = "../README.md"
@@ -23,7 +24,7 @@ bindgen = "0.58"
 build-deps = "0.1"
 
 [features]
-default = ["openssl", "kems"]
+default = ["openssl", "kems", "sigs"]
 openssl = []
 docs = []
 non_portable = []

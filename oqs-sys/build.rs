@@ -52,19 +52,21 @@ fn main() {
 
     macro_rules! algorithm_feature {
         ($typ:literal, $feat: literal) => {
-            config.define(
-                format!("OQS_ENABLE_{}_{}", $typ, $feat.to_ascii_uppercase()),
-                if cfg!(feature = $feat) { "Yes" } else { "No" },
-            );
+            let configflag = format!("OQS_ENABLE_{}_{}", $typ, $feat.to_ascii_uppercase());
+            let value = if cfg!(feature = $feat) { "Yes" } else { "No" };
+            config.define(&configflag, value);
+            println!("cargo:info={}={}", configflag, value);
         };
     }
 
     // KEMs
     // BIKE is not supported on Windows or Arm32, so if either is in the mix,
     // have it be opt-in explicitly except through the default kems feature.
-    if (cfg!(feature = "kems") && (!cfg!(windows) || cfg!(target_arch = "arm")))
-        || cfg!(feature = "bike")
+    if cfg!(feature = "kems") && !(cfg!(windows) || cfg!(target_arch = "arm"))
     {
+        println!("cargo:rustc-cfg=feature=\"bike\"");
+        config.define("OQS_ENABLE_KEM_BIKE", "Yes");
+    } else {
         algorithm_feature!("KEM", "bike");
     }
     algorithm_feature!("KEM", "classic_mceliece");

@@ -25,8 +25,8 @@ no_std = ["cstr_core"]
 non_portable = ["oqs-sys/non_portable"]
 
 # algorithms: KEMs
-kems = ["oqs-sys/kems"]  # enable kems through oqs-sys
-bike = ["oqs-sys/bike"]
+kems = ["oqs-sys/kems", "classic_mceliece", "frodokem", "hqc", "kyber", "ntru", "ntruprime", "saber", "sidh", "sike"]
+bike = ["oqs-sys/bike"]  # not supported on Windows or 32-bit ARM
 classic_mceliece = ["oqs-sys/classic_mceliece"]
 frodokem = ["oqs-sys/frodokem"]
 hqc = ["oqs-sys/hqc"]
@@ -37,7 +37,7 @@ saber = ["oqs-sys/saber"]
 sidh = ["oqs-sys/sidh"]
 sike = ["oqs-sys/sike"]
 # algorithms: Signature schemes
-sigs = ["oqs-sys/sigs"]  # enables all sigs through oqs-sys
+sigs = ["oqs-sys/sigs", "dilithium", "falcon", "picnic", "rainbow", "sphincs"]
 dilithium = ["oqs-sys/dilithium"]
 falcon = ["oqs-sys/falcon"]
 picnic = ["oqs-sys/picnic"]
