@@ -25,7 +25,7 @@ newtype_buffer!(Ciphertext, CiphertextRef);
 newtype_buffer!(SharedSecret, SharedSecretRef);
 
 macro_rules! implement_kems {
-    { $( $kem: ident: $oqs_id: ident),* $(,)? } => (
+    { $(($feat: literal) $kem: ident: $oqs_id: ident),* $(,)? } => (
 
         /// Supported algorithms by OQS
         ///
@@ -55,14 +55,13 @@ macro_rules! implement_kems {
             #[allow(non_snake_case)]
             mod $kem {
                 use super::*;
+
                 #[test]
+                #[cfg(feature = $feat)]
                 fn test_encaps_decaps() -> Result<()> {
                     crate::init();
 
                     let alg = Algorithm::$kem;
-                    if !alg.is_enabled() {
-                        return Ok(());
-                    }
                     let kem = Kem::new(alg)?;
                     let (pk, sk) = kem.keypair()?;
                     let (ct, ss1) = kem.encapsulate(&pk)?;
@@ -70,77 +69,78 @@ macro_rules! implement_kems {
                     assert_eq!(ss1, ss2, "shared secret not equal!");
                     Ok(())
                 }
+
+                #[test]
+                fn test_enabled() {
+                    crate::init();
+                    if cfg!(feature = $feat) {
+                        assert!(Algorithm::$kem.is_enabled());
+                    } else {
+                        assert!(!Algorithm::$kem.is_enabled())
+                    }
+                }
             }
         )*
     )
 }
 
 implement_kems! {
-    Default: OQS_KEM_alg_default,
-    BikeL1Cpa: OQS_KEM_alg_bike1_l1_cpa,
-    BikeL3Cpa: OQS_KEM_alg_bike1_l3_cpa,
-    BikeL1Fo: OQS_KEM_alg_bike1_l1_fo,
-    BikeL3Fo: OQS_KEM_alg_bike1_l3_fo,
-    ClassicMcEliece348864: OQS_KEM_alg_classic_mceliece_348864,
-    ClassicMcEliece348864f: OQS_KEM_alg_classic_mceliece_348864f,
-    ClassicMcEliece460896: OQS_KEM_alg_classic_mceliece_460896,
-    ClassicMcEliece460896f: OQS_KEM_alg_classic_mceliece_460896f,
-    ClassicMcEliece6688128: OQS_KEM_alg_classic_mceliece_6688128,
-    ClassicMcEliece6688128f: OQS_KEM_alg_classic_mceliece_6688128f,
-    ClassicMcEliece6960119: OQS_KEM_alg_classic_mceliece_6960119,
-    ClassicMcEliece6960119f: OQS_KEM_alg_classic_mceliece_6960119f,
-    ClassicMcEliece8192128: OQS_KEM_alg_classic_mceliece_8192128,
-    ClassicMcEliece8192128f: OQS_KEM_alg_classic_mceliece_8192128f,
-    Hqc128: OQS_KEM_alg_hqc_128,
-    Hqc192: OQS_KEM_alg_hqc_192,
-    Hqc256: OQS_KEM_alg_hqc_256,
-    Kyber512: OQS_KEM_alg_kyber_512,
-    Kyber768: OQS_KEM_alg_kyber_768,
-    Kyber1024: OQS_KEM_alg_kyber_1024,
-    Kyber512_90s: OQS_KEM_alg_kyber_512_90s,
-    Kyber768_90s: OQS_KEM_alg_kyber_768_90s,
-    Kyber1024_90s: OQS_KEM_alg_kyber_1024_90s,
-    NtruHps2048509: OQS_KEM_alg_ntru_hps2048509,
-    NtruHps2048677: OQS_KEM_alg_ntru_hps2048677,
-    NtruHps4096821: OQS_KEM_alg_ntru_hps4096821,
-    NtruHrss701: OQS_KEM_alg_ntru_hrss701,
-    NtruPrimeNtrulpr653: OQS_KEM_alg_ntruprime_ntrulpr653,
-    NtruPrimeNtrulpr761: OQS_KEM_alg_ntruprime_ntrulpr761,
-    NtruPrimeNtrulpr857: OQS_KEM_alg_ntruprime_ntrulpr857,
-    NtruPrimeSntrup653: OQS_KEM_alg_ntruprime_sntrup653,
-    NtruPrimeSntrup761: OQS_KEM_alg_ntruprime_sntrup761,
-    NtruPrimeSntrup857: OQS_KEM_alg_ntruprime_sntrup857,
-    Lightsaber: OQS_KEM_alg_saber_lightsaber,
-    Saber: OQS_KEM_alg_saber_saber,
-    Firesaber: OQS_KEM_alg_saber_firesaber,
-    FrodoKem640Aes: OQS_KEM_alg_frodokem_640_aes,
-    FrodoKem640Shake: OQS_KEM_alg_frodokem_640_shake,
-    FrodoKem976Aes: OQS_KEM_alg_frodokem_976_aes,
-    FrodoKem976Shake: OQS_KEM_alg_frodokem_976_shake,
-    FrodoKem1344Aes: OQS_KEM_alg_frodokem_1344_aes,
-    FrodoKem1344Shake: OQS_KEM_alg_frodokem_1344_shake,
-    SidhP434: OQS_KEM_alg_sidh_p434,
-    SidhP503: OQS_KEM_alg_sidh_p503,
-    SidhP610: OQS_KEM_alg_sidh_p610,
-    SidhP751: OQS_KEM_alg_sidh_p751,
-    SidhP434Compressed: OQS_KEM_alg_sidh_p434_compressed,
-    SidhP503Compressed: OQS_KEM_alg_sidh_p503_compressed,
-    SidhP610Compressed: OQS_KEM_alg_sidh_p610_compressed,
-    SidhP751Compressed: OQS_KEM_alg_sidh_p751_compressed,
-    SikeP434: OQS_KEM_alg_sike_p434,
-    SikeP503: OQS_KEM_alg_sike_p503,
-    SikeP610: OQS_KEM_alg_sike_p610,
-    SikeP751: OQS_KEM_alg_sike_p751,
-    SikeP434Compressed: OQS_KEM_alg_sike_p434_compressed,
-    SikeP503Compressed: OQS_KEM_alg_sike_p503_compressed,
-    SikeP610Compressed: OQS_KEM_alg_sike_p610_compressed,
-    SikeP751Compressed: OQS_KEM_alg_sike_p751_compressed,
-}
-
-impl core::default::Default for Algorithm {
-    fn default() -> Self {
-        Algorithm::Default
-    }
+    ("bike") BikeL1: OQS_KEM_alg_bike_l1,
+    ("bike") BikeL3: OQS_KEM_alg_bike_l3,
+    ("classic_mceliece") ClassicMcEliece348864: OQS_KEM_alg_classic_mceliece_348864,
+    ("classic_mceliece") ClassicMcEliece348864f: OQS_KEM_alg_classic_mceliece_348864f,
+    ("classic_mceliece") ClassicMcEliece460896: OQS_KEM_alg_classic_mceliece_460896,
+    ("classic_mceliece") ClassicMcEliece460896f: OQS_KEM_alg_classic_mceliece_460896f,
+    ("classic_mceliece") ClassicMcEliece6688128: OQS_KEM_alg_classic_mceliece_6688128,
+    ("classic_mceliece") ClassicMcEliece6688128f: OQS_KEM_alg_classic_mceliece_6688128f,
+    ("classic_mceliece") ClassicMcEliece6960119: OQS_KEM_alg_classic_mceliece_6960119,
+    ("classic_mceliece") ClassicMcEliece6960119f: OQS_KEM_alg_classic_mceliece_6960119f,
+    ("classic_mceliece") ClassicMcEliece8192128: OQS_KEM_alg_classic_mceliece_8192128,
+    ("classic_mceliece") ClassicMcEliece8192128f: OQS_KEM_alg_classic_mceliece_8192128f,
+    ("hqc") Hqc128: OQS_KEM_alg_hqc_128,
+    ("hqc") Hqc192: OQS_KEM_alg_hqc_192,
+    ("hqc") Hqc256: OQS_KEM_alg_hqc_256,
+    ("kyber") Kyber512: OQS_KEM_alg_kyber_512,
+    ("kyber") Kyber768: OQS_KEM_alg_kyber_768,
+    ("kyber") Kyber1024: OQS_KEM_alg_kyber_1024,
+    ("kyber") Kyber512_90s: OQS_KEM_alg_kyber_512_90s,
+    ("kyber") Kyber768_90s: OQS_KEM_alg_kyber_768_90s,
+    ("kyber") Kyber1024_90s: OQS_KEM_alg_kyber_1024_90s,
+    ("ntru") NtruHps2048509: OQS_KEM_alg_ntru_hps2048509,
+    ("ntru") NtruHps2048677: OQS_KEM_alg_ntru_hps2048677,
+    ("ntru") NtruHps4096821: OQS_KEM_alg_ntru_hps4096821,
+    ("ntru") NtruHrss701: OQS_KEM_alg_ntru_hrss701,
+    ("ntruprime") NtruPrimeNtrulpr653: OQS_KEM_alg_ntruprime_ntrulpr653,
+    ("ntruprime") NtruPrimeNtrulpr761: OQS_KEM_alg_ntruprime_ntrulpr761,
+    ("ntruprime") NtruPrimeNtrulpr857: OQS_KEM_alg_ntruprime_ntrulpr857,
+    ("ntruprime") NtruPrimeSntrup653: OQS_KEM_alg_ntruprime_sntrup653,
+    ("ntruprime") NtruPrimeSntrup761: OQS_KEM_alg_ntruprime_sntrup761,
+    ("ntruprime") NtruPrimeSntrup857: OQS_KEM_alg_ntruprime_sntrup857,
+    ("saber") Lightsaber: OQS_KEM_alg_saber_lightsaber,
+    ("saber") Saber: OQS_KEM_alg_saber_saber,
+    ("saber") Firesaber: OQS_KEM_alg_saber_firesaber,
+    ("frodokem") FrodoKem640Aes: OQS_KEM_alg_frodokem_640_aes,
+    ("frodokem") FrodoKem640Shake: OQS_KEM_alg_frodokem_640_shake,
+    ("frodokem") FrodoKem976Aes: OQS_KEM_alg_frodokem_976_aes,
+    ("frodokem") FrodoKem976Shake: OQS_KEM_alg_frodokem_976_shake,
+    ("frodokem") FrodoKem1344Aes: OQS_KEM_alg_frodokem_1344_aes,
+    ("frodokem") FrodoKem1344Shake: OQS_KEM_alg_frodokem_1344_shake,
+    ("sidh") SidhP434: OQS_KEM_alg_sidh_p434,
+    ("sidh") SidhP503: OQS_KEM_alg_sidh_p503,
+    ("sidh") SidhP610: OQS_KEM_alg_sidh_p610,
+    ("sidh") SidhP751: OQS_KEM_alg_sidh_p751,
+    ("sidh") SidhP434Compressed: OQS_KEM_alg_sidh_p434_compressed,
+    ("sidh") SidhP503Compressed: OQS_KEM_alg_sidh_p503_compressed,
+    ("sidh") SidhP610Compressed: OQS_KEM_alg_sidh_p610_compressed,
+    ("sidh") SidhP751Compressed: OQS_KEM_alg_sidh_p751_compressed,
+    ("sike") SikeP434: OQS_KEM_alg_sike_p434,
+    ("sike") SikeP503: OQS_KEM_alg_sike_p503,
+    ("sike") SikeP610: OQS_KEM_alg_sike_p610,
+    ("sike") SikeP751: OQS_KEM_alg_sike_p751,
+    ("sike") SikeP434Compressed: OQS_KEM_alg_sike_p434_compressed,
+    ("sike") SikeP503Compressed: OQS_KEM_alg_sike_p503_compressed,
+    ("sike") SikeP610Compressed: OQS_KEM_alg_sike_p610_compressed,
+    ("sike") SikeP751Compressed: OQS_KEM_alg_sike_p751_compressed,
 }
 
 impl Algorithm {
@@ -162,9 +162,10 @@ impl Algorithm {
 ///
 /// # Example
 /// ```rust
+/// # if !cfg!(feature = "kyber") { return; }
 /// use oqs;
 /// oqs::init();
-/// let kem = oqs::kem::Kem::default();
+/// let kem = oqs::kem::Kem::new(oqs::kem::Algorithm::Kyber512).unwrap();
 /// let (pk, sk) = kem.keypair().unwrap();
 /// let (ct, ss) = kem.encapsulate(&pk).unwrap();
 /// let ss2 = kem.decapsulate(&sk, &ct).unwrap();
@@ -180,15 +181,6 @@ unsafe impl Send for Kem {}
 impl Drop for Kem {
     fn drop(&mut self) {
         unsafe { ffi::OQS_KEM_free(self.kem.as_ptr()) };
-    }
-}
-
-impl core::default::Default for Kem {
-    /// Get the default KEM algorithm in liboqs
-    ///
-    /// Panics if the default algorithm is not enabled in liboqs.
-    fn default() -> Self {
-        Kem::new(Algorithm::Default).expect("Expected default algorithm to be enabled")
     }
 }
 
@@ -380,15 +372,5 @@ impl Kem {
         // this is safe to do, as we have initialised them now.
         unsafe { ss.bytes.set_len(kem.length_shared_secret) };
         Ok(ss)
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_default() {
-        Kem::default();
     }
 }

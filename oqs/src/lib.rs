@@ -9,6 +9,7 @@
 //! This protocol has no replay protection!
 //! ```
 //! use oqs::*;
+//! # #[cfg(all(feature = "dilithium2", feature = "kyber"))]
 //! fn main() -> Result<()> {
 //!     oqs::init(); // Important: initialize liboqs
 //!     let sigalg = sig::Sig::new(sig::Algorithm::Dilithium2)?;
@@ -37,6 +38,8 @@
 //!
 //!     Ok(())
 //! }
+//! # #[cfg(not(all(feature = "dilithium2", feature = "kyber")))]
+//! # fn main() {}
 //! ```
 // needs to be imported to be made available
 extern crate alloc;
