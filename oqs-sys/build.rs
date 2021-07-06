@@ -62,8 +62,7 @@ fn main() {
     // KEMs
     // BIKE is not supported on Windows or Arm32, so if either is in the mix,
     // have it be opt-in explicitly except through the default kems feature.
-    if cfg!(feature = "kems") && !(cfg!(windows) || cfg!(target_arch = "arm"))
-    {
+    if cfg!(feature = "kems") && !(cfg!(windows) || cfg!(target_arch = "arm")) {
         println!("cargo:rustc-cfg=feature=\"bike\"");
         config.define("OQS_ENABLE_KEM_BIKE", "Yes");
     } else {
