@@ -55,7 +55,6 @@ fn main() {
             let configflag = format!("OQS_ENABLE_{}_{}", $typ, $feat.to_ascii_uppercase());
             let value = if cfg!(feature = $feat) { "Yes" } else { "No" };
             config.define(&configflag, value);
-            println!("cargo:info={}={}", configflag, value);
         };
     }
 
