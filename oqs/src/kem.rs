@@ -79,6 +79,15 @@ macro_rules! implement_kems {
                         assert!(!Algorithm::$kem.is_enabled())
                     }
                 }
+
+                #[cfg(not(feature = "no_std"))]
+                #[test]
+                fn test_display() {
+                    // Just make sure the Display impl does not panic or crash.
+                    let name = Algorithm::$kem.to_string();
+                    // ... And actually contains something.
+                    assert!(!name.is_empty());
+                }
             }
         )*
     )
@@ -155,6 +164,23 @@ impl Algorithm {
     /// For use with the FFI api methods
     pub fn to_id(self) -> *const libc::c_char {
         algorithm_to_id(self)
+    }
+
+    /// Returns the algorithm's name as a static Rust string.
+    ///
+    /// This is the same as the `to_id`, but as a safe Rust string.
+    #[cfg(not(feature = "no_std"))]
+    pub fn name(&self) -> &'static str {
+        // SAFETY: The id from ffi must be a proper null terminated C string
+        let id = unsafe { CStr::from_ptr(self.to_id()) };
+        id.to_str().expect("OQS algorithm names must be UTF-8")
+    }
+}
+
+#[cfg(not(feature = "no_std"))]
+impl std::fmt::Display for Algorithm {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.name().fmt(f)
     }
 }
 
