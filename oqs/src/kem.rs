@@ -32,7 +32,7 @@ macro_rules! implement_kems {
         /// Note that this doesn't mean that they'll be available.
         ///
         /// Optional support for `serde` if that feature is enabled.
-        #[derive(Clone, Copy, Debug)]
+        #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
         #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
         #[allow(missing_docs)]
         pub enum Algorithm {
