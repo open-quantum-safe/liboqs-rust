@@ -2,7 +2,6 @@
 //!
 //! See [`Kem`] for the main functionality.
 //! [`Algorithm`] lists the available algorithms.
-use alloc::borrow;
 use alloc::vec::Vec;
 
 use core::ptr::NonNull;
@@ -95,6 +94,16 @@ macro_rules! implement_kems {
                     if algorithm.is_enabled() {
                         let kem = Kem::new(algorithm).unwrap();
                         assert_eq!(algorithm, kem.algorithm());
+                    }
+                }
+
+                #[test]
+                fn test_version() {
+                    if let Ok(kem) = Kem::new(Algorithm::$kem) {
+                        // Just make sure the version can be called without panic
+                        let version = kem.version();
+                        // ... And actually contains something.
+                        assert!(!version.is_empty());
                     }
                 }
             }
@@ -245,10 +254,12 @@ impl Kem {
     }
 
     /// Get the version of the implementation
-    pub fn version(&self) -> borrow::Cow<str> {
+    pub fn version(&self) -> &'static str {
         let kem = unsafe { self.kem.as_ref() };
-        let cstr = unsafe { CStr::from_ptr(kem.method_name) };
-        cstr.to_string_lossy()
+        // SAFETY: The alg_version from ffi must be a proper null terminated C string
+        let cstr = unsafe { CStr::from_ptr(kem.alg_version) };
+        cstr.to_str()
+            .expect("Algorithm version strings must be UTF-8")
     }
 
     /// Get the claimed nist level

@@ -2,7 +2,6 @@
 //!
 //! See [`Sig`] for the main functionality and [`Algorithm`]
 //! for the list of supported algorithms.
-use alloc::borrow;
 use alloc::vec::Vec;
 
 use core::ptr::NonNull;
@@ -93,6 +92,16 @@ macro_rules! implement_sigs {
                     if algorithm.is_enabled() {
                         let sig = Sig::new(algorithm).unwrap();
                         assert_eq!(algorithm, sig.algorithm());
+                    }
+                }
+
+                #[test]
+                fn test_version() {
+                    if let Ok(sig) = Sig::new(Algorithm::$sig) {
+                        // Just make sure the version can be called without panic
+                        let version = sig.version();
+                        // ... And actually contains something.
+                        assert!(!version.is_empty());
                     }
                 }
             }
@@ -248,11 +257,13 @@ impl Sig {
         self.algorithm
     }
 
-    /// Version of this implementation
-    pub fn version(&self) -> borrow::Cow<str> {
+    /// Get the version of the implementation
+    pub fn version(&self) -> &'static str {
         let sig = unsafe { self.sig.as_ref() };
-        let cstr = unsafe { CStr::from_ptr(sig.method_name) };
-        cstr.to_string_lossy()
+        // SAFETY: The alg_version from ffi must be a proper null terminated C string
+        let cstr = unsafe { CStr::from_ptr(sig.alg_version) };
+        cstr.to_str()
+            .expect("Algorithm version strings must be UTF-8")
     }
 
     /// Obtain the claimed nist level
