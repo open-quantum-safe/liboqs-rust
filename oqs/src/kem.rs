@@ -88,6 +88,15 @@ macro_rules! implement_kems {
                     // ... And actually contains something.
                     assert!(!name.is_empty());
                 }
+
+                #[test]
+                fn test_get_algorithm_back() {
+                    let algorithm = Algorithm::$kem;
+                    if algorithm.is_enabled() {
+                        let kem = Kem::new(algorithm).unwrap();
+                        assert_eq!(algorithm, kem.algorithm());
+                    }
+                }
             }
         )*
     )
@@ -200,6 +209,7 @@ impl std::fmt::Display for Algorithm {
 /// assert_eq!(ss, ss2);
 /// ```
 pub struct Kem {
+    algorithm: Algorithm,
     kem: NonNull<ffi::OQS_KEM>,
 }
 
@@ -223,14 +233,15 @@ impl Kem {
     /// Construct a new algorithm
     pub fn new(algorithm: Algorithm) -> Result<Self> {
         let kem = unsafe { ffi::OQS_KEM_new(algorithm_to_id(algorithm)) };
-        NonNull::new(kem).map_or_else(|| Err(Error::AlgorithmDisabled), |kem| Ok(Self { kem }))
+        NonNull::new(kem).map_or_else(
+            || Err(Error::AlgorithmDisabled),
+            |kem| Ok(Self { algorithm, kem }),
+        )
     }
 
-    /// Get the name of the algorithm
-    pub fn name(&self) -> borrow::Cow<str> {
-        let kem = unsafe { self.kem.as_ref() };
-        let cstr = unsafe { CStr::from_ptr(kem.method_name) };
-        cstr.to_string_lossy()
+    /// Get the algorithm used by this `Kem`
+    pub fn algorithm(&self) -> Algorithm {
+        self.algorithm
     }
 
     /// Get the version of the implementation

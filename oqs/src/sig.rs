@@ -86,6 +86,15 @@ macro_rules! implement_sigs {
                     // ... And actually contains something.
                     assert!(!name.is_empty());
                 }
+
+                #[test]
+                fn test_get_algorithm_back() {
+                    let algorithm = Algorithm::$sig;
+                    if algorithm.is_enabled() {
+                        let sig = Sig::new(algorithm).unwrap();
+                        assert_eq!(algorithm, sig.algorithm());
+                    }
+                }
             }
         )*
     )
@@ -195,6 +204,7 @@ impl Algorithm {
 /// assert!(scheme.verify(&message, &signature, &pk).is_ok());
 /// ```
 pub struct Sig {
+    algorithm: Algorithm,
     sig: NonNull<ffi::OQS_SIG>,
 }
 
@@ -227,14 +237,15 @@ impl Sig {
     /// May fail if the algorithm is not available
     pub fn new(algorithm: Algorithm) -> Result<Self> {
         let sig = unsafe { ffi::OQS_SIG_new(algorithm_to_id(algorithm)) };
-        NonNull::new(sig).map_or_else(|| Err(Error::AlgorithmDisabled), |sig| Ok(Self { sig }))
+        NonNull::new(sig).map_or_else(
+            || Err(Error::AlgorithmDisabled),
+            |sig| Ok(Self { algorithm, sig }),
+        )
     }
 
-    /// Get the name of this signature algorithm
-    pub fn name(&self) -> borrow::Cow<str> {
-        let sig = unsafe { self.sig.as_ref() };
-        let cstr = unsafe { CStr::from_ptr(sig.method_name) };
-        cstr.to_string_lossy()
+    /// Get the algorithm used by this `Sig`
+    pub fn algorithm(&self) -> Algorithm {
+        self.algorithm
     }
 
     /// Version of this implementation
