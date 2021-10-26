@@ -1,6 +1,6 @@
 //! Signature API
 //!
-//! See [`Sig`] for the main functionality and [`Algorithmm`]
+//! See [`Sig`] for the main functionality and [`Algorithm`]
 //! for the list of supported algorithms.
 use alloc::borrow;
 use alloc::vec::Vec;
