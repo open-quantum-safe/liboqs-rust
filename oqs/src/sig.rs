@@ -33,7 +33,7 @@ macro_rules! implement_sigs {
         /// They may not all be enabled
         ///
         /// Optional support for `serde` if that feature is enabled.
-        #[derive(Clone, Copy, Debug)]
+        #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
         #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
         #[allow(missing_docs)]
         pub enum Algorithm {
@@ -76,6 +76,15 @@ macro_rules! implement_sigs {
                     } else {
                         assert!(!Algorithm::$sig.is_enabled())
                     }
+                }
+
+                #[cfg(not(feature = "no_std"))]
+                #[test]
+                fn test_display() {
+                    // Just make sure the Display impl does not panic or crash.
+                    let name = Algorithm::$sig.to_string();
+                    // ... And actually contains something.
+                    assert!(!name.is_empty());
                 }
             }
         )*
@@ -160,6 +169,16 @@ impl Algorithm {
     pub fn to_id(self) -> *const libc::c_char {
         algorithm_to_id(self)
     }
+
+    /// Returns the algorithm's name as a static Rust string.
+    ///
+    /// This is the same as the `to_id`, but as a safe Rust string.
+    #[cfg(not(feature = "no_std"))]
+    pub fn name(&self) -> &'static str {
+        // SAFETY: The id from ffi must be a proper null terminated C string
+        let id = unsafe { CStr::from_ptr(self.to_id()) };
+        id.to_str().expect("OQS algorithm names must be UTF-8")
+    }
 }
 
 /// Signature scheme
@@ -185,6 +204,13 @@ unsafe impl Send for Sig {}
 impl Drop for Sig {
     fn drop(&mut self) {
         unsafe { ffi::OQS_SIG_free(self.sig.as_ptr()) };
+    }
+}
+
+#[cfg(not(feature = "no_std"))]
+impl std::fmt::Display for Algorithm {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.name().fmt(f)
     }
 }
 
