@@ -43,13 +43,13 @@ Serde support
 
 You can enable ``serde`` serialization support by enabling the ``serde`` feature on the ``oqs`` crate.
 
-``no_std`` support
+``std`` support
 ----------------
 
 The ``oqs-sys`` crate does not use `std` at all.
 Note that the default features do enable building liboqs with ``openssl``, so use ``default-features = false``.
 
-For ``no_std`` suport in the ``oqs`` crate, enable the ``no_std`` feature.
+To make ``oqs`` a ``#![no_std]`` crate make sure the ``std`` feature is disabled.
 Make sure to also disable the ``oqs-sys/openssl`` feature by specifying ``default-features = false``.
 
 As `default-features` includes the `kems` and `sigs` features, consider re-adding them as well. This results into:
@@ -58,7 +58,7 @@ As `default-features` includes the `kems` and `sigs` features, consider re-addin
 [dependencies.oqs]
 version = "*"
 default-features = false
-features = ["no_std", "sigs", "kems"]
+features = ["sigs", "kems"]
 ```
 
 You will probably want to change the random-number generator through the [`OQS_RAND` API][] offered by `oqs-sys`.

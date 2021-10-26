@@ -71,23 +71,23 @@ jobs:
         with:
           command: test
 
+      - name: Cargo test --no-default-features --features serde,kems,sigs,std
+        uses: actions-rs/cargo@v1.0.3
+        with:
+          command: test
+          args: --no-default-features --features serde,kems,sigs,std --manifest-path oqs/Cargo.toml
+
       - name: Cargo test --no-default-features --features serde,kems,sigs
         uses: actions-rs/cargo@v1.0.3
         with:
           command: test
           args: --no-default-features --features serde,kems,sigs --manifest-path oqs/Cargo.toml
 
-      - name: Cargo test --no-default-features --features serde,no_std,kems,sigs
+      - name: Cargo test --no-default-features --features non_portable,kems,sigs,std
         uses: actions-rs/cargo@v1.0.3
         with:
           command: test
-          args: --no-default-features --features no_std,serde,kems,sigs --manifest-path oqs/Cargo.toml
-
-      - name: Cargo test --no-default-features --features non_portable,kems,sigs
-        uses: actions-rs/cargo@v1.0.3
-        with:
-          command: test
-          args: --no-default-features --features non_portable,kems,sigs --manifest-path oqs/Cargo.toml
+          args: --no-default-features --features non_portable,kems,sigs,std --manifest-path oqs/Cargo.toml
 
       - name: Cargo fmt
         uses: actions-rs/cargo@v1.0.3

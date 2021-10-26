@@ -7,8 +7,9 @@ For the ``ffi`` interface bindings, see ``oqs-sys``.
 
 ## Features
 
-* `no_std`: build without `std` support (probably want to disable the default
-  features because they pull in OpenSSL through `oqs-sys`).
+* `std`: build with `std` support. This adds handly `Display` and `Error` implementations
+  to relevant types. If you want a `#![no_std]` library, disable this feature (and you
+  probably want to disable the default features because they pull in OpenSSL through `oqs-sys`).
 * `non_portable`: Don't build a portable library.
 * `kems` (default): Compile with all KEMs enabled
     * `bike`  (only on non-Windows)

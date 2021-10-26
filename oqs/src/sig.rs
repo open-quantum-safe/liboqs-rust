@@ -7,9 +7,9 @@ use alloc::vec::Vec;
 
 use core::ptr::NonNull;
 
-#[cfg(feature = "no_std")]
+#[cfg(not(feature = "std"))]
 use cstr_core::CStr;
-#[cfg(not(feature = "no_std"))]
+#[cfg(feature = "std")]
 use std::ffi::CStr;
 
 use crate::ffi::sig as ffi;
@@ -78,11 +78,15 @@ macro_rules! implement_sigs {
                     }
                 }
 
-                #[cfg(not(feature = "no_std"))]
                 #[test]
-                fn test_display() {
-                    // Just make sure the Display impl does not panic or crash.
-                    let name = Algorithm::$sig.to_string();
+                fn test_name() {
+                    let algo = Algorithm::$sig;
+                    // Just make sure the name impl does not panic or crash.
+                    let name = algo.name();
+
+                    #[cfg(feature = "std")]
+                    assert_eq!(name, algo.to_string());
+
                     // ... And actually contains something.
                     assert!(!name.is_empty());
                 }
@@ -173,7 +177,6 @@ impl Algorithm {
     /// Returns the algorithm's name as a static Rust string.
     ///
     /// This is the same as the `to_id`, but as a safe Rust string.
-    #[cfg(not(feature = "no_std"))]
     pub fn name(&self) -> &'static str {
         // SAFETY: The id from ffi must be a proper null terminated C string
         let id = unsafe { CStr::from_ptr(self.to_id()) };
@@ -207,7 +210,7 @@ impl Drop for Sig {
     }
 }
 
-#[cfg(not(feature = "no_std"))]
+#[cfg(feature = "std")]
 impl std::fmt::Display for Algorithm {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.name().fmt(f)
