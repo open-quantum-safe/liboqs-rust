@@ -1,5 +1,5 @@
 #![warn(missing_docs)]
-#![cfg_attr(feature = "no_std", no_std)]
+#![cfg_attr(not(feature = "std"), no_std)]
 //! Friendly bindings to liboqs
 //!
 //! See the [`kem::Kem`](crate::kem::Kem) and [`sig::Sig`](crate::sig::Sig) structs for how to use this crate.
@@ -44,9 +44,6 @@
 // needs to be imported to be made available
 extern crate alloc;
 
-#[cfg(not(feature = "no_std"))]
-use std::sync::Once;
-
 use ffi::common::OQS_STATUS;
 
 /// Access the OQS ffi through this crate.
@@ -58,10 +55,11 @@ mod macros;
 ///
 /// Make sure to call this before you use any of the functions.
 ///
-/// When the ``no_std`` feature is not enabled, this method is thread-safe
+/// When the ``std`` feature is enabled, this method is thread-safe
 /// and can be called more than once.
-#[cfg(not(feature = "no_std"))]
+#[cfg(feature = "std")]
 pub fn init() {
+    use std::sync::Once;
     static INIT: Once = Once::new();
     INIT.call_once(|| {
         unsafe { ffi::common::OQS_init() };
@@ -73,7 +71,7 @@ pub fn init() {
 /// Needs to be called before you use any of the functions.
 ///
 /// This ``no_std`` variant is not thread-safe.
-#[cfg(feature = "no_std")]
+#[cfg(not(feature = "std"))]
 pub fn init() {
     unsafe { ffi::common::OQS_init() };
 }
@@ -92,7 +90,7 @@ pub enum Error {
     /// Invalid length of a public object
     InvalidLength,
 }
-#[cfg(not(feature = "no_std"))]
+#[cfg(feature = "std")]
 impl std::error::Error for Error {}
 
 /// Result type for operations that may fail
