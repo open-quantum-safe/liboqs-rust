@@ -1,8 +1,7 @@
 //! Signature API
 //!
-//! See [`Sig`] for the main functionality and [`Algorithmm`]
+//! See [`Sig`] for the main functionality and [`Algorithm`]
 //! for the list of supported algorithms.
-use alloc::borrow;
 use alloc::vec::Vec;
 
 use core::ptr::NonNull;
@@ -89,6 +88,25 @@ macro_rules! implement_sigs {
 
                     // ... And actually contains something.
                     assert!(!name.is_empty());
+                }
+
+                #[test]
+                fn test_get_algorithm_back() {
+                    let algorithm = Algorithm::$sig;
+                    if algorithm.is_enabled() {
+                        let sig = Sig::new(algorithm).unwrap();
+                        assert_eq!(algorithm, sig.algorithm());
+                    }
+                }
+
+                #[test]
+                fn test_version() {
+                    if let Ok(sig) = Sig::new(Algorithm::$sig) {
+                        // Just make sure the version can be called without panic
+                        let version = sig.version();
+                        // ... And actually contains something.
+                        assert!(!version.is_empty());
+                    }
                 }
             }
         )*
@@ -198,6 +216,7 @@ impl Algorithm {
 /// assert!(scheme.verify(&message, &signature, &pk).is_ok());
 /// ```
 pub struct Sig {
+    algorithm: Algorithm,
     sig: NonNull<ffi::OQS_SIG>,
 }
 
@@ -230,21 +249,24 @@ impl Sig {
     /// May fail if the algorithm is not available
     pub fn new(algorithm: Algorithm) -> Result<Self> {
         let sig = unsafe { ffi::OQS_SIG_new(algorithm_to_id(algorithm)) };
-        NonNull::new(sig).map_or_else(|| Err(Error::AlgorithmDisabled), |sig| Ok(Self { sig }))
+        NonNull::new(sig).map_or_else(
+            || Err(Error::AlgorithmDisabled),
+            |sig| Ok(Self { algorithm, sig }),
+        )
     }
 
-    /// Get the name of this signature algorithm
-    pub fn name(&self) -> borrow::Cow<str> {
-        let sig = unsafe { self.sig.as_ref() };
-        let cstr = unsafe { CStr::from_ptr(sig.method_name) };
-        cstr.to_string_lossy()
+    /// Get the algorithm used by this `Sig`
+    pub fn algorithm(&self) -> Algorithm {
+        self.algorithm
     }
 
-    /// Version of this implementation
-    pub fn version(&self) -> borrow::Cow<str> {
+    /// Get the version of the implementation
+    pub fn version(&self) -> &'static str {
         let sig = unsafe { self.sig.as_ref() };
-        let cstr = unsafe { CStr::from_ptr(sig.method_name) };
-        cstr.to_string_lossy()
+        // SAFETY: The alg_version from ffi must be a proper null terminated C string
+        let cstr = unsafe { CStr::from_ptr(sig.alg_version) };
+        cstr.to_str()
+            .expect("Algorithm version strings must be UTF-8")
     }
 
     /// Obtain the claimed nist level
