@@ -1,5 +1,8 @@
 # Bindings to Open-Quantum-Safe's [liboqs][]
 
+[![crates.io](https://img.shields.io/crates/v/oqs)](https://crates.io/crates/oqs)
+[![crates.io/docs](https://img.shields.io/docsrs/oqs)](https://docs.rs/oqs/0.7.1/oqs/)
+
 This crate provides convenience wrappers to access the functionality provided by [liboqs][].
 For the ``ffi`` interface bindings, see ``oqs-sys``.
 
