@@ -158,22 +158,6 @@ implement_kems! {
     ("frodokem") FrodoKem976Shake: OQS_KEM_alg_frodokem_976_shake,
     ("frodokem") FrodoKem1344Aes: OQS_KEM_alg_frodokem_1344_aes,
     ("frodokem") FrodoKem1344Shake: OQS_KEM_alg_frodokem_1344_shake,
-    ("sidh") SidhP434: OQS_KEM_alg_sidh_p434,
-    ("sidh") SidhP503: OQS_KEM_alg_sidh_p503,
-    ("sidh") SidhP610: OQS_KEM_alg_sidh_p610,
-    ("sidh") SidhP751: OQS_KEM_alg_sidh_p751,
-    ("sidh") SidhP434Compressed: OQS_KEM_alg_sidh_p434_compressed,
-    ("sidh") SidhP503Compressed: OQS_KEM_alg_sidh_p503_compressed,
-    ("sidh") SidhP610Compressed: OQS_KEM_alg_sidh_p610_compressed,
-    ("sidh") SidhP751Compressed: OQS_KEM_alg_sidh_p751_compressed,
-    ("sike") SikeP434: OQS_KEM_alg_sike_p434,
-    ("sike") SikeP503: OQS_KEM_alg_sike_p503,
-    ("sike") SikeP610: OQS_KEM_alg_sike_p610,
-    ("sike") SikeP751: OQS_KEM_alg_sike_p751,
-    ("sike") SikeP434Compressed: OQS_KEM_alg_sike_p434_compressed,
-    ("sike") SikeP503Compressed: OQS_KEM_alg_sike_p503_compressed,
-    ("sike") SikeP610Compressed: OQS_KEM_alg_sike_p610_compressed,
-    ("sike") SikeP751Compressed: OQS_KEM_alg_sike_p751_compressed,
 }
 
 impl Algorithm {
