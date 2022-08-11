@@ -7,7 +7,7 @@ macro_rules! newtype_buffer {
         /// New owned buffer
         ///
         /// Optional support for `serde` if that feature is enabled.
-        #[derive(Debug, Clone, PartialEq)]
+        #[derive(Debug, Clone, PartialEq, Eq)]
         #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
         pub struct $name {
             bytes: Vec<u8>,
@@ -24,7 +24,7 @@ macro_rules! newtype_buffer {
         ///
         /// Allows for copy-less usage
         /// Construct it through the algorithm API functions
-        #[derive(Debug, Clone, Copy, PartialEq)]
+        #[derive(Debug, Clone, Copy, PartialEq, Eq)]
         pub struct $name_ref<'a> {
             bytes: &'a [u8],
         }
