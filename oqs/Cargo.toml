@@ -2,7 +2,7 @@
 name = "oqs"
 version = "0.7.1"
 authors = ["Thom Wiggers <thom@thomwiggers.nl>"]
-edition = "2018"
+edition = "2021"
 description = "A Rusty interface to Open-Quantum-Safe's liboqs"
 readme = "../README.md"
 repository = "https://github.com/open-quantum-safe/liboqs-rust"

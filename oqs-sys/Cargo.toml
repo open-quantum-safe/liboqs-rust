@@ -2,7 +2,7 @@
 name = "oqs-sys"
 version = "0.7.1"
 authors = ["Thom Wiggers <thom@thomwiggers.nl>"]
-edition = "2018"
+edition = "2021"
 links = "oqs"
 description = "Bindings to liboqs"
 readme = "../README.md"
