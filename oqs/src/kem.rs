@@ -46,7 +46,7 @@ macro_rules! implement_kems {
                     Algorithm::$kem => &ffi::$oqs_id[..],
                 )*
             };
-            id as *const _ as *const i8
+            id as *const _ as *const libc::c_char
         }
 
         $(
