@@ -10,7 +10,7 @@ repository = "https://github.com/open-quantum-safe/liboqs-rust"
 license = "MIT OR Apache-2.0"
 
 # Exclude certain liboqs files
-exclude = ["liboqs/tests/**", "liboqs/docs/**", "liboqs/scripts/**", "build/**/*.o"]
+exclude = ["liboqs/tests/**", "liboqs/docs/**", "liboqs/scripts/**"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -28,7 +28,7 @@ openssl = []
 docs = []
 non_portable = []
 # algorithms: KEMs
-kems = ["classic_mceliece", "frodokem", "hqc", "kyber", "ntru", "ntruprime", "saber", "sidh", "sike"]
+kems = ["classic_mceliece", "frodokem", "hqc", "kyber", "ntru", "ntruprime", "saber"]
 bike = []  # BIKE is enabled by build.rs on non-windows targets
 classic_mceliece = []
 frodokem = []
@@ -37,8 +37,6 @@ kyber = []
 ntru = []
 ntruprime = []
 saber = []
-sidh = []
-sike = []
 # algorithms: Signature schemes
 sigs = ["dilithium", "falcon", "picnic", "rainbow", "sphincs"]
 dilithium = []
