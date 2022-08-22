@@ -47,7 +47,7 @@ macro_rules! implement_sigs {
                     Algorithm::$sig => &ffi::$oqs_id[..],
                 )*
             };
-            id as *const _ as *const i8
+            id as *const _ as *const libc::c_char
         }
 
         $(
