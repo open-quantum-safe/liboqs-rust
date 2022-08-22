@@ -95,8 +95,6 @@ Algorithm features
     * `ntru`
     * `ntruprime`
     * `saber`
-    * `sidh`
-    * `sike`
 * `sigs` (default): Compile with all signature schemes enabled
     * `dilithium`
     * `falcon`
