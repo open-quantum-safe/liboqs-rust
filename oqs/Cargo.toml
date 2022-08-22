@@ -1,6 +1,6 @@
 [package]
 name = "oqs"
-version = "0.7.2-rc2"
+version = "0.7.2"
 authors = ["Thom Wiggers <thom@thomwiggers.nl>"]
 edition = "2021"
 description = "A Rusty interface to Open-Quantum-Safe's liboqs"
