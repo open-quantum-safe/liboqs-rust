@@ -25,19 +25,16 @@ std = []
 non_portable = ["oqs-sys/non_portable"]
 
 # algorithms: KEMs
-kems = ["oqs-sys/kems", "classic_mceliece", "frodokem", "hqc", "kyber", "ntru", "ntruprime", "saber"]
+kems = ["oqs-sys/kems", "classic_mceliece", "frodokem", "hqc", "kyber", "ntru", "saber"]
 bike = ["oqs-sys/bike"]  # not supported on Windows or 32-bit ARM
 classic_mceliece = ["oqs-sys/classic_mceliece"]
 frodokem = ["oqs-sys/frodokem"]
 hqc = ["oqs-sys/hqc"]
 kyber = ["oqs-sys/kyber"]
 ntru = ["oqs-sys/ntru"]
-ntruprime = ["oqs-sys/ntruprime"]
 saber = ["oqs-sys/saber"]
 # algorithms: Signature schemes
-sigs = ["oqs-sys/sigs", "dilithium", "falcon", "picnic", "rainbow", "sphincs"]
+sigs = ["oqs-sys/sigs", "dilithium", "falcon", "sphincs"]
 dilithium = ["oqs-sys/dilithium"]
 falcon = ["oqs-sys/falcon"]
-picnic = ["oqs-sys/picnic"]
-rainbow = ["oqs-sys/rainbow"]
 sphincs = ["oqs-sys/sphincs"]
