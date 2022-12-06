@@ -25,7 +25,7 @@ std = []
 non_portable = ["oqs-sys/non_portable"]
 
 # algorithms: KEMs
-kems = ["oqs-sys/kems", "classic_mceliece", "frodokem", "hqc", "kyber", "ntru", "saber"]
+kems = ["oqs-sys/kems", "classic_mceliece", "frodokem", "hqc", "kyber", "ntru"]
 bike = ["oqs-sys/bike"]  # not supported on Windows or 32-bit ARM
 classic_mceliece = ["oqs-sys/classic_mceliece"]
 frodokem = ["oqs-sys/frodokem"]
