@@ -71,17 +71,10 @@ fn main() {
     algorithm_feature!("KEM", "frodokem");
     algorithm_feature!("KEM", "hqc");
     algorithm_feature!("KEM", "kyber");
-    algorithm_feature!("KEM", "ntru");
-    algorithm_feature!("KEM", "ntruprime");
-    algorithm_feature!("KEM", "saber");
-    algorithm_feature!("KEM", "sidh");
-    algorithm_feature!("KEM", "sike");
 
     // signature schemes
     algorithm_feature!("SIG", "dilithium");
     algorithm_feature!("SIG", "falcon");
-    algorithm_feature!("SIG", "picnic");
-    algorithm_feature!("SIG", "rainbow");
     algorithm_feature!("SIG", "sphincs");
 
     if cfg!(windows) {
