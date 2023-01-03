@@ -31,7 +31,6 @@ classic_mceliece = ["oqs-sys/classic_mceliece"]
 frodokem = ["oqs-sys/frodokem"]
 hqc = ["oqs-sys/hqc"]
 kyber = ["oqs-sys/kyber"]
-saber = ["oqs-sys/saber"]
 # algorithms: Signature schemes
 sigs = ["oqs-sys/sigs", "dilithium", "falcon", "sphincs"]
 dilithium = ["oqs-sys/dilithium"]
