@@ -28,12 +28,13 @@ openssl = []
 docs = []
 non_portable = []
 # algorithms: KEMs
-kems = ["classic_mceliece", "frodokem", "hqc", "kyber"]
+kems = ["classic_mceliece", "frodokem", "hqc", "kyber", "ntruprime"]
 bike = []  # BIKE is enabled by build.rs on non-windows targets
 classic_mceliece = []
 frodokem = []
 hqc = []
 kyber = []
+ntruprime = []
 # algorithms: Signature schemes
 sigs = ["dilithium", "falcon", "sphincs"]
 dilithium = []

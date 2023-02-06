@@ -135,6 +135,7 @@ implement_kems! {
     ("kyber") Kyber512_90s: OQS_KEM_alg_kyber_512_90s,
     ("kyber") Kyber768_90s: OQS_KEM_alg_kyber_768_90s,
     ("kyber") Kyber1024_90s: OQS_KEM_alg_kyber_1024_90s,
+    ("ntruprime") NtruPrimeSntrup761: OQS_KEM_alg_ntruprime_sntrup761,
     ("frodokem") FrodoKem640Aes: OQS_KEM_alg_frodokem_640_aes,
     ("frodokem") FrodoKem640Shake: OQS_KEM_alg_frodokem_640_shake,
     ("frodokem") FrodoKem976Aes: OQS_KEM_alg_frodokem_976_aes,
