@@ -7,7 +7,7 @@ fn generate_bindings(outdir: &Path, headerfile: &str, filter: &str) {
         .header(
             includedir
                 .join("oqs")
-                .join(format!("{}.h", headerfile))
+                .join(format!("{headerfile}.h"))
                 .to_str()
                 .unwrap(),
         )
@@ -31,7 +31,7 @@ fn generate_bindings(outdir: &Path, headerfile: &str, filter: &str) {
         .generate()
         // Unwrap the Result and panic on failure.
         .expect("Unable to generate bindings")
-        .write_to_file(outdir.join(format!("{}_bindings.rs", headerfile)))
+        .write_to_file(outdir.join(format!("{headerfile}_bindings.rs")))
         .expect("Couldn't write bindings!");
 }
 
