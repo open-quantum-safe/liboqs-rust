@@ -116,6 +116,7 @@ macro_rules! implement_kems {
 implement_kems! {
     ("bike") BikeL1: OQS_KEM_alg_bike_l1,
     ("bike") BikeL3: OQS_KEM_alg_bike_l3,
+    ("bike") BikeL5: OQS_KEM_alg_bike_l5,
     ("classic_mceliece") ClassicMcEliece348864: OQS_KEM_alg_classic_mceliece_348864,
     ("classic_mceliece") ClassicMcEliece348864f: OQS_KEM_alg_classic_mceliece_348864f,
     ("classic_mceliece") ClassicMcEliece460896: OQS_KEM_alg_classic_mceliece_460896,
