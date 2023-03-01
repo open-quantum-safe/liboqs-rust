@@ -11,6 +11,7 @@ license = "MIT OR Apache-2.0"
 
 # Exclude certain liboqs files
 exclude = ["liboqs/tests/**", "liboqs/docs/**", "liboqs/scripts/**"]
+include = ["liboqs/.Cmake/**"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
