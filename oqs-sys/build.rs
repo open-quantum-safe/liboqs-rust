@@ -102,6 +102,12 @@ fn main() {
     } else {
         config.define("OQS_USE_OPENSSL", "No");
     }
+
+    let permit_unsupported = "OQS_PERMIT_UNSUPPORTED_ARCHITECTURE";
+    if let Ok(str) = std::env::var(permit_unsupported) {
+        config.define(permit_unsupported, str);
+    }
+
     let outdir = config.build_target("oqs").build();
 
     // lib is put into $outdir/build/lib
