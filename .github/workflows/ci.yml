@@ -49,6 +49,7 @@ jobs:
 
       - name: Install Rust
         run: |
+          rustup set auto-self-update disable
           rustup toolchain install ${{ matrix.rust }} --profile minimal --component rustfmt --component clippy
           rustup default ${{ matrix.rust }}
           echo CARGO_TERM_COLOR=always >> $GITHUB_ENV
