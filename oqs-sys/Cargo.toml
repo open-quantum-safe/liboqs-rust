@@ -18,6 +18,7 @@ include = ["README.md", "build.rs", "src/**", "liboqs/.CMake/**", "liboqs/src/**
 libc = "0.2"
 
 [build-dependencies]
+pkg-config = "0.3"
 cmake = "0.1"
 bindgen = "0.68"
 build-deps = "0.1"
@@ -27,6 +28,7 @@ default = ["openssl", "kems", "sigs"]
 openssl = []
 docs = []
 non_portable = []
+vendored = []
 # algorithms: KEMs
 kems = ["classic_mceliece", "frodokem", "hqc", "kyber", "ntruprime"]
 bike = []  # BIKE is enabled by build.rs on non-windows targets

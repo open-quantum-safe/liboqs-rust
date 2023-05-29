@@ -1,7 +1,7 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
-fn generate_bindings(outdir: &Path, headerfile: &str, filter: &str) {
-    let includedir = outdir.join("build").join("include");
+fn generate_bindings(includedir: &Path, headerfile: &str, filter: &str) {
+    let out_path = PathBuf::from(std::env::var("OUT_DIR").unwrap());
     bindgen::Builder::default()
         .clang_arg(format!("-I{}", includedir.display()))
         .header(
@@ -31,14 +31,11 @@ fn generate_bindings(outdir: &Path, headerfile: &str, filter: &str) {
         .generate()
         // Unwrap the Result and panic on failure.
         .expect("Unable to generate bindings")
-        .write_to_file(outdir.join(format!("{headerfile}_bindings.rs")))
+        .write_to_file(out_path.join(format!("{headerfile}_bindings.rs")))
         .expect("Couldn't write bindings!");
 }
 
-fn main() {
-    // Check if clang is available before compiling anything.
-    bindgen::clang_version();
-
+fn build_from_source() -> PathBuf {
     let mut config = cmake::Config::new("liboqs");
     config.profile("Release");
     config.define("OQS_BUILD_ONLY_LIB", "Yes");
@@ -117,7 +114,50 @@ fn main() {
     }
     println!("cargo:rustc-link-search=native={}", libdir.display());
 
-    let gen_bindings = |file, filter| generate_bindings(&outdir, file, filter);
+    outdir
+}
+
+fn includedir_from_source() -> PathBuf {
+    let outdir = build_from_source();
+    outdir.join("build").join("include")
+}
+
+fn trim_wrapped_patch_version(patch: &str) -> &str {
+    let len = patch.len();
+    if len < 3 {
+        return patch;
+    }
+
+    &patch[..len - 2]
+}
+
+fn probe_includedir() -> PathBuf {
+    if cfg!(feature = "vendored") {
+        return includedir_from_source();
+    }
+
+    let major_version: usize = env!("CARGO_PKG_VERSION_MAJOR").parse().unwrap();
+    let minor_version: usize = env!("CARGO_PKG_VERSION_MINOR").parse().unwrap();
+    let patch_version = env!("CARGO_PKG_VERSION_PATCH");
+    let patch_trimmed = trim_wrapped_patch_version(patch_version);
+    let lower_bound = format!("{}.{}.{}", major_version, minor_version, patch_trimmed);
+    let upper_bound = format!("{}.{}.0", major_version, minor_version + 1);
+    let config = pkg_config::Config::new()
+        .range_version(lower_bound.as_str()..upper_bound.as_str())
+        .probe("liboqs");
+
+    match config {
+        Ok(lib) => lib.include_paths.first().cloned().unwrap(),
+        _ => includedir_from_source(),
+    }
+}
+
+fn main() {
+    // Check if clang is available before compiling anything.
+    bindgen::clang_version();
+
+    let includedir = probe_includedir();
+    let gen_bindings = |file, filter| generate_bindings(&includedir, file, filter);
 
     gen_bindings("common", "OQS_.*");
     gen_bindings("rand", "OQS_(randombytes|RAND)_.*");
