@@ -30,7 +30,7 @@ jobs:
 
       - name: Install LLVM and Clang
         if: startsWith(matrix.os, 'windows')
-        uses: KyleMayes/install-llvm-action@v1.8.0
+        uses: KyleMayes/install-llvm-action@v1.8.1
         with:
           version: "13.0"
           directory: ${{ runner.temp }}/llvm
