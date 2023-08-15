@@ -10,8 +10,7 @@ repository = "https://github.com/open-quantum-safe/liboqs-rust"
 license = "MIT OR Apache-2.0"
 
 # Exclude certain liboqs files
-exclude = ["liboqs/tests/**", "liboqs/docs/**", "liboqs/scripts/**"]
-include = ["liboqs/.Cmake/**"]
+include = ["README.md", "build.rs", "src/**", "liboqs/.CMake/**", "liboqs/src/**", "liboqs/tests/**", "liboqs/*.txt"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
