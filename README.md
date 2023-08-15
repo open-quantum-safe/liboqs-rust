@@ -3,15 +3,22 @@ liboqs-rust: Rust bindings for liboqs
 
 [![Build status](https://github.com/open-quantum-safe/liboqs-rust/workflows/Continuous%20integration/badge.svg)](https://github.com/open-quantum-safe/liboqs-rust/actions?query=workflow%3A"Continuous+integration")
 
-| crate   	| crates.io                                                                                   	| docs.rs                                                                                        	| License                                             	|
-|---------	|---------------------------------------------------------------------------------------------	|------------------------------------------------------------------------------------------------	|-----------------------------------------------------	|
-| oqs-sys 	|  [ ![crates.io](https://img.shields.io/crates/v/oqs-sys)](https://crates.io/crates/oqs-sys) 	| [![crates.io/docs](https://img.shields.io/docsrs/oqs-sys)](https://docs.rs/oqs/0.7.1/oqs-sys/) 	| ![License](https://img.shields.io/crates/l/oqs-sys) 	|
-| oqs     	| [![crates.io](https://img.shields.io/crates/v/oqs)](https://crates.io/crates/oqs)           	| [![crates.io/docs](https://img.shields.io/docsrs/oqs)](https://docs.rs/oqs/0.7.1/oqs/)         	| ![License](https://img.shields.io/crates/l/oqs)     	|
+| crate   	| crates.io                                                                                   	| docs.rs                                                                                           	| License                                             	|
+|---------	|---------------------------------------------------------------------------------------------	|---------------------------------------------------------------------------------------------------	|-----------------------------------------------------	|
+| oqs-sys 	|  [ ![crates.io](https://img.shields.io/crates/v/oqs-sys)](https://crates.io/crates/oqs-sys) 	| [![crates.io/docs](https://img.shields.io/docsrs/oqs-sys)](https://docs.rs/crate/oqs-sys/latest/) 	| ![License](https://img.shields.io/crates/l/oqs-sys) 	|
+| oqs     	| [![crates.io](https://img.shields.io/crates/v/oqs)](https://crates.io/crates/oqs)           	| [![crates.io/docs](https://img.shields.io/docsrs/oqs)](https://docs.rs/crate-oqs/latest/)         	| ![License](https://img.shields.io/crates/l/oqs)     	|
 
 **liboqs-rust** offers two Rust wrappers for the [Open Quantum Safe](https://openquantumsafe.org/) [liboqs](https://github.com/open-quantum-safe/liboqs/) C library, which is a C library for quantum-resistant cryptographic algorithms.
 
 * The ``oqs-sys`` crate compiles and builds ``liboqs`` and generates ``unsafe`` bindings to the C library.
 * The ``oqs`` crate offers a Rust-style safe interface to the schemes included in ``liboqs``.
+
+Versioning
+----------
+
+The version numbers follow the upstream `liboqs` versions, but with a twist.
+The `liboqs` version `0.7.2` gets released as the `oqs` and `oqs-sys` version `0.7.2xx` series.
+This allows us to release patch versions of the Rust bindings as `0.7.201`, `0.7.202`, and so on.
 
 Pre-requisites
 --------------

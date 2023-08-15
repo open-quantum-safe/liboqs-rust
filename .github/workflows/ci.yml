@@ -39,65 +39,45 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         run: echo "LIBCLANG_PATH=$((gcm clang).source -replace "clang.exe")" >> $env:GITHUB_ENV
 
-      - name: Install OpenSSL
-        if: startsWith(matrix.os, 'windows')
-        run: choco install openssl --limit-output
-
       - name: Set OPENSSL_ROOT_DIR
         if: startsWith(matrix.os, 'windows')
-        run: echo "OPENSSL_ROOT_DIR=C:/Program Files/OpenSSL-Win64" >> $env:GITHUB_ENV
+        run: echo "OPENSSL_ROOT_DIR=C:/Program Files/OpenSSL" >> $env:GITHUB_ENV
 
       - name: Set OPENSSL_ROOT_DIR
         if: startsWith(matrix.os, 'macos')
         run: echo "OPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1" >> $GITHUB_ENV
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1.0.7
-        with:
-          profile: minimal
-          toolchain: ${{ matrix.rust }}
-          override: true
-          components: rustfmt, clippy
+        run: |
+          rustup set auto-self-update disable
+          rustup toolchain install ${{ matrix.rust }} --profile minimal --component rustfmt --component clippy
+          rustup default ${{ matrix.rust }}
+          echo CARGO_TERM_COLOR=always >> $GITHUB_ENV
+          echo CARGO_INCREMENTAL=0 >> $GITHUB_ENV
+          echo RUST_BACKTRACE=1 >> $GITHUB_ENV
+        shell: bash
 
       - uses: Swatinem/rust-cache@v1
 
       - name: Cargo build
-        uses: actions-rs/cargo@v1.0.3
-        with:
-          command: build
+        run: cargo build
 
       - name: Cargo test
-        uses: actions-rs/cargo@v1.0.3
-        with:
-          command: test
+        run: cargo test
 
       - name: Cargo test --no-default-features --features serde,kems,sigs,std
-        uses: actions-rs/cargo@v1.0.3
-        with:
-          command: test
-          args: --no-default-features --features serde,kems,sigs,std --manifest-path oqs/Cargo.toml
+        run: cargo test --no-default-features --features serde,kems,sigs,std --manifest-path oqs/Cargo.toml
 
       - name: Cargo test --no-default-features --features serde,kems,sigs
-        uses: actions-rs/cargo@v1.0.3
-        with:
-          command: test
-          args: --no-default-features --features serde,kems,sigs --manifest-path oqs/Cargo.toml
+        run: cargo test --no-default-features --features serde,kems,sigs --manifest-path oqs/Cargo.toml
 
       - name: Cargo test --no-default-features --features non_portable,kems,sigs,std
-        uses: actions-rs/cargo@v1.0.3
-        with:
-          command: test
-          args: --no-default-features --features non_portable,kems,sigs,std --manifest-path oqs/Cargo.toml
+        run: cargo test --no-default-features --features non_portable,kems,sigs,std --manifest-path oqs/Cargo.toml
 
       - name: Cargo fmt
-        uses: actions-rs/cargo@v1.0.3
-        with:
-          command: fmt
-          args: --all -- --check
+        run: cargo fmt --all -- --check
 
       - name: Cargo clippy
-        uses: actions-rs/cargo@v1.0.3
-        with:
-          command: clippy
+        run: cargo clippy
 
 #  vim: set ft=yaml ts=2 sw=2 tw=0 et :
