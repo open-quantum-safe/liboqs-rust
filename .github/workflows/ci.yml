@@ -65,6 +65,9 @@ jobs:
       - name: Cargo test
         run: cargo test
 
+      - name: Cargo test --no-default-features
+        run: cargo test --no-default-features
+
       - name: Cargo test --no-default-features --features serde,kems,sigs,std
         run: cargo test --no-default-features --features serde,kems,sigs,std --manifest-path oqs/Cargo.toml
 

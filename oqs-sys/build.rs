@@ -71,6 +71,7 @@ fn main() {
     algorithm_feature!("KEM", "frodokem");
     algorithm_feature!("KEM", "hqc");
     algorithm_feature!("KEM", "kyber");
+    algorithm_feature!("KEM", "ntruprime");
 
     // signature schemes
     algorithm_feature!("SIG", "dilithium");
