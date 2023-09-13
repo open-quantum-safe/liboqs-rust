@@ -57,6 +57,9 @@ By default `oqs-sys` attempts to find a system-provided version of `liboqs` and 
 falling back to vendored from-source build otherwise.
 You can opt into forcing the vendored build by enabling the `vendored` feature.
 
+Otherwise, if you want to force using the system-provided `liboqs`,
+you can set the `LIBOQS_NO_VENDOR=1` environment variable and the build will fail if the library is not found.
+
 Serde support
 -------------
 
