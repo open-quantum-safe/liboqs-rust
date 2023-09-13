@@ -23,6 +23,7 @@ default-features = false
 default = ["oqs-sys/openssl", "kems", "sigs", "std"]
 std = []
 non_portable = ["oqs-sys/non_portable"]
+vendored = ["oqs-sys/vendored"]
 
 # algorithms: KEMs
 kems = ["oqs-sys/kems", "classic_mceliece", "frodokem", "hqc", "kyber", "ntruprime"]
