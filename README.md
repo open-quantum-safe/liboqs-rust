@@ -50,6 +50,13 @@ Minimal builds
 The default-on `kems` and `sigs` features turn on all supported KEMs and signature schemes. If you want a smaller build, turn off these default features and opt-in to individual algorithms.
 Note that if you specify `default-features = false`, you may also want to re-include the `oqs-sys/openssl` feature.
 
+Vendored `liboqs`
+-----------------
+
+By default `oqs-sys` attempts to find a system-provided version of `liboqs` and build against it,
+falling back to vendored from-source build otherwise.
+You can opt into forcing the vendored build by enabling the `vendored` feature.
+
 Serde support
 -------------
 
