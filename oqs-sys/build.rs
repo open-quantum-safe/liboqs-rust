@@ -136,6 +136,9 @@ fn probe_includedir() -> PathBuf {
         return includedir_from_source();
     }
 
+    println!("cargo:rerun-if-env-changed=LIBOQS_NO_VENDOR");
+    let force_no_vendor = std::env::var_os("LIBOQS_NO_VENDOR").map_or(false, |v| v != "0");
+
     let major_version: usize = env!("CARGO_PKG_VERSION_MAJOR").parse().unwrap();
     let minor_version: usize = env!("CARGO_PKG_VERSION_MINOR").parse().unwrap();
     let patch_version = env!("CARGO_PKG_VERSION_PATCH");
@@ -148,7 +151,13 @@ fn probe_includedir() -> PathBuf {
 
     match config {
         Ok(lib) => lib.include_paths.first().cloned().unwrap(),
-        _ => includedir_from_source(),
+        _ => {
+            if force_no_vendor {
+                panic!("The env variable LIBOQS_NO_VENDOR has been set but a suitable system liboqs could not be found.");
+            }
+
+            includedir_from_source()
+        }
     }
 }
 
