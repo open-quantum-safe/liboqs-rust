@@ -20,7 +20,7 @@ updates:
     interval: daily
   open-pull-requests-limit: 10
   commit-message:
-    prefix: build(ci)
+    prefix: chore(ci)
   groups:
     Actions:
       patterns:
