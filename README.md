@@ -1,57 +1,50 @@
-liboqs-rust: Rust bindings for liboqs
-=====================================
+# liboqs-rust: Rust bindings for liboqs
 
 [![Build status](https://github.com/open-quantum-safe/liboqs-rust/workflows/Continuous%20integration/badge.svg)](https://github.com/open-quantum-safe/liboqs-rust/actions?query=workflow%3A"Continuous+integration")
 
-| crate   	| crates.io                                                                                   	| docs.rs                                                                                           	| License                                             	|
-|---------	|---------------------------------------------------------------------------------------------	|---------------------------------------------------------------------------------------------------	|-----------------------------------------------------	|
-| oqs-sys 	|  [ ![crates.io](https://img.shields.io/crates/v/oqs-sys)](https://crates.io/crates/oqs-sys) 	| [![crates.io/docs](https://img.shields.io/docsrs/oqs-sys)](https://docs.rs/crate/oqs-sys/latest/) 	| ![License](https://img.shields.io/crates/l/oqs-sys) 	|
-| oqs     	| [![crates.io](https://img.shields.io/crates/v/oqs)](https://crates.io/crates/oqs)           	| [![crates.io/docs](https://img.shields.io/docsrs/oqs)](https://docs.rs/crate-oqs/latest/)         	| ![License](https://img.shields.io/crates/l/oqs)     	|
+| crate   | crates.io                                                                                  | docs.rs                                                                                           | License                                             |
+| ------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| oqs-sys | [ ![crates.io](https://img.shields.io/crates/v/oqs-sys)](https://crates.io/crates/oqs-sys) | [![crates.io/docs](https://img.shields.io/docsrs/oqs-sys)](https://docs.rs/crate/oqs-sys/latest/) | ![License](https://img.shields.io/crates/l/oqs-sys) |
+| oqs     | [![crates.io](https://img.shields.io/crates/v/oqs)](https://crates.io/crates/oqs)          | [![crates.io/docs](https://img.shields.io/docsrs/oqs)](https://docs.rs/crate-oqs/latest/)         | ![License](https://img.shields.io/crates/l/oqs)     |
 
 **liboqs-rust** offers two Rust wrappers for the [Open Quantum Safe](https://openquantumsafe.org/) [liboqs](https://github.com/open-quantum-safe/liboqs/) C library, which is a C library for quantum-resistant cryptographic algorithms.
 
-* The ``oqs-sys`` crate compiles and builds ``liboqs`` and generates ``unsafe`` bindings to the C library.
-* The ``oqs`` crate offers a Rust-style safe interface to the schemes included in ``liboqs``.
+- The `oqs-sys` crate compiles and builds `liboqs` and generates `unsafe` bindings to the C library.
+- The `oqs` crate offers a Rust-style safe interface to the schemes included in `liboqs`.
 
-Versioning
-----------
+## Versioning
 
 The version numbers follow the upstream `liboqs` versions, but with a twist.
 The `liboqs` version `0.7.2` gets released as the `oqs` and `oqs-sys` version `0.7.2xx` series.
 This allows us to release patch versions of the Rust bindings as `0.7.201`, `0.7.202`, and so on.
 
-Pre-requisites
---------------
+## Pre-requisites
 
-``oqs-sys`` depends on the [liboqs](https://github.com/open-quantum-safe/liboqs) C library.
-It will build ``liboqs`` automatically.
+`oqs-sys` depends on the [liboqs](https://github.com/open-quantum-safe/liboqs) C library.
+It will build `liboqs` automatically.
 
-Contents
---------
+## Contents
 
 This crate provides unsafe `ffi` bindings in the `oqs-sys` crate, and safe wrappers are offered via the `oqs` crate.
 The rendered rustdoc documentation can be [found here](https://open-quantum-safe.github.io/liboqs-rust/oqs/)
 
-Usage
------
+## Usage
 
-Update your ``Cargo.toml`` and include ``oqs``:
+Update your `Cargo.toml` and include `oqs`:
 
 ```toml
 [dependencies]
 oqs = "*"
 ```
 
-``oqs-sys`` can be specified equivalently.
+`oqs-sys` can be specified equivalently.
 
-Minimal builds
---------------
+## Minimal builds
 
 The default-on `kems` and `sigs` features turn on all supported KEMs and signature schemes. If you want a smaller build, turn off these default features and opt-in to individual algorithms.
 Note that if you specify `default-features = false`, you may also want to re-include the `oqs-sys/openssl` feature.
 
-Vendored `liboqs`
------------------
+## Vendored `liboqs`
 
 By default `oqs-sys` attempts to find a system-provided version of `liboqs` and build against it,
 falling back to vendored from-source build otherwise.
@@ -60,19 +53,17 @@ You can opt into forcing the vendored build by enabling the `vendored` feature.
 Otherwise, if you want to force using the system-provided `liboqs`,
 you can set the `LIBOQS_NO_VENDOR=1` environment variable and the build will fail if the library is not found.
 
-Serde support
--------------
+## Serde support
 
-You can enable ``serde`` serialization support by enabling the ``serde`` feature on the ``oqs`` crate.
+You can enable `serde` serialization support by enabling the `serde` feature on the `oqs` crate.
 
-``std`` support
-----------------
+## `std` support
 
-The ``oqs-sys`` crate does not use `std` at all.
-Note that the default features do enable building liboqs with ``openssl``, so use ``default-features = false``.
+The `oqs-sys` crate does not use `std` at all.
+Note that the default features do enable building liboqs with `openssl`, so use `default-features = false`.
 
-To make ``oqs`` a ``#![no_std]`` crate make sure the ``std`` feature is disabled.
-Make sure to also disable the ``oqs-sys/openssl`` feature by specifying ``default-features = false``.
+To make `oqs` a `#![no_std]` crate make sure the `std` feature is disabled.
+Make sure to also disable the `oqs-sys/openssl` feature by specifying `default-features = false`.
 
 As `default-features` includes the `kems` and `sigs` features, consider re-adding them as well. This results into:
 
@@ -87,41 +78,36 @@ You will probably want to change the random-number generator through the [`OQS_R
 
 [`OQS_RAND` API]: https://open-quantum-safe.github.io/liboqs-rust/oqs_sys/rand/index.html
 
-``non_portable`` feature
-------------------------
+## `non_portable` feature
 
-If compiled with the ``non_portable`` feature, ``liboqs-sys`` will not enable CPU feature detection and
+If compiled with the `non_portable` feature, `liboqs-sys` will not enable CPU feature detection and
 always use the best implementation on your current platform. This enables support for implementations
 where feature detection is not functional.
 
-Stack usage
------------
+## Stack usage
 
-Some algorithms use large amounts of stack space. This means that you may need to specify ``RUST_MIN_STACK`` in your environment.
+Some algorithms use large amounts of stack space. This means that you may need to specify `RUST_MIN_STACK` in your environment.
 This for example affects tests.
 
-Algorithm features
-------------------
+## Algorithm features
 
-* `kems` (default): Compile with all KEMs enabled
-    * `bike`
-    * `classic_mceliece`
-    * `frodokem`
-    * `hqc`
-    * `kyber`
-    * `ntru`
-    * `ntruprime`
-    * `saber`
-* `sigs` (default): Compile with all signature schemes enabled
-    * `dilithium`
-    * `falcon`
-    * `picnic`
-    * `rainbow`
-    * `sphincs`: SPHINCS+
+- `kems` (default): Compile with all KEMs enabled
+  - `bike`
+  - `classic_mceliece`
+  - `frodokem`
+  - `hqc`
+  - `kyber`
+  - `ntru`
+  - `ntruprime`
+  - `saber`
+- `sigs` (default): Compile with all signature schemes enabled
+  - `dilithium`
+  - `falcon`
+  - `picnic`
+  - `rainbow`
+  - `sphincs`: SPHINCS+
 
-
-Running
--------
+## Running
 
 ```rust
 /// # Example: Some signed KEX
@@ -157,28 +143,29 @@ fn main() -> Result<()> {
 }
 ```
 
-
-Adding new algorithms
----------------------
+## Adding new algorithms
 
 ### KEMs
 
 1. Update the Git submodule
 2. `oqs-sys` will now update when you build again
-3. Add it to the ``implement_kems!`` macro call in ``oqs/src/kem.rs``:
-  - The structure is a name for the algorithm in CamelCase, and the name of the constant of the algorithm (``OQS_KEM_alg_...``)
+3. Add it to the `implement_kems!` macro call in `oqs/src/kem.rs`:
+
+- The structure is a name for the algorithm in CamelCase, and the name of the constant of the algorithm (`OQS_KEM_alg_...`)
+
 4. Add the necessary features to `Cargo.toml` and `oqs-sys/build.rs`.
 
 ### Signature schemes:
 
 1. Update the Git submodule
 2. `oqs-sys` is now up-to-date when you build again
-3. Add it to ``implement_sigs!`` macro call in ``oqs/src/sig.rs``.
-  - The structure is a name for the algorithm in CamelCase, and the name of the constant of the algorithm (``OQS_SIG_alg_...``)
+3. Add it to `implement_sigs!` macro call in `oqs/src/sig.rs`.
+
+- The structure is a name for the algorithm in CamelCase, and the name of the constant of the algorithm (`OQS_SIG_alg_...`)
+
 4. Add the necessary features to `Cargo.toml` and `oqs-sys/build.rs`.
 
-Limitations and security
-------------------------
+## Limitations and security
 
 liboqs is designed for prototyping and evaluating quantum-resistant cryptography. Security of proposed quantum-resistant algorithms may rapidly change as research advances, and may ultimately be completely insecure against either classical or quantum computers.
 
@@ -188,15 +175,13 @@ We acknowledge that some parties may want to begin deploying post-quantum crypto
 
 Just like liboqs, liboqs-rust is provided "as is", without warranty of any kind. See [LICENSE-MIT](https://github.com/open-quantum-safe/liboqs-rust/blob/main/LICENSE-MIT) for the full disclaimer.
 
-License
--------
+## License
 
 liboqs-rust is dual-licensed under the MIT and Apache-2.0 licenses.
 
-The included library ``liboqs`` is covered by the [``liboqs`` license](https://github.com/open-quantum-safe/liboqs/blob/main/LICENSE.txt).
+The included library `liboqs` is covered by the [`liboqs` license](https://github.com/open-quantum-safe/liboqs/blob/main/LICENSE.txt).
 
-Team
-----
+## Team
 
 The Open Quantum Safe project is led by [Douglas Stebila](https://www.douglas.stebila.ca/research/) and [Michele Mosca](http://faculty.iqc.uwaterloo.ca/mmosca/) at the University of Waterloo.
 
