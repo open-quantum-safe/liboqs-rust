@@ -1,6 +1,6 @@
 [package]
 name = "oqs-sys"
-version = "0.8.0+liboqs-0.9.0"
+version = "0.9.0+liboqs-0.9.0"
 authors = ["Thom Wiggers <thom@thomwiggers.nl>"]
 edition = "2021"
 links = "oqs"
