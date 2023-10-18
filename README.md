@@ -14,19 +14,22 @@
 
 ## Versioning
 
-The version numbers follow the upstream `liboqs` versions, but with a twist.
-The `liboqs` version `0.7.2` gets released as the `oqs` and `oqs-sys` version `0.7.2xx` series.
-This allows us to release patch versions of the Rust bindings as `0.7.201`, `0.7.202`, and so on.
+Releases up to and including release `0.9.0` of `oqs` and `oqs-sys` followed the `liboqs` versioning 1-on-1.
+**Starting from release `0.9.0`, this is no longer guaranteed.**
+These crates will now receive version bumps as necessary.
+We will include the version number of `liboqs` that is distributed by `liboqs-sys` in the version number of `liboqs-sys`
+as `0.9.0+liboqs-0.9.0`.
 
 ## Pre-requisites
 
 `oqs-sys` depends on the [liboqs](https://github.com/open-quantum-safe/liboqs) C library.
-It will build `liboqs` automatically.
+It will build `liboqs` automatically with the default-enabled `vendored` feature.
+See below for more information.
 
 ## Contents
 
 This crate provides unsafe `ffi` bindings in the `oqs-sys` crate, and safe wrappers are offered via the `oqs` crate.
-The rendered rustdoc documentation can be [found here](https://open-quantum-safe.github.io/liboqs-rust/oqs/)
+The rendered Rustdoc documentation can be [found here](https://open-quantum-safe.github.io/liboqs-rust/oqs/)
 
 ## Usage
 
@@ -60,7 +63,7 @@ You can enable `serde` serialization support by enabling the `serde` feature on 
 ## `std` support
 
 The `oqs-sys` crate does not use `std` at all.
-Note that the default features do enable building liboqs with `openssl`, so use `default-features = false`.
+Note that the default features do enable building `liboqs` with `openssl`, so use `default-features = false`.
 
 To make `oqs` a `#![no_std]` crate make sure the `std` feature is disabled.
 Make sure to also disable the `oqs-sys/openssl` feature by specifying `default-features = false`.
@@ -97,7 +100,6 @@ This for example affects tests.
   - `frodokem`
   - `hqc`
   - `kyber`
-  - `ntru`
   - `ntruprime`
   - `saber`
 - `sigs` (default): Compile with all signature schemes enabled
@@ -105,7 +107,7 @@ This for example affects tests.
   - `falcon`
   - `picnic`
   - `rainbow`
-  - `sphincs`: SPHINCS+
+  - `sphincs`: SPHINCS<sup>+</sup>
 
 ## Running
 
@@ -143,28 +145,6 @@ fn main() -> Result<()> {
 }
 ```
 
-## Adding new algorithms
-
-### KEMs
-
-1. Update the Git submodule
-2. `oqs-sys` will now update when you build again
-3. Add it to the `implement_kems!` macro call in `oqs/src/kem.rs`:
-
-- The structure is a name for the algorithm in CamelCase, and the name of the constant of the algorithm (`OQS_KEM_alg_...`)
-
-4. Add the necessary features to `Cargo.toml` and `oqs-sys/build.rs`.
-
-### Signature schemes:
-
-1. Update the Git submodule
-2. `oqs-sys` is now up-to-date when you build again
-3. Add it to `implement_sigs!` macro call in `oqs/src/sig.rs`.
-
-- The structure is a name for the algorithm in CamelCase, and the name of the constant of the algorithm (`OQS_SIG_alg_...`)
-
-4. Add the necessary features to `Cargo.toml` and `oqs-sys/build.rs`.
-
 ## Limitations and security
 
 liboqs is designed for prototyping and evaluating quantum-resistant cryptography. Security of proposed quantum-resistant algorithms may rapidly change as research advances, and may ultimately be completely insecure against either classical or quantum computers.
@@ -195,4 +175,4 @@ We'd like to make a special acknowledgement to the companies who have dedicated 
 
 Research projects which developed specific components of OQS have been supported by various research grants, including funding from the Natural Sciences and Engineering Research Council of Canada (NSERC); see the source papers for funding acknowledgments.
 
-Thom Wiggers was supported by the European Research Council through Starting Grant No. 805031 (EPOQUE).
+Thom Wiggers' contributions before May 2023 were supported by the European Research Council through Starting Grant No. 805031 (EPOQUE).
