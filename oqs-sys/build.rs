@@ -128,15 +128,6 @@ fn includedir_from_source() -> PathBuf {
     outdir.join("build").join("include")
 }
 
-fn trim_wrapped_patch_version(patch: &str) -> &str {
-    let len = patch.len();
-    if len < 3 {
-        return patch;
-    }
-
-    &patch[..len - 2]
-}
-
 fn probe_includedir() -> PathBuf {
     if cfg!(feature = "vendored") {
         return includedir_from_source();
@@ -145,14 +136,17 @@ fn probe_includedir() -> PathBuf {
     println!("cargo:rerun-if-env-changed=LIBOQS_NO_VENDOR");
     let force_no_vendor = std::env::var_os("LIBOQS_NO_VENDOR").map_or(false, |v| v != "0");
 
-    let major_version: usize = env!("CARGO_PKG_VERSION_MAJOR").parse().unwrap();
-    let minor_version: usize = env!("CARGO_PKG_VERSION_MINOR").parse().unwrap();
-    let patch_version = env!("CARGO_PKG_VERSION_PATCH");
-    let patch_trimmed = trim_wrapped_patch_version(patch_version);
-    let lower_bound = format!("{}.{}.{}", major_version, minor_version, patch_trimmed);
-    let upper_bound = format!("{}.{}.0", major_version, minor_version + 1);
+    let version = env!("CARGO_PKG_VERSION");
+    let (_, liboqs_version) = version.split_once("+liboqs-").unwrap();
+    let &[major_version, minor_version, _] =
+        liboqs_version.split('.').collect::<Vec<_>>().as_slice()
+    else {
+        panic!("Failed to parse target liboqs version");
+    };
+    let minor_num: usize = minor_version.parse().unwrap();
+    let upper_bound = format!("{}.{}.0", major_version, minor_num + 1);
     let config = pkg_config::Config::new()
-        .range_version(lower_bound.as_str()..upper_bound.as_str())
+        .range_version(liboqs_version..upper_bound.as_str())
         .probe("liboqs");
 
     match config {
