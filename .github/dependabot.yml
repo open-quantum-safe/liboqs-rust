@@ -7,13 +7,7 @@ updates:
   open-pull-requests-limit: 10
   commit-message:
     prefix: build(deps)
-- package-ecosystem: gitsubmodule
-  directory: "/"
-  schedule:
-    interval: weekly
-  open-pull-requests-limit: 10
-  commit-message:
-    prefix: build(deps)
+
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
