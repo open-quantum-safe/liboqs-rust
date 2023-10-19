@@ -1,3 +1,7 @@
+## oqs-sys v0.9.1
+
+* Fix pkg-config version detection (#246)
+
 ## v0.9.0 (2023-10-18)
 
 ### BREAKING CHANGE
