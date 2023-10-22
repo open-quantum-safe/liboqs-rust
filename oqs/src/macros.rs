@@ -10,7 +10,7 @@ macro_rules! newtype_buffer {
         #[derive(Debug, Clone, PartialEq, Eq)]
         #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
         pub struct $name {
-            bytes: Vec<u8>,
+            pub bytes: Vec<u8>,
         }
 
         impl $name {
