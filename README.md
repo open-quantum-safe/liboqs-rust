@@ -5,7 +5,7 @@
 | crate   | crates.io                                                                                  | docs.rs                                                                                           | License                                             |
 | ------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
 | oqs-sys | [ ![crates.io](https://img.shields.io/crates/v/oqs-sys)](https://crates.io/crates/oqs-sys) | [![crates.io/docs](https://img.shields.io/docsrs/oqs-sys)](https://docs.rs/crate/oqs-sys/latest/) | ![License](https://img.shields.io/crates/l/oqs-sys) |
-| oqs     | [![crates.io](https://img.shields.io/crates/v/oqs)](https://crates.io/crates/oqs)          | [![crates.io/docs](https://img.shields.io/docsrs/oqs)](https://docs.rs/crate-oqs/latest/)         | ![License](https://img.shields.io/crates/l/oqs)     |
+| oqs     | [![crates.io](https://img.shields.io/crates/v/oqs)](https://crates.io/crates/oqs)          | [![crates.io/docs](https://img.shields.io/docsrs/oqs)](https://docs.rs/crate/oqs/latest/)         | ![License](https://img.shields.io/crates/l/oqs)     |
 
 **liboqs-rust** offers two Rust wrappers for the [Open Quantum Safe](https://openquantumsafe.org/) [liboqs](https://github.com/open-quantum-safe/liboqs/) C library, which is a C library for quantum-resistant cryptographic algorithms.
 
