@@ -6,6 +6,8 @@ macro_rules! newtype_buffer {
     ($name: ident, $name_ref: ident) => {
         /// New owned buffer
         ///
+        /// Construct the reference version of this type through the algorithm API functions.
+        ///
         /// Optional support for `serde` if that feature is enabled.
         #[derive(Debug, Clone, PartialEq, Eq)]
         #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
