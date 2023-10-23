@@ -7,6 +7,7 @@ This crate provides the unsafe `ffi` bindings to [liboqs][].
 
 ## Features
 
+* `vendored` (default): Compile the included version of liboqs instead of linking to the system version.
 * `openssl` (default): Compile with OpenSSL features (mostly symmetric cryptography)
 * `non_portable`: Don't build a portable library.
 * `kems` (default): Compile with all KEMs enabled
@@ -15,16 +16,10 @@ This crate provides the unsafe `ffi` bindings to [liboqs][].
     * `frodokem`
     * `hqc`
     * `kyber`
-    * `ntru`
     * `ntruprime`
-    * `saber`
-    * `sidh`
-    * `sike`
 * `sigs` (default): Compile with all signature schemes enabled
     * `dilithium`
     * `falcon`
-    * `picnic`
-    * `rainbow`
     * `sphincs`: SPHINCS+
 
 [oqs]: https://openquantumsafe.org

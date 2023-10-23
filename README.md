@@ -89,8 +89,9 @@ where feature detection is not functional.
 
 ## Stack usage
 
-Some algorithms use large amounts of stack space. This means that you may need to specify `RUST_MIN_STACK` in your environment.
-This for example affects tests.
+Some algorithms use large amounts of stack space. This means that you may need
+to specify `RUST_MIN_STACK` in your environment. This for example affects
+tests.
 
 ## Algorithm features
 
