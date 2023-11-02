@@ -20,7 +20,7 @@ libc = "0.2"
 [build-dependencies]
 pkg-config = "0.3"
 cmake = "0.1"
-bindgen = "0.68"
+bindgen = "0.69"
 build-deps = "0.1"
 
 [features]
