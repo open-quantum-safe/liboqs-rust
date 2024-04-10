@@ -140,12 +140,12 @@ implement_kems! {
     ("frodokem") FrodoKem976Shake: OQS_KEM_alg_frodokem_976_shake,
     ("frodokem") FrodoKem1344Aes: OQS_KEM_alg_frodokem_1344_aes,
     ("frodokem") FrodoKem1344Shake: OQS_KEM_alg_frodokem_1344_shake,
-    ("ml_kem") MlKem512Ipd: OQS_KEM_alg_mlkem_512_ipd,
-    ("ml_kem") MlKem768Ipd: OQS_KEM_alg_mlkem_768_ipd,
-    ("ml_kem") MlKem1024Ipd: OQS_KEM_alg_mlkem_1024_ipd,
-    ("ml_kem") MlKem512: OQS_KEM_alg_mlkem_512,
-    ("ml_kem") MlKem768: OQS_KEM_alg_mlkem_768,
-    ("ml_kem") MlKem1024: OQS_KEM_alg_mlkem_1024,
+    ("ml_kem") MlKem512Ipd: OQS_KEM_alg_ml_kem_512_ipd,
+    ("ml_kem") MlKem768Ipd: OQS_KEM_alg_ml_kem_768_ipd,
+    ("ml_kem") MlKem1024Ipd: OQS_KEM_alg_ml_kem_1024_ipd,
+    ("ml_kem") MlKem512: OQS_KEM_alg_ml_kem_512,
+    ("ml_kem") MlKem768: OQS_KEM_alg_ml_kem_768,
+    ("ml_kem") MlKem1024: OQS_KEM_alg_ml_kem_1024,
 }
 
 impl Algorithm {
