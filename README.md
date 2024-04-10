@@ -103,12 +103,14 @@ tests.
   - `kyber`
   - `ntruprime`
   - `saber`
+  - `ml_kem`
 - `sigs` (default): Compile with all signature schemes enabled
   - `dilithium`
   - `falcon`
   - `picnic`
   - `rainbow`
   - `sphincs`: SPHINCS<sup>+</sup>
+  - `ml_dsa`
 
 ## Running
 
