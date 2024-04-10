@@ -75,6 +75,7 @@ fn build_from_source() -> PathBuf {
     algorithm_feature!("SIG", "dilithium");
     algorithm_feature!("SIG", "falcon");
     algorithm_feature!("SIG", "sphincs");
+    algorithm_feature!("SIG", "ml_dsa");
 
     if cfg!(windows) {
         // Select the latest available Windows SDK
