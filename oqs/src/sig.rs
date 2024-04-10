@@ -131,6 +131,12 @@ implement_sigs! {
     ("sphincs") SphincsShake192sSimple: OQS_SIG_alg_sphincs_shake_192s_simple,
     ("sphincs") SphincsShake256fSimple: OQS_SIG_alg_sphincs_shake_256f_simple,
     ("sphincs") SphincsShake256sSimple: OQS_SIG_alg_sphincs_shake_256s_simple,
+    ("ml_dsa") MlDsa44Ipd: OQS_SIG_alg_ml_dsa_44_ipd,
+    ("ml_dsa") MlDsa65Ipd: OQS_SIG_alg_ml_dsa_65_ipd,
+    ("ml_dsa") MlDsa87Ipd: OQS_SIG_alg_ml_dsa_87_ipd,
+    ("ml_dsa") MlDsa44: OQS_SIG_alg_ml_dsa_44,
+    ("ml_dsa") MlDsa65: OQS_SIG_alg_ml_dsa_65,
+    ("ml_dsa") MlDsa87: OQS_SIG_alg_ml_dsa_87,
 }
 
 impl Algorithm {
