@@ -26,13 +26,14 @@ non_portable = ["oqs-sys/non_portable"]
 vendored = ["oqs-sys/vendored"]
 
 # algorithms: KEMs
-kems = ["oqs-sys/kems", "classic_mceliece", "frodokem", "hqc", "kyber", "ntruprime"]
+kems = ["oqs-sys/kems", "classic_mceliece", "frodokem", "hqc", "kyber", "ntruprime", "ml_kem"]
 bike = ["oqs-sys/bike"]  # not supported on Windows or 32-bit ARM
 classic_mceliece = ["oqs-sys/classic_mceliece"]
 frodokem = ["oqs-sys/frodokem"]
 hqc = ["oqs-sys/hqc"]
 kyber = ["oqs-sys/kyber"]
 ntruprime = ["oqs-sys/ntruprime"]
+ml_kem = ["oqs-sys/ml_kem"]
 # algorithms: Signature schemes
 sigs = ["oqs-sys/sigs", "dilithium", "falcon", "sphincs"]
 dilithium = ["oqs-sys/dilithium"]

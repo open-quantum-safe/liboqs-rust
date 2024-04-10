@@ -30,13 +30,14 @@ docs = []
 non_portable = []
 vendored = []
 # algorithms: KEMs
-kems = ["classic_mceliece", "frodokem", "hqc", "kyber", "ntruprime"]
+kems = ["classic_mceliece", "frodokem", "hqc", "kyber", "ntruprime", "ml_kem"]
 bike = []  # BIKE is enabled by build.rs on non-windows targets
 classic_mceliece = []
 frodokem = []
 hqc = []
 kyber = []
 ntruprime = []
+ml_kem = []
 # algorithms: Signature schemes
 sigs = ["dilithium", "falcon", "sphincs"]
 dilithium = []

@@ -69,6 +69,7 @@ fn build_from_source() -> PathBuf {
     algorithm_feature!("KEM", "hqc");
     algorithm_feature!("KEM", "kyber");
     algorithm_feature!("KEM", "ntruprime");
+    algorithm_feature!("KEM", "ml_kem");
 
     // signature schemes
     algorithm_feature!("SIG", "dilithium");
