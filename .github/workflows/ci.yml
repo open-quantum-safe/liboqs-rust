@@ -6,6 +6,7 @@ jobs:
   ci:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os:
           - macos-latest
@@ -82,5 +83,15 @@ jobs:
 
       - name: Cargo clippy
         run: cargo clippy
+
+      - name: Install cargo ndk and rust compiler for android targets
+        run: |
+          cargo install --locked cargo-ndk
+          rustup target add x86_64-linux-android aarch64-linux-android armv7-linux-androideabi i686-linux-android
+
+      - name: Cargo build android
+        if: ${{ ! startsWith(matrix.os, 'windows') }}
+        run: |
+          cargo ndk --bindgen -t x86_64 -t x86 -t armeabi-v7a -t arm64-v8a -o ./jniLibs rustc --crate-type cdylib -p oqs --no-default-features --features kems,sigs,std
 
 #  vim: set ft=yaml ts=2 sw=2 tw=0 et :
