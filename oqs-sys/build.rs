@@ -106,6 +106,18 @@ fn build_from_source() -> PathBuf {
         config.define(permit_unsupported, str);
     }
 
+    if build_target::target_os().unwrap() == build_target::Os::Android {
+        config.define("CMAKE_SYSTEM_NAME", "Android");
+
+        if let Ok(ndk) = std::env::var("ANDROID_NDK_HOME") {
+            config.define("CMAKE_ANDROID_NDK", ndk);
+            println!("cargo:rerun-if-env-changed=ANDROID_NDK_HOME");
+        } else if let Ok(ndk) = std::env::var("ANDROID_NDK_ROOT") {
+            config.define("CMAKE_ANDROID_NDK", ndk);
+            println!("cargo:rerun-if-env-changed=ANDROID_NDK_ROOT");
+        }
+    }
+
     let outdir = config.build_target("oqs").build();
 
     // lib is put into $outdir/build/lib

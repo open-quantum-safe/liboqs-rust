@@ -22,6 +22,7 @@ pkg-config = "0.3"
 cmake = "0.1"
 bindgen = "0.69"
 build-deps = "0.1"
+build-target = "0.4.0"
 
 [features]
 default = ["openssl", "kems", "sigs"]
