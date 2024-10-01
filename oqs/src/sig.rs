@@ -232,6 +232,43 @@ pub struct Sig {
     sig: NonNull<ffi::OQS_SIG>,
 }
 
+impl Debug for Sig {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Sig")
+            .field("algorithm", &self.algorithm)
+            .field(
+                "method_name",
+                &unsafe { CStr::from_ptr(self.sig.as_ref().method_name) }
+                    .to_str()
+                    .expect("method name"),
+            )
+            .field(
+                "alg_version",
+                &unsafe { CStr::from_ptr(self.sig.as_ref().alg_version) }
+                    .to_str()
+                    .expect("alg_version"),
+            )
+            .field(
+                "claimed_nist_level",
+                &unsafe { self.sig.as_ref() }.claimed_nist_level,
+            )
+            .field("euf_cma", &unsafe { self.sig.as_ref() }.euf_cma)
+            .field(
+                "length_public_key",
+                &unsafe { self.sig.as_ref() }.length_public_key,
+            )
+            .field(
+                "length_secret_key",
+                &unsafe { self.sig.as_ref() }.length_secret_key,
+            )
+            .field(
+                "length_signature",
+                &unsafe { self.sig.as_ref() }.length_signature,
+            )
+            .finish()
+    }
+}
+
 unsafe impl Sync for Sig {}
 unsafe impl Send for Sig {}
 
@@ -241,10 +278,9 @@ impl Drop for Sig {
     }
 }
 
-#[cfg(feature = "std")]
-impl std::fmt::Display for Algorithm {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.name().fmt(f)
+impl Display for Algorithm {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        Display::fmt(self.name(), f)
     }
 }
 
@@ -341,7 +377,7 @@ impl Sig {
     /// Generate a new keypair
     pub fn keypair(&self) -> Result<(PublicKey, SecretKey)> {
         let sig = unsafe { self.sig.as_ref() };
-        let func = sig.keypair.unwrap();
+        let func = sig.keypair.expect("keypair function not available");
         let mut pk = PublicKey {
             bytes: Vec::with_capacity(sig.length_public_key),
         };
@@ -366,7 +402,7 @@ impl Sig {
     ) -> Result<Signature> {
         let sk = sk.into();
         let sig = unsafe { self.sig.as_ref() };
-        let func = sig.sign.unwrap();
+        let func = sig.sign.expect("sign function not available");
         let mut sig = Signature {
             bytes: Vec::with_capacity(sig.length_signature),
         };
@@ -403,7 +439,7 @@ impl Sig {
             return Err(Error::InvalidLength);
         }
         let sig = unsafe { self.sig.as_ref() };
-        let func = sig.verify.unwrap();
+        let func = sig.verify.expect("verify function not available");
         let status = unsafe {
             func(
                 message.as_ptr(),

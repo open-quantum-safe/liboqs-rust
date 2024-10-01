@@ -201,7 +201,7 @@ impl Algorithm {
 
 impl Display for Algorithm {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        self.name().fmt(f)
+        Display::fmt(self.name(), f)
     }
 }
 
@@ -221,6 +221,47 @@ impl Display for Algorithm {
 pub struct Kem {
     algorithm: Algorithm,
     kem: NonNull<ffi::OQS_KEM>,
+}
+
+impl Debug for Kem {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Kem")
+            .field("algorithm", &self.algorithm)
+            .field(
+                "method_name",
+                &unsafe { CStr::from_ptr(self.kem.as_ref().method_name) }
+                    .to_str()
+                    .expect("method name"),
+            )
+            .field(
+                "alg_version",
+                &unsafe { CStr::from_ptr(self.kem.as_ref().alg_version) }
+                    .to_str()
+                    .expect("alg_version"),
+            )
+            .field(
+                "claimed_nist_level",
+                &unsafe { self.kem.as_ref() }.claimed_nist_level,
+            )
+            .field("ind_cca", &unsafe { self.kem.as_ref() }.ind_cca)
+            .field(
+                "length_public_key",
+                &unsafe { self.kem.as_ref() }.length_public_key,
+            )
+            .field(
+                "length_secret_key",
+                &unsafe { self.kem.as_ref() }.length_secret_key,
+            )
+            .field(
+                "length_ciphertext",
+                &unsafe { self.kem.as_ref() }.length_ciphertext,
+            )
+            .field(
+                "length_shared_secret",
+                &unsafe { self.kem.as_ref() }.length_shared_secret,
+            )
+            .finish()
+    }
 }
 
 unsafe impl Sync for Kem {}
@@ -346,7 +387,7 @@ impl Kem {
     /// Generate a new keypair
     pub fn keypair(&self) -> Result<(PublicKey, SecretKey)> {
         let kem = unsafe { self.kem.as_ref() };
-        let func = kem.keypair.unwrap();
+        let func = kem.keypair.expect("keypair function not available");
         let mut pk = PublicKey {
             bytes: Vec::with_capacity(kem.length_public_key),
         };
@@ -374,7 +415,7 @@ impl Kem {
             return Err(Error::InvalidLength);
         }
         let kem = unsafe { self.kem.as_ref() };
-        let func = kem.encaps.unwrap();
+        let func = kem.encaps.expect("encapsulate function not available");
         let mut ct = Ciphertext {
             bytes: Vec::with_capacity(kem.length_ciphertext),
         };
@@ -415,7 +456,7 @@ impl Kem {
         let mut ss = SharedSecret {
             bytes: Vec::with_capacity(kem.length_shared_secret),
         };
-        let func = kem.decaps.unwrap();
+        let func = kem.decaps.expect("decapsulate function not available");
         // Call decapsulate
         let status = unsafe { func(ss.bytes.as_mut_ptr(), ct.bytes.as_ptr(), sk.bytes.as_ptr()) };
         status_to_result(status)?;

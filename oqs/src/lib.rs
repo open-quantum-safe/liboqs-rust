@@ -1,5 +1,12 @@
-#![warn(missing_docs)]
+#![warn(
+    clippy::unwrap_used,
+    missing_debug_implementations,
+    missing_docs,
+    trivial_numeric_casts,
+    unused_qualifications
+)]
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
 //! Friendly bindings to liboqs
 //!
 //! See the [`kem::Kem`](crate::kem::Kem) and [`sig::Sig`](crate::sig::Sig) structs for how to use this crate.
@@ -49,7 +56,7 @@ use ffi::common::OQS_STATUS;
 /// Access the OQS ffi through this crate.
 pub use oqs_sys as ffi;
 
-use core::fmt::{self, Display, Formatter};
+use core::fmt::{self, Debug, Display, Formatter};
 
 mod macros;
 
