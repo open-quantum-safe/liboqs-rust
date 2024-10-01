@@ -5,6 +5,7 @@
 use alloc::vec::Vec;
 
 use core::ptr::NonNull;
+use core::str::FromStr;
 
 #[cfg(not(feature = "std"))]
 use cstr_core::CStr;
@@ -24,7 +25,7 @@ newtype_buffer!(Ciphertext, CiphertextRef);
 newtype_buffer!(SharedSecret, SharedSecretRef);
 
 macro_rules! implement_kems {
-    { $(($feat: literal) $kem: ident: $oqs_id: ident),* $(,)? } => (
+    { $(($feat: literal) $kem: ident: $oqs_id: ident: $str_name: literal),* $(,)? } => (
 
         /// Supported algorithms by OQS
         ///
@@ -47,6 +48,18 @@ macro_rules! implement_kems {
                 )*
             };
             id as *const _ as *const libc::c_char
+        }
+
+        impl FromStr for Algorithm {
+            type Err = Error;
+            fn from_str(s: &str) -> Result<Self> {
+                match s {
+                    $(
+                       $str_name => Ok(Algorithm::$kem),
+                    )*
+                    _ => Err(Error::AlgorithmNotSupportedOrKnown),
+                }
+            }
         }
 
         $(
@@ -108,39 +121,59 @@ macro_rules! implement_kems {
                         assert!(!version.is_empty());
                     }
                 }
+
+                #[test]
+                fn test_from_str() {
+                    let algo = Algorithm::$kem;
+                    let name = algo.to_string();
+                    let res = name.parse::<Algorithm>();
+                    if res.is_err() {
+                        eprintln!("Failed to parse: {}", name);
+                    }
+                    let algo2 = res.unwrap();
+                    assert_eq!(algo, algo2);
+                }
             }
         )*
     )
 }
 
+// List of supported KEM algorithms found in liboqs/src/kem/kem.h
 implement_kems! {
-    ("bike") BikeL1: OQS_KEM_alg_bike_l1,
-    ("bike") BikeL3: OQS_KEM_alg_bike_l3,
-    ("bike") BikeL5: OQS_KEM_alg_bike_l5,
-    ("classic_mceliece") ClassicMcEliece348864: OQS_KEM_alg_classic_mceliece_348864,
-    ("classic_mceliece") ClassicMcEliece348864f: OQS_KEM_alg_classic_mceliece_348864f,
-    ("classic_mceliece") ClassicMcEliece460896: OQS_KEM_alg_classic_mceliece_460896,
-    ("classic_mceliece") ClassicMcEliece460896f: OQS_KEM_alg_classic_mceliece_460896f,
-    ("classic_mceliece") ClassicMcEliece6688128: OQS_KEM_alg_classic_mceliece_6688128,
-    ("classic_mceliece") ClassicMcEliece6688128f: OQS_KEM_alg_classic_mceliece_6688128f,
-    ("classic_mceliece") ClassicMcEliece6960119: OQS_KEM_alg_classic_mceliece_6960119,
-    ("classic_mceliece") ClassicMcEliece6960119f: OQS_KEM_alg_classic_mceliece_6960119f,
-    ("classic_mceliece") ClassicMcEliece8192128: OQS_KEM_alg_classic_mceliece_8192128,
-    ("classic_mceliece") ClassicMcEliece8192128f: OQS_KEM_alg_classic_mceliece_8192128f,
-    ("hqc") Hqc128: OQS_KEM_alg_hqc_128,
-    ("hqc") Hqc192: OQS_KEM_alg_hqc_192,
-    ("hqc") Hqc256: OQS_KEM_alg_hqc_256,
-    ("kyber") Kyber512: OQS_KEM_alg_kyber_512,
-    ("kyber") Kyber768: OQS_KEM_alg_kyber_768,
-    ("kyber") Kyber1024: OQS_KEM_alg_kyber_1024,
-    ("ntruprime") NtruPrimeSntrup761: OQS_KEM_alg_ntruprime_sntrup761,
-    ("frodokem") FrodoKem640Aes: OQS_KEM_alg_frodokem_640_aes,
-    ("frodokem") FrodoKem640Shake: OQS_KEM_alg_frodokem_640_shake,
-    ("frodokem") FrodoKem976Aes: OQS_KEM_alg_frodokem_976_aes,
-    ("frodokem") FrodoKem976Shake: OQS_KEM_alg_frodokem_976_shake,
-    ("frodokem") FrodoKem1344Aes: OQS_KEM_alg_frodokem_1344_aes,
-    ("frodokem") FrodoKem1344Shake: OQS_KEM_alg_frodokem_1344_shake,
+    ("bike") BikeL1: OQS_KEM_alg_bike_l1: "BIKE-L1",
+    ("bike") BikeL3: OQS_KEM_alg_bike_l3: "BIKE-L3",
+    ("bike") BikeL5: OQS_KEM_alg_bike_l5: "BIKE-L5",
+    ("classic_mceliece") ClassicMcEliece348864: OQS_KEM_alg_classic_mceliece_348864: "Classic-McEliece-348864",
+    ("classic_mceliece") ClassicMcEliece348864f: OQS_KEM_alg_classic_mceliece_348864f: "Classic-McEliece-348864f",
+    ("classic_mceliece") ClassicMcEliece460896: OQS_KEM_alg_classic_mceliece_460896: "Classic-McEliece-460896",
+    ("classic_mceliece") ClassicMcEliece460896f: OQS_KEM_alg_classic_mceliece_460896f: "Classic-McEliece-460896f",
+    ("classic_mceliece") ClassicMcEliece6688128: OQS_KEM_alg_classic_mceliece_6688128: "Classic-McEliece-6688128",
+    ("classic_mceliece") ClassicMcEliece6688128f: OQS_KEM_alg_classic_mceliece_6688128f: "Classic-McEliece-6688128f",
+    ("classic_mceliece") ClassicMcEliece6960119: OQS_KEM_alg_classic_mceliece_6960119: "Classic-McEliece-6960119",
+    ("classic_mceliece") ClassicMcEliece6960119f: OQS_KEM_alg_classic_mceliece_6960119f: "Classic-McEliece-6960119f",
+    ("classic_mceliece") ClassicMcEliece8192128: OQS_KEM_alg_classic_mceliece_8192128: "Classic-McEliece-8192128",
+    ("classic_mceliece") ClassicMcEliece8192128f: OQS_KEM_alg_classic_mceliece_8192128f: "Classic-McEliece-8192128f",
+    ("hqc") Hqc128: OQS_KEM_alg_hqc_128: "HQC-128",
+    ("hqc") Hqc192: OQS_KEM_alg_hqc_192: "HQC-192",
+    ("hqc") Hqc256: OQS_KEM_alg_hqc_256: "HQC-256",
+    ("kyber") Kyber512: OQS_KEM_alg_kyber_512: "Kyber512",
+    ("kyber") Kyber768: OQS_KEM_alg_kyber_768: "Kyber768",
+    ("kyber") Kyber1024: OQS_KEM_alg_kyber_1024: "Kyber1024",
+    ("ntruprime") NtruPrimeSntrup761: OQS_KEM_alg_ntruprime_sntrup761: "sntrup761",
+    ("frodokem") FrodoKem640Aes: OQS_KEM_alg_frodokem_640_aes: "FrodoKEM-640-AES",
+    ("frodokem") FrodoKem640Shake: OQS_KEM_alg_frodokem_640_shake: "FrodoKEM-640-SHAKE",
+    ("frodokem") FrodoKem976Aes: OQS_KEM_alg_frodokem_976_aes: "FrodoKEM-976-AES",
+    ("frodokem") FrodoKem976Shake: OQS_KEM_alg_frodokem_976_shake: "FrodoKEM-976-SHAKE",
+    ("frodokem") FrodoKem1344Aes: OQS_KEM_alg_frodokem_1344_aes: "FrodoKEM-1344-AES",
+    ("frodokem") FrodoKem1344Shake: OQS_KEM_alg_frodokem_1344_shake: "FrodoKEM-1344-SHAKE",
+    ("ml_kem") MlKem512: OQS_KEM_alg_ml_kem_512: "ML-KEM-512",
+    ("ml_kem") MlKem768: OQS_KEM_alg_ml_kem_768: "ML-KEM-768",
+    ("ml_kem") MlKem1024: OQS_KEM_alg_ml_kem_1024: "ML-KEM-1024",
 }
+
+// ("ml_kem") MlKem512Ipd: OQS_KEM_alg_ml_kem_512_ipd,
+// ("ml_kem") MlKem768Ipd: OQS_KEM_alg_ml_kem_768_ipd,
+// ("ml_kem") MlKem1024Ipd: OQS_KEM_alg_ml_kem_1024_ipd,
 
 impl Algorithm {
     /// Returns true if this algorithm is enabled in the linked version
@@ -166,9 +199,8 @@ impl Algorithm {
     }
 }
 
-#[cfg(feature = "std")]
-impl std::fmt::Display for Algorithm {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl Display for Algorithm {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         self.name().fmt(f)
     }
 }
@@ -200,8 +232,8 @@ impl Drop for Kem {
     }
 }
 
-impl core::convert::TryFrom<Algorithm> for Kem {
-    type Error = crate::Error;
+impl TryFrom<Algorithm> for Kem {
+    type Error = Error;
     fn try_from(alg: Algorithm) -> Result<Kem> {
         Kem::new(alg)
     }

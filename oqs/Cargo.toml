@@ -1,6 +1,6 @@
 [package]
 name = "oqs"
-version = "0.9.0"
+version = "0.9.1"
 authors = ["Thom Wiggers <thom@thomwiggers.nl>"]
 edition = "2021"
 description = "A Rusty interface to Open-Quantum-Safe's liboqs"
@@ -16,7 +16,7 @@ serde = { version = "1.0", optional = true, default-features = false, features =
 
 [dependencies.oqs-sys]
 path = "../oqs-sys"
-version = "0.9.0"
+version = "0.9.2"
 default-features = false
 
 [features]
@@ -26,15 +26,19 @@ non_portable = ["oqs-sys/non_portable"]
 vendored = ["oqs-sys/vendored"]
 
 # algorithms: KEMs
-kems = ["oqs-sys/kems", "classic_mceliece", "frodokem", "hqc", "kyber", "ntruprime"]
+kems = ["oqs-sys/kems", "classic_mceliece", "frodokem", "hqc", "kyber", "ntruprime", "ml_kem"]
 bike = ["oqs-sys/bike"]  # not supported on Windows or 32-bit ARM
 classic_mceliece = ["oqs-sys/classic_mceliece"]
 frodokem = ["oqs-sys/frodokem"]
 hqc = ["oqs-sys/hqc"]
 kyber = ["oqs-sys/kyber"]
 ntruprime = ["oqs-sys/ntruprime"]
+ml_kem = ["oqs-sys/ml_kem"]
 # algorithms: Signature schemes
-sigs = ["oqs-sys/sigs", "dilithium", "falcon", "sphincs"]
+sigs = ["oqs-sys/sigs", "cross", "dilithium", "falcon", "mayo", "ml_dsa", "sphincs"]
+cross = ["oqs-sys/cross"]
 dilithium = ["oqs-sys/dilithium"]
 falcon = ["oqs-sys/falcon"]
+mayo = ["oqs-sys/mayo"]
+ml_dsa = ["oqs-sys/ml_dsa"]
 sphincs = ["oqs-sys/sphincs"]
