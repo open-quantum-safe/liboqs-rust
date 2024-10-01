@@ -1,5 +1,12 @@
-#![warn(missing_docs)]
+#![warn(
+    clippy::unwrap_used,
+    missing_debug_implementations,
+    missing_docs,
+    trivial_numeric_casts,
+    unused_qualifications
+)]
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
 //! Friendly bindings to liboqs
 //!
 //! See the [`kem::Kem`](crate::kem::Kem) and [`sig::Sig`](crate::sig::Sig) structs for how to use this crate.
@@ -49,6 +56,8 @@ use ffi::common::OQS_STATUS;
 /// Access the OQS ffi through this crate.
 pub use oqs_sys as ffi;
 
+use core::fmt::{self, Debug, Display, Formatter};
+
 mod macros;
 
 /// Initialize liboqs
@@ -82,6 +91,8 @@ pub fn init() {
 pub enum Error {
     /// Indicates an algorithm has been disabled
     AlgorithmDisabled,
+    /// Algorithm not supported or unknown
+    AlgorithmNotSupportedOrKnown,
     /// Generic error
     Error,
     /// Error occurred in OpenSSL functions external to liboqs
@@ -96,10 +107,14 @@ impl std::error::Error for Error {}
 /// Result type for operations that may fail
 pub type Result<T> = core::result::Result<T, Error>;
 
-impl core::fmt::Display for Error {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+impl Display for Error {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             Error::AlgorithmDisabled => write!(f, "OQS Error: Algorithm has been disabled"),
+            Error::AlgorithmNotSupportedOrKnown => write!(
+                f,
+                "OQS Error: Algorithm not supported, has been disabled or is unknown"
+            ),
             Error::ErrorExternalOpenSSL => write!(f, "OQS error: OpenSSL call failed"),
             _ => write!(f, "OQS Error!"),
         }

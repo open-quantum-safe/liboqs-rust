@@ -83,4 +83,13 @@ jobs:
       - name: Cargo clippy
         run: cargo clippy
 
+  careful:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: dtolnay/rust-toolchain@nightly
+      - run: cargo install cargo-careful
+      - run: cargo careful test --no-default-features --features non_portable,kems,sigs,std --manifest-path oqs/Cargo.toml
 #  vim: set ft=yaml ts=2 sw=2 tw=0 et :

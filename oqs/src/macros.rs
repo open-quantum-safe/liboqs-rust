@@ -10,7 +10,6 @@ macro_rules! newtype_buffer {
         ///
         /// Optional support for `serde` if that feature is enabled.
         #[derive(Debug, Clone, PartialEq, Eq)]
-        #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
         pub struct $name {
             bytes: Vec<u8>,
         }
@@ -19,6 +18,26 @@ macro_rules! newtype_buffer {
             /// Obtain the contained vector
             pub fn into_vec(self) -> Vec<u8> {
                 self.bytes
+            }
+        }
+
+        #[cfg(feature = "serde")]
+        impl serde::Serialize for $name {
+            fn serialize<S>(&self, s: S) -> core::result::Result<S::Ok, S::Error>
+            where
+                S: serde::Serializer,
+            {
+                serdect::slice::serialize_hex_lower_or_bin(&self.bytes, s)
+            }
+        }
+
+        #[cfg(feature = "serde")]
+        impl<'de> serde::Deserialize<'de> for $name {
+            fn deserialize<D>(d: D) -> core::result::Result<Self, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                serdect::slice::deserialize_hex_or_bin_vec(d).map(|bytes| $name { bytes })
             }
         }
 
@@ -72,9 +91,13 @@ macro_rules! newtype_buffer {
 
         impl $name {
             /// Length in bytes
-            #[allow(clippy::len_without_is_empty)]
             pub fn len(&self) -> usize {
                 self.bytes.len()
+            }
+
+            /// True if the buffer is empty
+            pub fn is_empty(&self) -> bool {
+                self.bytes.is_empty()
             }
         }
     };
@@ -84,10 +107,6 @@ macro_rules! newtype_buffer {
 mod test {
     use alloc::vec;
     use alloc::vec::Vec;
-
-    // necessary for newtype_buffer call
-    #[cfg(feature = "serde")]
-    use serde::{Deserialize, Serialize};
 
     newtype_buffer!(TestBuf, TestBufRef);
 

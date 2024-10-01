@@ -1,3 +1,10 @@
+## oqs-sys v0.9.2
+
+- Update to liboqs 0.11.0
+- Expose ML-KEM, ML-DSA, Cross, and Mayo
+- Buffer Serialize/Deserialize uses serdect for hex when readable and binary when not
+- Implement Debug for all structs
+
 ## oqs-sys v0.9.1
 
 * Fix pkg-config version detection (#246)

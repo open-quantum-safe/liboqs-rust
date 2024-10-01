@@ -22,8 +22,12 @@ fn generate_bindings(includedir: &Path, headerfile: &str, filter: &str) {
         // Whitelist OQS stuff
         .allowlist_recursively(false)
         .allowlist_type(filter)
+        .allowlist_type("secure_store_sk")
+        .allowlist_type("lock_key")
+        .allowlist_type("unlock_key")
         .allowlist_function(filter)
         .allowlist_var(filter)
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         // Use core and libc
         .use_core()
         .ctypes_prefix("::libc")
@@ -69,10 +73,14 @@ fn build_from_source() -> PathBuf {
     algorithm_feature!("KEM", "hqc");
     algorithm_feature!("KEM", "kyber");
     algorithm_feature!("KEM", "ntruprime");
+    algorithm_feature!("KEM", "ml_kem");
 
     // signature schemes
     algorithm_feature!("SIG", "dilithium");
     algorithm_feature!("SIG", "falcon");
+    algorithm_feature!("SIG", "mayo");
+    algorithm_feature!("SIG", "cross");
+    algorithm_feature!("SIG", "ml_dsa");
     algorithm_feature!("SIG", "sphincs");
 
     if cfg!(windows) {
