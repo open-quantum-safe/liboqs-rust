@@ -125,10 +125,10 @@ macro_rules! implement_kems {
                 #[test]
                 fn test_from_str() {
                     let algo = Algorithm::$kem;
-                    let name = algo.to_string();
+                    let name = algo.name();
                     let res = name.parse::<Algorithm>();
                     if res.is_err() {
-                        eprintln!("Failed to parse: {}", name);
+                        assert!(false, "Failed to parse: {:?}", name);
                     }
                     let algo2 = res.unwrap();
                     assert_eq!(algo, algo2);
