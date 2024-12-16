@@ -1,3 +1,11 @@
+## v0.10.0 (2024-12-17)
+
+- Sync with liboqs 0.12.0.
+  - New algorithms: ML-KEM (FIPS 203), ML-DSA (FIPS 204), CROSS (NIST Additional Signatures Round 1), and MAYO (NIST Additional Signatures Round 1).
+  - Updated algorithms: HQC (NIST Round 4), Falcon (Round 3, including "padded" variants).
+  - Not included from liboqs: stateful signature algorithms LMS and XMSS.
+  - New API for signing and verifying with a context string.
+
 ## oqs-sys v0.9.1
 
 * Fix pkg-config version detection (#246)
