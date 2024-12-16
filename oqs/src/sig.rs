@@ -4,7 +4,7 @@
 //! for the list of supported algorithms.
 use alloc::vec::Vec;
 
-use core::ptr::NonNull;
+use core::ptr::{null, NonNull};
 
 #[cfg(not(feature = "std"))]
 use cstr_core::CStr;
@@ -24,6 +24,8 @@ newtype_buffer!(Signature, SignatureRef);
 
 /// Message type
 pub type Message = [u8];
+/// Context string type
+pub type CtxStr = [u8];
 
 macro_rules! implement_sigs {
     { $(($feat: literal) $sig: ident: $oqs_id: ident),* $(,)? } => (
@@ -65,6 +67,53 @@ macro_rules! implement_sigs {
                     let (pk, sk) = sig.keypair()?;
                     let signature = sig.sign(&message, &sk)?;
                     sig.verify(&message, &signature, &pk)
+                }
+
+                #[test]
+                #[cfg(feature = $feat)]
+                fn test_signing_with_empty_context_string() -> Result<()> {
+                    crate::init();
+                    let message = [0u8; 100];
+                    let ctx_str: [u8; 0] = [];
+                    let sig = Sig::new(Algorithm::$sig)?;
+                    let (pk, sk) = sig.keypair()?;
+                    let signature = sig.sign_with_ctx_str(&message, &ctx_str, &sk)?;
+                    sig.verify_with_ctx_str(&message, &signature, &ctx_str, &pk)
+                }
+
+                #[test]
+                #[cfg(feature = $feat)]
+                fn test_signing_with_nonempty_context_string() -> Result<()> {
+                    crate::init();
+                    let message = [0u8; 100];
+                    let ctx_str = [0u8; 100];
+                    let sig = Sig::new(Algorithm::$sig)?;
+                    let (pk, sk) = sig.keypair()?;
+                    if sig.has_ctx_str_support() {
+                        let signature = sig.sign_with_ctx_str(&message, &ctx_str, &sk)?;
+                        sig.verify_with_ctx_str(&message, &signature, &ctx_str, &pk)
+                    } else {
+                        let sig_result = sig.sign_with_ctx_str(&message, &ctx_str, &sk);
+                        // Expect a generic error
+                        let sig_result: Result<()> = match sig_result {
+                            Err(Error::Error) => Ok(()),
+                            Ok(_) => Err(Error::Error),
+                            Err(e) => Err(e)
+                        };
+                        if sig_result.is_ok() {
+                            // get a valid signature with which to test verify
+                            let signature = sig.sign(&message, &sk)?;
+                            // Expect a generic error
+                            match sig.verify_with_ctx_str(&message, &signature, &ctx_str, &pk) {
+                                Err(Error::Error) => Ok(()),
+                                Ok(_) => Err(Error::Error),
+                                Err(e) => Err(e)
+
+                            }
+                        } else {
+                            sig_result
+                        }
+                    }
                 }
 
                 #[test]
@@ -261,6 +310,12 @@ impl Sig {
         sig.euf_cma
     }
 
+    /// Does this algorithm support signing with a context string?
+    pub fn has_ctx_str_support(&self) -> bool {
+        let sig = unsafe { self.sig.as_ref() };
+        sig.sig_with_ctx_support
+    }
+
     /// Length of the public key
     pub fn length_public_key(&self) -> usize {
         let sig = unsafe { self.sig.as_ref() };
@@ -356,6 +411,47 @@ impl Sig {
         Ok(sig)
     }
 
+    /// Sign a message with a context string
+    pub fn sign_with_ctx_str<'a, S: Into<SecretKeyRef<'a>>>(
+        &self,
+        message: &Message,
+        ctx_str: &CtxStr,
+        sk: S,
+    ) -> Result<Signature> {
+        let sk = sk.into();
+        let sig = unsafe { self.sig.as_ref() };
+        let func = sig.sign_with_ctx_str.unwrap();
+        let mut sig = Signature {
+            bytes: Vec::with_capacity(sig.length_signature),
+        };
+        let mut sig_len = 0;
+        // For algorithms without context string support, liboqs
+        // expects the context to be NULL. Converting an empty
+        // slice to a pointer doesn't actually do this.
+        let ctx_str_ptr = if !ctx_str.is_empty() {
+            ctx_str.as_ptr()
+        } else {
+            null()
+        };
+        let status = unsafe {
+            func(
+                sig.bytes.as_mut_ptr(),
+                &mut sig_len,
+                message.as_ptr(),
+                message.len(),
+                ctx_str_ptr,
+                ctx_str.len(),
+                sk.bytes.as_ptr(),
+            )
+        };
+        status_to_result(status)?;
+        // This is safe to do as it's initialised now.
+        unsafe {
+            sig.bytes.set_len(sig_len);
+        }
+        Ok(sig)
+    }
+
     /// Verify a message
     pub fn verify<'a, 'b>(
         &self,
@@ -378,6 +474,45 @@ impl Sig {
                 message.len(),
                 signature.bytes.as_ptr(),
                 signature.len(),
+                pk.bytes.as_ptr(),
+            )
+        };
+        status_to_result(status)
+    }
+
+    /// Verify a message with a context string
+    pub fn verify_with_ctx_str<'a, 'b>(
+        &self,
+        message: &Message,
+        signature: impl Into<SignatureRef<'a>>,
+        ctx_str: &CtxStr,
+        pk: impl Into<PublicKeyRef<'b>>,
+    ) -> Result<()> {
+        let signature = signature.into();
+        let pk = pk.into();
+        if signature.bytes.len() > self.length_signature()
+            || pk.bytes.len() != self.length_public_key()
+        {
+            return Err(Error::InvalidLength);
+        }
+        let sig = unsafe { self.sig.as_ref() };
+        let func = sig.verify_with_ctx_str.unwrap();
+        // For algorithms without context string support, liboqs
+        // expects the context to be NULL. Converting an empty
+        // slice to a pointer doesn't actually do this.
+        let ctx_str_ptr = if !ctx_str.is_empty() {
+            ctx_str.as_ptr()
+        } else {
+            null()
+        };
+        let status = unsafe {
+            func(
+                message.as_ptr(),
+                message.len(),
+                signature.bytes.as_ptr(),
+                signature.len(),
+                ctx_str_ptr,
+                ctx_str.len(),
                 pk.bytes.as_ptr(),
             )
         };
