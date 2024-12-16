@@ -1,4 +1,4 @@
-on: [push, pull_request, merge_group]
+on: [push, pull_request, merge_group, repository_dispatch]
 
 name: Continuous integration
 
@@ -45,7 +45,7 @@ jobs:
 
       - name: Set OPENSSL_ROOT_DIR
         if: startsWith(matrix.os, 'macos')
-        run: echo "OPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1" >> $GITHUB_ENV
+        run: echo "OPENSSL_ROOT_DIR=$(brew --prefix openssl)" >> $GITHUB_ENV
 
       - name: Install Rust
         run: |
