@@ -114,11 +114,36 @@ macro_rules! implement_sigs {
 }
 
 implement_sigs! {
+    ("cross") CrossRsdp128Balanced: OQS_SIG_alg_cross_rsdp_128_balanced,
+    ("cross") CrossRsdp128Fast: OQS_SIG_alg_cross_rsdp_128_fast,
+    ("cross") CrossRsdp128Small: OQS_SIG_alg_cross_rsdp_128_small,
+    ("cross") CrossRsdp192Balanced: OQS_SIG_alg_cross_rsdp_192_balanced,
+    ("cross") CrossRsdp192Fast: OQS_SIG_alg_cross_rsdp_192_fast,
+    ("cross") CrossRsdp192Small: OQS_SIG_alg_cross_rsdp_192_small,
+    ("cross") CrossRsdp256Balanced: OQS_SIG_alg_cross_rsdp_256_balanced,
+    ("cross") CrossRsdp256Fast: OQS_SIG_alg_cross_rsdp_256_fast,
+    ("cross") CrossRsdp256Small: OQS_SIG_alg_cross_rsdp_256_small,
+    ("cross") CrossRsdpg128Balanced: OQS_SIG_alg_cross_rsdpg_128_balanced,
+    ("cross") CrossRsdpg128Fast: OQS_SIG_alg_cross_rsdpg_128_fast,
+    ("cross") CrossRsdpg128Small: OQS_SIG_alg_cross_rsdpg_128_small,
+    ("cross") CrossRsdpg192Balanced: OQS_SIG_alg_cross_rsdpg_192_balanced,
+    ("cross") CrossRsdpg192Fast: OQS_SIG_alg_cross_rsdpg_192_fast,
+    ("cross") CrossRsdpg192Small: OQS_SIG_alg_cross_rsdpg_192_small,
+    ("cross") CrossRsdpg256Balanced: OQS_SIG_alg_cross_rsdpg_256_balanced,
+    ("cross") CrossRsdpg256Fast: OQS_SIG_alg_cross_rsdpg_256_fast,
+    ("cross") CrossRsdpg256Small: OQS_SIG_alg_cross_rsdpg_256_small,
     ("dilithium") Dilithium2: OQS_SIG_alg_dilithium_2,
     ("dilithium") Dilithium3: OQS_SIG_alg_dilithium_3,
     ("dilithium") Dilithium5: OQS_SIG_alg_dilithium_5,
     ("falcon") Falcon512: OQS_SIG_alg_falcon_512,
     ("falcon") Falcon1024: OQS_SIG_alg_falcon_1024,
+    ("mayo") Mayo1: OQS_SIG_alg_mayo_1,
+    ("mayo") Mayo2: OQS_SIG_alg_mayo_2,
+    ("mayo") Mayo3: OQS_SIG_alg_mayo_3,
+    ("mayo") Mayo5: OQS_SIG_alg_mayo_5,
+    ("ml_dsa") MlDsa44: OQS_SIG_alg_ml_dsa_44,
+    ("ml_dsa") MlDsa65: OQS_SIG_alg_ml_dsa_65,
+    ("ml_dsa") MlDsa87: OQS_SIG_alg_ml_dsa_87,
     ("sphincs") SphincsSha2128fSimple: OQS_SIG_alg_sphincs_sha2_128f_simple,
     ("sphincs") SphincsSha2128sSimple: OQS_SIG_alg_sphincs_sha2_128s_simple,
     ("sphincs") SphincsSha2192fSimple: OQS_SIG_alg_sphincs_sha2_192f_simple,
@@ -161,10 +186,10 @@ impl Algorithm {
 ///
 /// # Example
 /// ```rust
-/// # if !cfg!(feature = "dilithium") { return; }
+/// # if !cfg!(feature = "ml_dsa") { return; }
 /// use oqs;
 /// oqs::init();
-/// let scheme = oqs::sig::Sig::new(oqs::sig::Algorithm::Dilithium2).unwrap();
+/// let scheme = oqs::sig::Sig::new(oqs::sig::Algorithm::MlDsa44).unwrap();
 /// let message = [0u8; 100];
 /// let (pk, sk) = scheme.keypair().unwrap();
 /// let signature = scheme.sign(&message, &sk).unwrap();
