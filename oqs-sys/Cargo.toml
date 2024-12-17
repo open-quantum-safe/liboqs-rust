@@ -1,6 +1,6 @@
 [package]
 name = "oqs-sys"
-version = "0.9.1+liboqs-0.9.0"
+version = "0.10.0+liboqs-0.12.0"
 authors = ["Thom Wiggers <thom@thomwiggers.nl>"]
 edition = "2021"
 links = "oqs"
@@ -30,17 +30,21 @@ docs = []
 non_portable = []
 vendored = []
 # algorithms: KEMs
-kems = ["classic_mceliece", "frodokem", "hqc", "kyber", "ntruprime"]
+kems = ["classic_mceliece", "frodokem", "hqc", "kyber", "ml_kem", "ntruprime"]
 bike = []  # BIKE is enabled by build.rs on non-windows targets
 classic_mceliece = []
 frodokem = []
 hqc = []
 kyber = []
+ml_kem = []
 ntruprime = []
 # algorithms: Signature schemes
-sigs = ["dilithium", "falcon", "sphincs"]
+sigs = ["cross", "dilithium", "falcon", "mayo", "ml_dsa", "sphincs"]
+cross = []
 dilithium = []
 falcon = []
+mayo = []
+ml_dsa = []
 sphincs = []
 
 [package.metadata.docs.rs]

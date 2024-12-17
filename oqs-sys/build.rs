@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-fn generate_bindings(includedir: &Path, headerfile: &str, filter: &str) {
+fn generate_bindings(includedir: &Path, headerfile: &str, allow_filter: &str, block_filter: &str) {
     let out_path = PathBuf::from(std::env::var("OUT_DIR").unwrap());
     bindgen::Builder::default()
         .clang_arg(format!("-I{}", includedir.display()))
@@ -19,11 +19,14 @@ fn generate_bindings(includedir: &Path, headerfile: &str, filter: &str) {
         // Don't generate docs unless enabled
         // Otherwise it breaks tests
         .generate_comments(cfg!(feature = "docs"))
-        // Whitelist OQS stuff
+        // Allowlist/blocklist OQS stuff
         .allowlist_recursively(false)
-        .allowlist_type(filter)
-        .allowlist_function(filter)
-        .allowlist_var(filter)
+        .allowlist_type(allow_filter)
+        .allowlist_function(allow_filter)
+        .allowlist_var(allow_filter)
+        .blocklist_type(block_filter)
+        .blocklist_function(block_filter)
+        .allowlist_var(block_filter)
         // Use core and libc
         .use_core()
         .ctypes_prefix("::libc")
@@ -68,11 +71,15 @@ fn build_from_source() -> PathBuf {
     algorithm_feature!("KEM", "frodokem");
     algorithm_feature!("KEM", "hqc");
     algorithm_feature!("KEM", "kyber");
+    algorithm_feature!("KEM", "ml_kem");
     algorithm_feature!("KEM", "ntruprime");
 
     // signature schemes
+    algorithm_feature!("SIG", "cross");
     algorithm_feature!("SIG", "dilithium");
     algorithm_feature!("SIG", "falcon");
+    algorithm_feature!("SIG", "mayo");
+    algorithm_feature!("SIG", "ml_dsa");
     algorithm_feature!("SIG", "sphincs");
 
     if cfg!(windows) {
@@ -166,12 +173,14 @@ fn main() {
     bindgen::clang_version();
 
     let includedir = probe_includedir();
-    let gen_bindings = |file, filter| generate_bindings(&includedir, file, filter);
+    let gen_bindings = |file, allow_filter, block_filter| {
+        generate_bindings(&includedir, file, allow_filter, block_filter)
+    };
 
-    gen_bindings("common", "OQS_.*");
-    gen_bindings("rand", "OQS_(randombytes|RAND)_.*");
-    gen_bindings("kem", "OQS_KEM.*");
-    gen_bindings("sig", "OQS_SIG.*");
+    gen_bindings("common", "OQS_.*", "");
+    gen_bindings("rand", "OQS_(randombytes|RAND)_.*", "");
+    gen_bindings("kem", "OQS_KEM.*", "");
+    gen_bindings("sig", "OQS_SIG.*", "OQS_SIG_STFL.*");
 
     // https://docs.rs/build-deps/0.1.4/build_deps/fn.rerun_if_changed_paths.html
     build_deps::rerun_if_changed_paths("liboqs/src/**/*").unwrap();

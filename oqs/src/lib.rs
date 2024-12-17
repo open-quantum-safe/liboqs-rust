@@ -9,11 +9,11 @@
 //! This protocol has no replay protection!
 //! ```
 //! use oqs::*;
-//! # #[cfg(all(feature = "dilithium2", feature = "kyber"))]
+//! # #[cfg(all(feature = "ml_dsa", feature = "ml_kem"))]
 //! fn main() -> Result<()> {
 //!     oqs::init(); // Important: initialize liboqs
-//!     let sigalg = sig::Sig::new(sig::Algorithm::Dilithium2)?;
-//!     let kemalg = kem::Kem::new(kem::Algorithm::Kyber512)?;
+//!     let sigalg = sig::Sig::new(sig::Algorithm::MlDsa44)?;
+//!     let kemalg = kem::Kem::new(kem::Algorithm::MlKem512)?;
 //!     // A's long-term secrets
 //!     let (a_sig_pk, a_sig_sk) = sigalg.keypair()?;
 //!     // B's long-term secrets
@@ -38,7 +38,7 @@
 //!
 //!     Ok(())
 //! }
-//! # #[cfg(not(all(feature = "dilithium2", feature = "kyber")))]
+//! # #[cfg(not(all(feature = "ml_dsa", feature = "ml_kem")))]
 //! # fn main() {}
 //! ```
 // needs to be imported to be made available
