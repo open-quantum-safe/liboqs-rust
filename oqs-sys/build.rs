@@ -123,9 +123,8 @@ fn build_from_source() -> PathBuf {
     }
 
     // lib is installed to $outdir/lib
-    let mut libdir = outdir.join("lib");
+    let libdir = outdir.join("lib");
     if cfg!(windows) {
-        libdir.push("Release");
         // Static linking doesn't work on Windows
         println!("cargo:rustc-link-lib=oqs");
     } else {
