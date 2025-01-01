@@ -119,7 +119,10 @@ fn build_from_source() -> PathBuf {
     // remove the build folder
     let temp_build = outdir.join("build");
     if let Err(e) = std::fs::remove_dir_all(temp_build) {
-        println!("cargo:warning=unexpected error while cleaning build files:{}", e);
+        println!(
+            "cargo:warning=unexpected error while cleaning build files:{}",
+            e
+        );
     }
 
     // lib is installed to $outdir/lib
