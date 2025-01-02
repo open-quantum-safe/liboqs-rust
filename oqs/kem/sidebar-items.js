@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Algorithm"],"struct":["Ciphertext","CiphertextRef","Kem","PublicKey","PublicKeyRef","SecretKey","SecretKeyRef","SharedSecret","SharedSecretRef"]};
