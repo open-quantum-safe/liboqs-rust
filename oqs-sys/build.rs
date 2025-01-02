@@ -113,12 +113,21 @@ fn build_from_source() -> PathBuf {
         config.define(permit_unsupported, str);
     }
 
-    let outdir = config.build_target("oqs").build();
+    // build the default (install) target.
+    let outdir = config.build();
 
-    // lib is put into $outdir/build/lib
-    let mut libdir = outdir.join("build").join("lib");
+    // remove the build folder
+    let temp_build = outdir.join("build");
+    if let Err(e) = std::fs::remove_dir_all(temp_build) {
+        println!(
+            "cargo:warning=unexpected error while cleaning build files:{}",
+            e
+        );
+    }
+
+    // lib is installed to $outdir/lib
+    let libdir = outdir.join("lib");
     if cfg!(windows) {
-        libdir.push("Release");
         // Static linking doesn't work on Windows
         println!("cargo:rustc-link-lib=oqs");
     } else {
@@ -132,7 +141,7 @@ fn build_from_source() -> PathBuf {
 
 fn includedir_from_source() -> PathBuf {
     let outdir = build_from_source();
-    outdir.join("build").join("include")
+    outdir.join("include")
 }
 
 fn probe_includedir() -> PathBuf {
