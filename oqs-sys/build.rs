@@ -88,7 +88,15 @@ fn build_from_source() -> PathBuf {
         config.define("CMAKE_SYSTEM_VERSION", "10.0");
     }
 
-    if cfg!(feature = "openssl") {
+    if cfg!(feature = "vendored_openssl") {
+        // DEP_OPENSSL_ROOT is set by openssl-sys if a vendored build was used.
+        // We point CMake towards this so that the vendored openssl is preferred
+        // over the system openssl.
+        let vendored_openssl_root = std::env::var("DEP_OPENSSL_ROOT")
+            .expect("The `vendored_openssl` feature was enabled, but DEP_OPENSSL_ROOT was not set");
+        config.define("OQS_USE_OPENSSL", "Yes");
+        config.define("OPENSSL_ROOT_DIR", vendored_openssl_root);
+    } else if cfg!(feature = "openssl") {
         config.define("OQS_USE_OPENSSL", "Yes");
         if cfg!(windows) {
             // Windows doesn't prefix with lib
@@ -101,11 +109,6 @@ fn build_from_source() -> PathBuf {
         if let Ok(dir) = std::env::var("OPENSSL_ROOT_DIR") {
             let dir = Path::new(&dir).join("lib");
             println!("cargo:rustc-link-search={}", dir.display());
-        } else if let Ok(vendored_openssl_root) = std::env::var("DEP_OPENSSL_ROOT") {
-            // DEP_OPENSSL_ROOT is set by openssl-sys if a vendored build was used.
-            // We point CMake towards this so that the vendored openssl is preferred
-            // over the system openssl.
-            config.define("OPENSSL_ROOT_DIR", vendored_openssl_root);
         } else if cfg!(target_os = "windows") || cfg!(target_os = "macos") {
             println!("cargo:warning=You may need to specify OPENSSL_ROOT_DIR or disable the default `openssl` feature.");
         }
