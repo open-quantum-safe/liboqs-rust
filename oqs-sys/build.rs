@@ -101,6 +101,11 @@ fn build_from_source() -> PathBuf {
         if let Ok(dir) = std::env::var("OPENSSL_ROOT_DIR") {
             let dir = Path::new(&dir).join("lib");
             println!("cargo:rustc-link-search={}", dir.display());
+        } else if let Ok(vendored_openssl_root) = std::env::var("DEP_OPENSSL_ROOT") {
+            // DEP_OPENSSL_ROOT is set by openssl-sys if a vendored build was used.
+            // We point CMake towards this so that the vendored openssl is preferred
+            // over the system openssl.
+            config.define("OPENSSL_ROOT_DIR", vendored_openssl_root);
         } else if cfg!(target_os = "windows") || cfg!(target_os = "macos") {
             println!("cargo:warning=You may need to specify OPENSSL_ROOT_DIR or disable the default `openssl` feature.");
         }
@@ -125,8 +130,10 @@ fn build_from_source() -> PathBuf {
         );
     }
 
-    // lib is installed to $outdir/lib
+    // lib is installed to $outdir/lib or lib64, depending on CMake conventions
     let libdir = outdir.join("lib");
+    let libdir64 = outdir.join("lib64");
+
     if cfg!(windows) {
         // Static linking doesn't work on Windows
         println!("cargo:rustc-link-lib=oqs");
@@ -135,6 +142,7 @@ fn build_from_source() -> PathBuf {
         println!("cargo:rustc-link-lib=static=oqs");
     }
     println!("cargo:rustc-link-search=native={}", libdir.display());
+    println!("cargo:rustc-link-search=native={}", libdir64.display());
 
     outdir
 }

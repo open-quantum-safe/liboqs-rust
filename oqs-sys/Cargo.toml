@@ -16,6 +16,7 @@ include = ["README.md", "build.rs", "src/**", "liboqs/.CMake/**", "liboqs/src/**
 
 [dependencies]
 libc = "0.2"
+openssl-sys = { version = "0.9", optional = true }
 
 [build-dependencies]
 pkg-config = "0.3"
@@ -25,7 +26,7 @@ build-deps = "0.1"
 
 [features]
 default = ["openssl", "kems", "sigs"]
-openssl = []
+openssl = ["dep:openssl-sys"]
 docs = []
 non_portable = []
 vendored = []
