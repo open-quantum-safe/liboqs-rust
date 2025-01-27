@@ -24,6 +24,7 @@ default = ["oqs-sys/openssl", "kems", "sigs", "std"]
 std = []
 non_portable = ["oqs-sys/non_portable"]
 vendored = ["oqs-sys/vendored"]
+vendored_openssl = ["oqs-sys/vendored_openssl"]
 
 # algorithms: KEMs
 kems = ["oqs-sys/kems", "classic_mceliece", "frodokem", "hqc", "kyber", "ml_kem", "ntruprime"]
