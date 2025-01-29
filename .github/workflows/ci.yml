@@ -84,6 +84,12 @@ jobs:
       - name: Cargo test --no-default-features --features non_portable,kems,sigs,std
         run: cargo test --no-default-features --features non_portable,kems,sigs,std --manifest-path oqs/Cargo.toml
 
+      # skip windows, because the default image doesn't include several of the
+      # system dependencies (e.g. Perl) required for the openssl-sys/vendored
+      - name: Cargo test --features vendored_openssl
+        if: matrix.os != 'windows-latest'
+        run: cargo test --features vendored_openssl --manifest-path oqs/Cargo.toml
+
       - name: Cargo fmt
         run: cargo fmt --all -- --check
 
