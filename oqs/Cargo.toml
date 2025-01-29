@@ -1,6 +1,6 @@
 [package]
 name = "oqs"
-version = "0.10.0"
+version = "0.10.1"
 authors = ["Thom Wiggers <thom@thomwiggers.nl>"]
 edition = "2021"
 description = "A Rusty interface to Open-Quantum-Safe's liboqs"
@@ -16,7 +16,7 @@ serde = { version = "1.0", optional = true, default-features = false, features =
 
 [dependencies.oqs-sys]
 path = "../oqs-sys"
-version = "0.10.0"
+version = "0.10.1"
 default-features = false
 
 [features]

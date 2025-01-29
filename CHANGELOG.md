@@ -1,3 +1,7 @@
+## v0.10.1 (2025-01-28)
+
+- Add a `vendored-openssl` feature. (#275)
+
 ## v0.10.0 (2024-12-17)
 
 - Sync with liboqs 0.12.0.
