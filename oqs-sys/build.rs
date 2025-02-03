@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-fn generate_bindings(includedir: &Path, headerfile: &str, filter: &str) {
+fn generate_bindings(includedir: &Path, headerfile: &str, allow_filter: &str, block_filter: &str) {
     let out_path = PathBuf::from(std::env::var("OUT_DIR").unwrap());
     bindgen::Builder::default()
         .clang_arg(format!("-I{}", includedir.display()))
@@ -19,11 +19,14 @@ fn generate_bindings(includedir: &Path, headerfile: &str, filter: &str) {
         // Don't generate docs unless enabled
         // Otherwise it breaks tests
         .generate_comments(cfg!(feature = "docs"))
-        // Whitelist OQS stuff
+        // Allowlist/blocklist OQS stuff
         .allowlist_recursively(false)
-        .allowlist_type(filter)
-        .allowlist_function(filter)
-        .allowlist_var(filter)
+        .allowlist_type(allow_filter)
+        .allowlist_function(allow_filter)
+        .allowlist_var(allow_filter)
+        .blocklist_type(block_filter)
+        .blocklist_function(block_filter)
+        .allowlist_var(block_filter)
         // Use core and libc
         .use_core()
         .ctypes_prefix("::libc")
@@ -68,11 +71,15 @@ fn build_from_source() -> PathBuf {
     algorithm_feature!("KEM", "frodokem");
     algorithm_feature!("KEM", "hqc");
     algorithm_feature!("KEM", "kyber");
+    algorithm_feature!("KEM", "ml_kem");
     algorithm_feature!("KEM", "ntruprime");
 
     // signature schemes
+    algorithm_feature!("SIG", "cross");
     algorithm_feature!("SIG", "dilithium");
     algorithm_feature!("SIG", "falcon");
+    algorithm_feature!("SIG", "mayo");
+    algorithm_feature!("SIG", "ml_dsa");
     algorithm_feature!("SIG", "sphincs");
 
     if cfg!(windows) {
@@ -81,7 +88,8 @@ fn build_from_source() -> PathBuf {
         config.define("CMAKE_SYSTEM_VERSION", "10.0");
     }
 
-    if cfg!(feature = "openssl") {
+    // link the openssl libcrypto
+    if cfg!(any(feature = "openssl", feature = "vendored_openssl")) {
         config.define("OQS_USE_OPENSSL", "Yes");
         if cfg!(windows) {
             // Windows doesn't prefix with lib
@@ -89,7 +97,19 @@ fn build_from_source() -> PathBuf {
         } else {
             println!("cargo:rustc-link-lib=crypto");
         }
+    } else {
+        config.define("OQS_USE_OPENSSL", "No");
+    }
 
+    // let the linker know where to search for openssl libcrypto
+    if cfg!(feature = "vendored_openssl") {
+        // DEP_OPENSSL_ROOT is set by openssl-sys if a vendored build was used.
+        // We point CMake towards this so that the vendored openssl is preferred
+        // over the system openssl.
+        let vendored_openssl_root = std::env::var("DEP_OPENSSL_ROOT")
+            .expect("The `vendored_openssl` feature was enabled, but DEP_OPENSSL_ROOT was not set");
+        config.define("OPENSSL_ROOT_DIR", vendored_openssl_root);
+    } else if cfg!(feature = "openssl") {
         println!("cargo:rerun-if-env-changed=OPENSSL_ROOT_DIR");
         if let Ok(dir) = std::env::var("OPENSSL_ROOT_DIR") {
             let dir = Path::new(&dir).join("lib");
@@ -97,8 +117,6 @@ fn build_from_source() -> PathBuf {
         } else if cfg!(target_os = "windows") || cfg!(target_os = "macos") {
             println!("cargo:warning=You may need to specify OPENSSL_ROOT_DIR or disable the default `openssl` feature.");
         }
-    } else {
-        config.define("OQS_USE_OPENSSL", "No");
     }
 
     let permit_unsupported = "OQS_PERMIT_UNSUPPORTED_ARCHITECTURE";
@@ -106,12 +124,23 @@ fn build_from_source() -> PathBuf {
         config.define(permit_unsupported, str);
     }
 
-    let outdir = config.build_target("oqs").build();
+    // build the default (install) target.
+    let outdir = config.build();
 
-    // lib is put into $outdir/build/lib
-    let mut libdir = outdir.join("build").join("lib");
+    // remove the build folder
+    let temp_build = outdir.join("build");
+    if let Err(e) = std::fs::remove_dir_all(temp_build) {
+        println!(
+            "cargo:warning=unexpected error while cleaning build files:{}",
+            e
+        );
+    }
+
+    // lib is installed to $outdir/lib or lib64, depending on CMake conventions
+    let libdir = outdir.join("lib");
+    let libdir64 = outdir.join("lib64");
+
     if cfg!(windows) {
-        libdir.push("Release");
         // Static linking doesn't work on Windows
         println!("cargo:rustc-link-lib=oqs");
     } else {
@@ -119,13 +148,14 @@ fn build_from_source() -> PathBuf {
         println!("cargo:rustc-link-lib=static=oqs");
     }
     println!("cargo:rustc-link-search=native={}", libdir.display());
+    println!("cargo:rustc-link-search=native={}", libdir64.display());
 
     outdir
 }
 
 fn includedir_from_source() -> PathBuf {
     let outdir = build_from_source();
-    outdir.join("build").join("include")
+    outdir.join("include")
 }
 
 fn probe_includedir() -> PathBuf {
@@ -166,12 +196,14 @@ fn main() {
     bindgen::clang_version();
 
     let includedir = probe_includedir();
-    let gen_bindings = |file, filter| generate_bindings(&includedir, file, filter);
+    let gen_bindings = |file, allow_filter, block_filter| {
+        generate_bindings(&includedir, file, allow_filter, block_filter)
+    };
 
-    gen_bindings("common", "OQS_.*");
-    gen_bindings("rand", "OQS_(randombytes|RAND)_.*");
-    gen_bindings("kem", "OQS_KEM.*");
-    gen_bindings("sig", "OQS_SIG.*");
+    gen_bindings("common", "OQS_.*", "");
+    gen_bindings("rand", "OQS_(randombytes|RAND)_.*", "");
+    gen_bindings("kem", "OQS_KEM.*", "");
+    gen_bindings("sig", "OQS_SIG.*", "OQS_SIG_STFL.*");
 
     // https://docs.rs/build-deps/0.1.4/build_deps/fn.rerun_if_changed_paths.html
     build_deps::rerun_if_changed_paths("liboqs/src/**/*").unwrap();

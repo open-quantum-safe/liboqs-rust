@@ -1,4 +1,4 @@
-on: [push, pull_request, merge_group]
+on: [push, pull_request, merge_group, repository_dispatch]
 
 name: Continuous integration
 
@@ -15,6 +15,9 @@ jobs:
           - stable
           - beta
           - nightly
+        update-liboqs:
+          - true
+          - false
     env:
       # 20 MiB stack
       RUST_MIN_STACK: 20971520
@@ -23,6 +26,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
+
+      - name: Update liboqs submodule
+        if: matrix.update-liboqs
+        run: git submodule update --remote
 
       - name: Set stack size
         if: startsWith(matrix.os, 'windows')
@@ -45,7 +52,7 @@ jobs:
 
       - name: Set OPENSSL_ROOT_DIR
         if: startsWith(matrix.os, 'macos')
-        run: echo "OPENSSL_ROOT_DIR=/usr/local/opt/openssl@1.1" >> $GITHUB_ENV
+        run: echo "OPENSSL_ROOT_DIR=$(brew --prefix openssl)" >> $GITHUB_ENV
 
       - name: Install Rust
         run: |
@@ -76,6 +83,12 @@ jobs:
 
       - name: Cargo test --no-default-features --features non_portable,kems,sigs,std
         run: cargo test --no-default-features --features non_portable,kems,sigs,std --manifest-path oqs/Cargo.toml
+
+      # skip windows, because the default image doesn't include several of the
+      # system dependencies (e.g. Perl) required for the openssl-sys/vendored
+      - name: Cargo test --features vendored_openssl
+        if: matrix.os != 'windows-latest'
+        run: cargo test --features vendored_openssl --manifest-path oqs/Cargo.toml
 
       - name: Cargo fmt
         run: cargo fmt --all -- --check
