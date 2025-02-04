@@ -37,7 +37,7 @@ Update your `Cargo.toml` and include `oqs`:
 
 ```toml
 [dependencies]
-oqs = "0.9.0"
+oqs = "0.10.1"
 ```
 
 `oqs-sys` can be specified equivalently.
@@ -101,13 +101,14 @@ tests.
   - `frodokem`
   - `hqc`
   - `kyber`
+  - `ml_kem`
   - `ntruprime`
-  - `saber`
 - `sigs` (default): Compile with all signature schemes enabled
+  - `cross`
   - `dilithium`
   - `falcon`
-  - `picnic`
-  - `rainbow`
+  - `mayo`
+  - `ml_dsa`
   - `sphincs`: SPHINCS<sup>+</sup>
 
 ## Running

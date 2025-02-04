@@ -133,6 +133,9 @@ implement_kems! {
     ("kyber") Kyber512: OQS_KEM_alg_kyber_512,
     ("kyber") Kyber768: OQS_KEM_alg_kyber_768,
     ("kyber") Kyber1024: OQS_KEM_alg_kyber_1024,
+    ("ml_kem") MlKem512: OQS_KEM_alg_ml_kem_512,
+    ("ml_kem") MlKem768: OQS_KEM_alg_ml_kem_768,
+    ("ml_kem") MlKem1024: OQS_KEM_alg_ml_kem_1024,
     ("ntruprime") NtruPrimeSntrup761: OQS_KEM_alg_ntruprime_sntrup761,
     ("frodokem") FrodoKem640Aes: OQS_KEM_alg_frodokem_640_aes,
     ("frodokem") FrodoKem640Shake: OQS_KEM_alg_frodokem_640_shake,
@@ -177,10 +180,10 @@ impl std::fmt::Display for Algorithm {
 ///
 /// # Example
 /// ```rust
-/// # if !cfg!(feature = "kyber") { return; }
+/// # if !cfg!(feature = "ml_kem") { return; }
 /// use oqs;
 /// oqs::init();
-/// let kem = oqs::kem::Kem::new(oqs::kem::Algorithm::Kyber512).unwrap();
+/// let kem = oqs::kem::Kem::new(oqs::kem::Algorithm::MlKem512).unwrap();
 /// let (pk, sk) = kem.keypair().unwrap();
 /// let (ct, ss) = kem.encapsulate(&pk).unwrap();
 /// let ss2 = kem.decapsulate(&sk, &ct).unwrap();
