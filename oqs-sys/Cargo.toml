@@ -21,7 +21,7 @@ openssl-sys = { version = "0.9", features = ["vendored"], optional = true }
 [build-dependencies]
 pkg-config = "0.3"
 cmake = "0.1"
-bindgen = "0.69"
+bindgen = "0.71"
 build-deps = "0.1"
 
 [features]
