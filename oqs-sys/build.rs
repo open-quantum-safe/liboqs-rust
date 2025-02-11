@@ -26,7 +26,7 @@ fn generate_bindings(includedir: &Path, headerfile: &str, allow_filter: &str, bl
         .allowlist_var(allow_filter)
         .blocklist_type(block_filter)
         .blocklist_function(block_filter)
-        .allowlist_var(block_filter)
+        .blocklist_var(block_filter)
         // Use core and libc
         .use_core()
         .ctypes_prefix("::libc")
