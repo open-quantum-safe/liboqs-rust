@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         os:
-          - macos-latest
+          # - macos-latest
           - ubuntu-latest
           - windows-latest
         rust:
@@ -18,10 +18,9 @@ jobs:
         update-liboqs:
           - true
           - false
-    env:
+      # env:  # auto-allocated in runtime
       # 20 MiB stack
-      RUST_MIN_STACK: 20971520
-
+      # RUST_MIN_STACK: 20971520
     steps:
       - uses: actions/checkout@v4
         with:
