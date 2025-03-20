@@ -110,6 +110,7 @@ tests.
   - `mayo`
   - `ml_dsa`
   - `sphincs`: SPHINCS<sup>+</sup>
+  - `uov`
 
 ## Running
 
@@ -119,8 +120,8 @@ tests.
 ///
 use oqs::*;
 fn main() -> Result<()> {
-    let sigalg = sig::Sig::new(sig::Algorithm::Dilithium2)?;
-    let kemalg = kem::Kem::new(kem::Algorithm::Kyber512)?;
+    let sigalg = sig::Sig::new(sig::Algorithm::MlDsa44)?;
+    let kemalg = kem::Kem::new(kem::Algorithm::MlKem512)?;
     // A's long-term secrets
     let (a_sig_pk, a_sig_sk) = sigalg.keypair()?;
     // B's long-term secrets
