@@ -30,3 +30,4 @@ For the ``ffi`` interface bindings, see ``oqs-sys``.
   * `mayo`
   * `ml_dsa`
   * `sphincs`: SPHINCS+
+  * `uov`
