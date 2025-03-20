@@ -205,6 +205,18 @@ implement_sigs! {
     ("sphincs") SphincsShake192sSimple: OQS_SIG_alg_sphincs_shake_192s_simple,
     ("sphincs") SphincsShake256fSimple: OQS_SIG_alg_sphincs_shake_256f_simple,
     ("sphincs") SphincsShake256sSimple: OQS_SIG_alg_sphincs_shake_256s_simple,
+    ("uov") UovOvIs: OQS_SIG_alg_uov_ov_Is,
+    ("uov") UovOvIp: OQS_SIG_alg_uov_ov_Ip,
+    ("uov") UovOvIII: OQS_SIG_alg_uov_ov_III,
+    ("uov") UovOvV: OQS_SIG_alg_uov_ov_V,
+    ("uov") UovOvIsPkc: OQS_SIG_alg_uov_ov_Is_pkc,
+    ("uov") UovOvIpPkc: OQS_SIG_alg_uov_ov_Ip_pkc,
+    ("uov") UovOvIIIPkc: OQS_SIG_alg_uov_ov_III_pkc,
+    ("uov") UovOvVPkc: OQS_SIG_alg_uov_ov_V_pkc,
+    ("uov") UovOvIsPkcSkc: OQS_SIG_alg_uov_ov_Is_pkc_skc,
+    ("uov") UovOvIpPkcSkc: OQS_SIG_alg_uov_ov_Ip_pkc_skc,
+    ("uov") UovOvIIIPkcSkc: OQS_SIG_alg_uov_ov_III_pkc_skc,
+    ("uov") UovOvVPkcSkc: OQS_SIG_alg_uov_ov_V_pkc_skc,
 }
 
 impl Algorithm {
