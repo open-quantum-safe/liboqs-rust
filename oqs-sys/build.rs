@@ -207,7 +207,7 @@ fn main() {
     };
 
     gen_bindings("common", "OQS_.*", "");
-    gen_bindings("rand", "OQS_(randombytes|RAND)_.*", "");
+    gen_bindings("rand", "OQS_(randombytes|RAND).*", "");
     gen_bindings("kem", "OQS_KEM.*", "");
     gen_bindings("sig", "OQS_SIG.*", "OQS_SIG_STFL.*");
 
