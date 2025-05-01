@@ -147,6 +147,12 @@ fn build_from_source() -> PathBuf {
         // Statically linking makes it easier to use the sys crate
         println!("cargo:rustc-link-lib=static=oqs");
     }
+
+    if cfg!(windows) {
+        // Explicitly link against advapi32. See https://github.com/rust-lang/rust/issues/140555
+        println!("cargo:rustc-link-lib=advapi32");
+    }
+
     println!("cargo:rustc-link-search=native={}", libdir.display());
     println!("cargo:rustc-link-search=native={}", libdir64.display());
 
