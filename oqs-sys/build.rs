@@ -81,6 +81,7 @@ fn build_from_source() -> PathBuf {
     algorithm_feature!("SIG", "mayo");
     algorithm_feature!("SIG", "ml_dsa");
     algorithm_feature!("SIG", "sphincs");
+    algorithm_feature!("SIG", "uov");
 
     if cfg!(windows) {
         // Select the latest available Windows SDK
@@ -207,7 +208,7 @@ fn main() {
     };
 
     gen_bindings("common", "OQS_.*", "");
-    gen_bindings("rand", "OQS_(randombytes|RAND)_.*", "");
+    gen_bindings("rand", "OQS_(randombytes|RAND).*", "");
     gen_bindings("kem", "OQS_KEM.*", "");
     gen_bindings("sig", "OQS_SIG.*", "OQS_SIG_STFL.*");
 

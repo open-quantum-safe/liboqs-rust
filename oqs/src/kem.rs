@@ -22,6 +22,7 @@ newtype_buffer!(PublicKey, PublicKeyRef);
 newtype_buffer!(SecretKey, SecretKeyRef);
 newtype_buffer!(Ciphertext, CiphertextRef);
 newtype_buffer!(SharedSecret, SharedSecretRef);
+newtype_buffer!(KeypairSeed, KeypairSeedRef);
 
 macro_rules! implement_kems {
     { $(($feat: literal) $kem: ident: $oqs_id: ident),* $(,)? } => (
@@ -63,6 +64,36 @@ macro_rules! implement_kems {
                     let alg = Algorithm::$kem;
                     let kem = Kem::new(alg)?;
                     let (pk, sk) = kem.keypair()?;
+                    let (ct, ss1) = kem.encapsulate(&pk)?;
+                    let ss2 = kem.decapsulate(&sk, &ct)?;
+                    assert_eq!(ss1, ss2, "shared secret not equal!");
+                    Ok(())
+                }
+
+                #[test]
+                #[cfg(feature = $feat)]
+                fn test_encaps_decaps_derand() -> Result<()> {
+                    use crate::ffi::rand::OQS_randombytes;
+                    crate::init();
+
+                    let alg = Algorithm::$kem;
+                    let kem = Kem::new(alg)?;
+                    let mut seed = KeypairSeed {
+                        bytes: Vec::with_capacity(kem.length_keypair_seed()),
+                    };
+                    unsafe {
+                        // On some systems, getentropy fails if given a zero-length array
+                        if (kem.length_keypair_seed() > 0) {
+                            OQS_randombytes(seed.bytes.as_mut_ptr(), kem.length_keypair_seed());
+                        }
+                        seed.bytes.set_len(kem.length_keypair_seed());
+                    }
+                    let result = kem.keypair_derand(&seed);
+                    // expect Error::Error for KEMs with this API disabled
+                    if (kem.length_keypair_seed() == 0) {
+                        return result.map_or_else(|e| { match e { Error::Error => Ok(()), _ => Err(Error::Error) } }, |_| Err(Error::Error));
+                    }
+                    let (pk, sk) = result?;
                     let (ct, ss1) = kem.encapsulate(&pk)?;
                     let ss2 = kem.decapsulate(&sk, &ct)?;
                     assert_eq!(ss1, ss2, "shared secret not equal!");
@@ -270,6 +301,12 @@ impl Kem {
         kem.length_shared_secret
     }
 
+    /// Get the length of a keypair seed
+    pub fn length_keypair_seed(&self) -> usize {
+        let kem = unsafe { self.kem.as_ref() };
+        kem.length_keypair_seed
+    }
+
     /// Obtain a secret key objects from bytes
     ///
     /// Returns None if the secret key is not the correct length.
@@ -314,6 +351,17 @@ impl Kem {
         }
     }
 
+    /// Obtain a keypair seed from bytes
+    ///
+    /// Returns None if the shared secret is not the correct length.
+    pub fn keypair_seed_from_bytes<'a>(&self, buf: &'a [u8]) -> Option<KeypairSeedRef<'a>> {
+        if self.length_keypair_seed() != buf.len() {
+            None
+        } else {
+            Some(KeypairSeedRef::new(buf))
+        }
+    }
+
     /// Generate a new keypair
     pub fn keypair(&self) -> Result<(PublicKey, SecretKey)> {
         let kem = unsafe { self.kem.as_ref() };
@@ -325,6 +373,40 @@ impl Kem {
             bytes: Vec::with_capacity(kem.length_secret_key),
         };
         let status = unsafe { func(pk.bytes.as_mut_ptr(), sk.bytes.as_mut_ptr()) };
+        status_to_result(status)?;
+        // update the lengths of the vecs
+        // this is safe to do, as we have initialised them now.
+        unsafe {
+            pk.bytes.set_len(kem.length_public_key);
+            sk.bytes.set_len(kem.length_secret_key);
+        }
+        Ok((pk, sk))
+    }
+
+    /// Generate a new keypair from a seed
+    pub fn keypair_derand<'a, S: Into<KeypairSeedRef<'a>>>(
+        &self,
+        seed: S,
+    ) -> Result<(PublicKey, SecretKey)> {
+        let seed = seed.into();
+        if seed.bytes.len() != self.length_keypair_seed() {
+            return Err(Error::InvalidLength);
+        }
+        let kem = unsafe { self.kem.as_ref() };
+        let func = kem.keypair_derand.unwrap();
+        let mut pk = PublicKey {
+            bytes: Vec::with_capacity(kem.length_public_key),
+        };
+        let mut sk = SecretKey {
+            bytes: Vec::with_capacity(kem.length_secret_key),
+        };
+        let status = unsafe {
+            func(
+                pk.bytes.as_mut_ptr(),
+                sk.bytes.as_mut_ptr(),
+                seed.bytes.as_ptr(),
+            )
+        };
         status_to_result(status)?;
         // update the lengths of the vecs
         // this is safe to do, as we have initialised them now.

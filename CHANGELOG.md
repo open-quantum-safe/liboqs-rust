@@ -1,3 +1,10 @@
+## v0.11.0 (2025-05-01)
+
+- Sync with liboqs 0.13.0.
+  - New algorithms: UOV (NIST Additional Signatures Round 2).
+  - Updated algorithms: CROSS (Additional Signatures Round 2), MAYO (Additional Signatures Round 2).
+  - New API for derandomized key generation with a seed.
+
 ## v0.10.1 (2025-01-29)
 
 - Add a `vendored-openssl` feature. (#275)
