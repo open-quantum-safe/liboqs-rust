@@ -18,9 +18,6 @@ jobs:
         update-liboqs:
           - true
           - false
-        exclude:
-          - os: windows-latest
-            rust: nightly
     env:
       # 20 MiB stack
       RUST_MIN_STACK: 20971520
