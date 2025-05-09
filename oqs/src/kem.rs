@@ -372,15 +372,46 @@ impl Kem {
         let mut sk = SecretKey {
             bytes: Vec::with_capacity(kem.length_secret_key),
         };
-        let status = unsafe { func(pk.bytes.as_mut_ptr(), sk.bytes.as_mut_ptr()) };
-        status_to_result(status)?;
-        // update the lengths of the vecs
-        // this is safe to do, as we have initialised them now.
-        unsafe {
-            pk.bytes.set_len(kem.length_public_key);
-            sk.bytes.set_len(kem.length_secret_key);
+
+        let pklen = kem.length_public_key;
+        let sklen = kem.length_secret_key;
+
+        #[cfg(feature = "std")]
+        {
+            // Particularly the classic McEliece kem is very stack-heavy.
+            // The reason we're using a thread is that it allows
+            // to increase stack space, on demand, in run time.
+            // Not only does this eliminate the need to set compiler options for each build;
+            // it also means we won't be holding on to memory unnecessarily in runtime.
+            let handle = std::thread::Builder::new()
+                .stack_size(16_000_000)
+                .spawn(move || {
+                    let status = unsafe { func(pk.bytes.as_mut_ptr(), sk.bytes.as_mut_ptr()) };
+                    status_to_result(status)?;
+                    // update the lengths of the vecs
+                    // this is safe to do, as we have initialised them now.
+                    unsafe {
+                        pk.bytes.set_len(pklen);
+                        sk.bytes.set_len(sklen);
+                    }
+                    Ok((pk, sk))
+                })
+                .unwrap();
+            handle.join().unwrap()
         }
-        Ok((pk, sk))
+        #[cfg(not(feature = "std"))]
+        {
+            // For embedded, something different needs to be done to spawn a new task. For now, do it inline.
+            let status = unsafe { func(pk.bytes.as_mut_ptr(), sk.bytes.as_mut_ptr()) };
+            status_to_result(status)?;
+            // update the lengths of the vecs
+            // this is safe to do, as we have initialised them now.
+            unsafe {
+                pk.bytes.set_len(pklen);
+                sk.bytes.set_len(sklen);
+            }
+            Ok((pk, sk))
+        }
     }
 
     /// Generate a new keypair from a seed
