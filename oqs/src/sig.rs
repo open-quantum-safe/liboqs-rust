@@ -5,6 +5,7 @@
 use alloc::vec::Vec;
 
 use core::ptr::{null, NonNull};
+use core::str::FromStr;
 
 #[cfg(not(feature = "std"))]
 use cstr_core::CStr;
@@ -50,6 +51,19 @@ macro_rules! implement_sigs {
                 )*
             };
             id as *const _ as *const libc::c_char
+        }
+
+        impl FromStr for Algorithm {
+            type Err = crate::Error;
+
+            fn from_str(s: &str) -> Result<Self> {
+                $(
+                    if s == Algorithm::$sig.name() {
+                        return Ok(Algorithm::$sig);
+                    }
+                )*
+                Err(crate::Error::AlgorithmParsingError)
+            }
         }
 
         $(
@@ -157,6 +171,13 @@ macro_rules! implement_sigs {
                         assert!(!version.is_empty());
                     }
                 }
+
+                #[test]
+                fn test_from_str() {
+                    let algorithm = Algorithm::$sig;
+                    let name = algorithm.name();
+                    let parsed = Algorithm::from_str(name).unwrap();
+                    assert_eq!(algorithm, parsed);}
             }
         )*
     )

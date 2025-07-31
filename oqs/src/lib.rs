@@ -89,6 +89,8 @@ pub enum Error {
     ErrorExternalOpenSSL,
     /// Invalid length of a public object
     InvalidLength,
+    /// Error while trying to parse string to an algorithm
+    AlgorithmParsingError,
 }
 #[cfg(feature = "std")]
 impl std::error::Error for Error {}
