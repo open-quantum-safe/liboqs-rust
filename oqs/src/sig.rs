@@ -21,6 +21,7 @@ use serde::{Deserialize, Serialize};
 newtype_buffer!(PublicKey, PublicKeyRef);
 newtype_buffer!(SecretKey, SecretKeyRef);
 newtype_buffer!(Signature, SignatureRef);
+newtype_buffer!(KeypairSeed, KeypairSeedRef);
 
 /// Message type
 pub type Message = [u8];
@@ -146,6 +147,46 @@ macro_rules! implement_sigs {
                         let sig = Sig::new(algorithm).unwrap();
                         assert_eq!(algorithm, sig.algorithm());
                     }
+                }
+
+                #[test]
+                #[cfg(feature = $feat)]
+                fn test_keypair_derand() -> Result<()> {
+                    crate::init();
+                    let sig = Sig::new(Algorithm::$sig)?;
+                    
+                    // Check if this algorithm supports deterministic keypair generation
+                    // by checking if the seed length is non-zero
+                    if sig.length_keypair_seed() == 0 {
+                        // Algorithm doesn't support keypair_derand, skip test
+                        return Ok(());
+                    }
+                    
+                    // Prepare two different seeds
+                    let seed1 = alloc::vec![0x01u8; sig.length_keypair_seed()];
+                    let seed2 = alloc::vec![0x02u8; sig.length_keypair_seed()];
+                    
+                    // Generate keypairs from the same seed twice
+                    let (pk1a, sk1a) = sig.keypair_derand(&seed1[..])?;
+                    let (pk1b, sk1b) = sig.keypair_derand(&seed1[..])?;
+                    
+                    // They should be identical
+                    assert_eq!(pk1a.as_ref(), pk1b.as_ref(), "Public keys from same seed should match");
+                    assert_eq!(sk1a.as_ref(), sk1b.as_ref(), "Secret keys from same seed should match");
+                    
+                    // Generate keypair from different seed
+                    let (pk2, sk2) = sig.keypair_derand(&seed2[..])?;
+                    
+                    // They should be different
+                    assert_ne!(pk1a.as_ref(), pk2.as_ref(), "Public keys from different seeds should differ");
+                    assert_ne!(sk1a.as_ref(), sk2.as_ref(), "Secret keys from different seeds should differ");
+                    
+                    // Test that generated keys work for signing
+                    let message = b"Test message for deterministic keypair";
+                    let signature = sig.sign(message, &sk1a)?;
+                    sig.verify(message, &signature, &pk1a)?;
+                    
+                    Ok(())
                 }
 
                 #[test]
@@ -373,6 +414,26 @@ impl Sig {
         }
     }
 
+    /// Construct a keypair seed object from bytes
+    pub fn keypair_seed_from_bytes<'a>(&self, buf: &'a [u8]) -> Option<KeypairSeedRef<'a>> {
+        if buf.len() != self.length_keypair_seed() {
+            None
+        } else {
+            Some(KeypairSeedRef::new(buf))
+        }
+    }
+
+    /// Get the length of the keypair seed for algorithms that support deterministic generation
+    /// Returns 0 if the algorithm doesn't support deterministic keypair generation
+    pub fn length_keypair_seed(&self) -> usize {
+        // ML-DSA algorithms use 32-byte seeds for deterministic generation
+        // This could be extended to check the C struct's keypair_derand field
+        match self.algorithm {
+            Algorithm::MlDsa44 | Algorithm::MlDsa65 | Algorithm::MlDsa87 => 32,
+            _ => 0,  // Other algorithms don't support deterministic keypair generation yet
+        }
+    }
+
     /// Generate a new keypair
     pub fn keypair(&self) -> Result<(PublicKey, SecretKey)> {
         let sig = unsafe { self.sig.as_ref() };
@@ -390,6 +451,61 @@ impl Sig {
             sk.bytes.set_len(sig.length_secret_key);
         }
         status_to_result(status)?;
+        Ok((pk, sk))
+    }
+
+    /// Generate a new keypair deterministically from a seed
+    /// 
+    /// Currently supported only for ML-DSA algorithms.
+    /// Returns `Error::AlgorithmDisabled` if the algorithm doesn't support deterministic generation.
+    pub fn keypair_derand<'a, S: Into<KeypairSeedRef<'a>>>(
+        &self,
+        seed: S,
+    ) -> Result<(PublicKey, SecretKey)> {
+        let sig = unsafe { self.sig.as_ref() };
+        
+        // Check if the C function pointer exists
+        let func = sig.keypair_derand
+            .ok_or(Error::AlgorithmDisabled)?;
+        
+        let seed = seed.into();
+        
+        // Check seed size - ML-DSA uses 32 bytes
+        // In the future, this could query the C struct for the expected size
+        let expected_seed_len = self.length_keypair_seed();
+        if expected_seed_len == 0 {
+            // Algorithm doesn't support deterministic generation
+            return Err(Error::AlgorithmDisabled);
+        }
+        if seed.bytes.len() != expected_seed_len {
+            return Err(Error::InvalidLength);
+        }
+        
+        // Prepare buffers
+        let mut pk = PublicKey {
+            bytes: Vec::with_capacity(sig.length_public_key),
+        };
+        let mut sk = SecretKey {
+            bytes: Vec::with_capacity(sig.length_secret_key),
+        };
+        
+        // Call FFI function
+        let status = unsafe {
+            func(
+                pk.bytes.as_mut_ptr(),
+                sk.bytes.as_mut_ptr(),
+                seed.bytes.as_ptr(),
+            )
+        };
+        
+        status_to_result(status)?;
+        
+        // Set buffer lengths
+        unsafe {
+            pk.bytes.set_len(sig.length_public_key);
+            sk.bytes.set_len(sig.length_secret_key);
+        }
+        
         Ok((pk, sk))
     }
 

@@ -57,6 +57,12 @@ macro_rules! newtype_buffer {
             }
         }
 
+        impl<'a> From<&'a [u8]> for $name_ref<'a> {
+            fn from(bytes: &'a [u8]) -> $name_ref<'a> {
+                $name_ref::new(bytes)
+            }
+        }
+
         impl<'a> core::ops::Deref for $name_ref<'a> {
             type Target = [u8];
             fn deref(&self) -> &Self::Target {
