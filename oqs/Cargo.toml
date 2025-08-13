@@ -13,6 +13,9 @@ license = "MIT OR Apache-2.0"
 libc = "0.2"
 cstr_core = { version = "0.2", default-features = false, features = ["alloc"] }
 serde = { version = "1.0", optional = true, default-features = false, features = ["derive", "alloc"] }
+kem = "=0.3.0-pre.0"
+signature = "2.2.0"
+rand_core = { version = "0.6", features = ["getrandom"] }
 
 [dependencies.oqs-sys]
 path = "../oqs-sys"
