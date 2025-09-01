@@ -1,4 +1,5 @@
 use std::path::{Path, PathBuf};
+use std::env;
 
 fn generate_bindings(includedir: &Path, headerfile: &str, allow_filter: &str, block_filter: &str) {
     let out_path = PathBuf::from(std::env::var("OUT_DIR").unwrap());
@@ -36,6 +37,78 @@ fn generate_bindings(includedir: &Path, headerfile: &str, allow_filter: &str, bl
         .expect("Unable to generate bindings")
         .write_to_file(out_path.join(format!("{headerfile}_bindings.rs")))
         .expect("Couldn't write bindings!");
+}
+
+fn configure_openssl(config: &mut cmake::Config) {
+    let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap_or_default();
+    
+    // Check explicit environment variable first (highest priority)
+    if let Ok(use_openssl) = env::var("OQS_USE_OPENSSL") {
+        match use_openssl.to_uppercase().as_str() {
+            "OFF" | "NO" | "0" | "FALSE" => {
+                println!("cargo:warning=OpenSSL explicitly disabled via OQS_USE_OPENSSL environment variable");
+                config.define("OQS_USE_OPENSSL", "OFF");
+                return;
+            }
+            "ON" | "YES" | "1" | "TRUE" => {
+                println!("cargo:warning=OpenSSL explicitly enabled via OQS_USE_OPENSSL environment variable");
+                config.define("OQS_USE_OPENSSL", "ON");
+                setup_openssl_linking();
+                return;
+            }
+            _ => {
+                println!("cargo:warning=Invalid OQS_USE_OPENSSL value '{}', ignoring", use_openssl);
+            }
+        }
+    }
+    
+    // Platform-specific and feature-based defaults
+    if target_os == "ios" {
+        println!("cargo:warning=iOS target detected - disabling OpenSSL by default");
+        config.define("OQS_USE_OPENSSL", "OFF");
+        // Link against iOS system frameworks for system random generation
+        println!("cargo:rustc-link-lib=framework=Security");
+    } else if cfg!(feature = "no_openssl") {
+        println!("cargo:warning=no_openssl feature enabled - disabling OpenSSL");
+        config.define("OQS_USE_OPENSSL", "OFF");
+    } else if cfg!(any(feature = "openssl", feature = "vendored_openssl")) {
+        config.define("OQS_USE_OPENSSL", "ON");
+        setup_openssl_linking();
+    } else {
+        config.define("OQS_USE_OPENSSL", "OFF");
+    }
+}
+
+fn setup_openssl_linking() {
+    // Link the openssl libcrypto
+    if cfg!(windows) {
+        // Windows doesn't prefix with lib
+        println!("cargo:rustc-link-lib=libcrypto");
+    } else {
+        println!("cargo:rustc-link-lib=crypto");
+    }
+}
+
+fn setup_openssl_paths(config: &mut cmake::Config) {
+    // Configure vendored OpenSSL paths if needed
+    if cfg!(feature = "vendored_openssl") {
+        // DEP_OPENSSL_ROOT is set by openssl-sys if a vendored build was used.
+        // We point CMake towards this so that the vendored openssl is preferred
+        // over the system openssl.
+        if let Ok(vendored_openssl_root) = env::var("DEP_OPENSSL_ROOT") {
+            config.define("OPENSSL_ROOT_DIR", vendored_openssl_root);
+        } else {
+            println!("cargo:warning=vendored_openssl feature enabled but DEP_OPENSSL_ROOT not set");
+        }
+    } else if cfg!(feature = "openssl") {
+        println!("cargo:rerun-if-env-changed=OPENSSL_ROOT_DIR");
+        if let Ok(dir) = env::var("OPENSSL_ROOT_DIR") {
+            let dir = Path::new(&dir).join("lib");
+            println!("cargo:rustc-link-search={}", dir.display());
+        } else if cfg!(windows) || cfg!(target_os = "macos") {
+            println!("cargo:warning=You may need to specify OPENSSL_ROOT_DIR or disable the default `openssl` feature.");
+        }
+    }
 }
 
 fn build_from_source() -> PathBuf {
@@ -89,36 +162,11 @@ fn build_from_source() -> PathBuf {
         config.define("CMAKE_SYSTEM_VERSION", "10.0");
     }
 
-    // link the openssl libcrypto
-    if cfg!(any(feature = "openssl", feature = "vendored_openssl")) {
-        config.define("OQS_USE_OPENSSL", "Yes");
-        if cfg!(windows) {
-            // Windows doesn't prefix with lib
-            println!("cargo:rustc-link-lib=libcrypto");
-        } else {
-            println!("cargo:rustc-link-lib=crypto");
-        }
-    } else {
-        config.define("OQS_USE_OPENSSL", "No");
-    }
+    // Configure OpenSSL based on platform and features
+    configure_openssl(&mut config);
 
-    // let the linker know where to search for openssl libcrypto
-    if cfg!(feature = "vendored_openssl") {
-        // DEP_OPENSSL_ROOT is set by openssl-sys if a vendored build was used.
-        // We point CMake towards this so that the vendored openssl is preferred
-        // over the system openssl.
-        let vendored_openssl_root = std::env::var("DEP_OPENSSL_ROOT")
-            .expect("The `vendored_openssl` feature was enabled, but DEP_OPENSSL_ROOT was not set");
-        config.define("OPENSSL_ROOT_DIR", vendored_openssl_root);
-    } else if cfg!(feature = "openssl") {
-        println!("cargo:rerun-if-env-changed=OPENSSL_ROOT_DIR");
-        if let Ok(dir) = std::env::var("OPENSSL_ROOT_DIR") {
-            let dir = Path::new(&dir).join("lib");
-            println!("cargo:rustc-link-search={}", dir.display());
-        } else if cfg!(target_os = "windows") || cfg!(target_os = "macos") {
-            println!("cargo:warning=You may need to specify OPENSSL_ROOT_DIR or disable the default `openssl` feature.");
-        }
-    }
+    // Configure vendored OpenSSL paths if needed
+    setup_openssl_paths(&mut config);
 
     let permit_unsupported = "OQS_PERMIT_UNSUPPORTED_ARCHITECTURE";
     if let Ok(str) = std::env::var(permit_unsupported) {

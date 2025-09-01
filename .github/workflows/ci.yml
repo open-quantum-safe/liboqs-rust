@@ -18,6 +18,18 @@ jobs:
         update-liboqs:
           - true
           - false
+        include:
+          # iOS cross-compilation testing
+          - os: macos-latest
+            rust: stable
+            target: aarch64-apple-ios
+            update-liboqs: false
+            features: no_openssl,kems,sigs
+          - os: macos-latest
+            rust: stable
+            target: x86_64-apple-ios
+            update-liboqs: false
+            features: no_openssl,kems,sigs
     env:
       # 20 MiB stack
       RUST_MIN_STACK: 20971520
@@ -64,36 +76,61 @@ jobs:
           echo RUST_BACKTRACE=1 >> $GITHUB_ENV
         shell: bash
 
+      - name: Install iOS targets
+        if: matrix.target == 'aarch64-apple-ios' || matrix.target == 'x86_64-apple-ios'
+        run: |
+          rustup target add ${{ matrix.target }}
+
       - uses: Swatinem/rust-cache@v2
 
-      - name: Cargo build
+      - name: Cargo build (iOS)
+        if: matrix.target == 'aarch64-apple-ios' || matrix.target == 'x86_64-apple-ios'
+        run: |
+          cargo build --target ${{ matrix.target }} --features ${{ matrix.features }} --manifest-path oqs-sys/Cargo.toml
+          # Also test the high-level oqs crate without openssl
+          cargo build --target ${{ matrix.target }} --no-default-features --features kems,sigs --manifest-path oqs/Cargo.toml
+
+      - name: Cargo build (regular)
+        if: matrix.target == null || matrix.target == ''
         run: cargo build
 
       - name: Cargo test
+        if: matrix.target == null || matrix.target == ''
         run: cargo test
 
       - name: Cargo test --no-default-features
+        if: matrix.target == null || matrix.target == ''
         run: cargo test --no-default-features
 
       - name: Cargo test --no-default-features --features serde,kems,sigs,std
+        if: matrix.target == null || matrix.target == ''
         run: cargo test --no-default-features --features serde,kems,sigs,std --manifest-path oqs/Cargo.toml
 
       - name: Cargo test --no-default-features --features serde,kems,sigs
+        if: matrix.target == null || matrix.target == ''
         run: cargo test --no-default-features --features serde,kems,sigs --manifest-path oqs/Cargo.toml
 
       - name: Cargo test --no-default-features --features non_portable,kems,sigs,std
+        if: matrix.target == null || matrix.target == ''
         run: cargo test --no-default-features --features non_portable,kems,sigs,std --manifest-path oqs/Cargo.toml
 
       # skip windows, because the default image doesn't include several of the
       # system dependencies (e.g. Perl) required for the openssl-sys/vendored
       - name: Cargo test --features vendored_openssl
-        if: matrix.os != 'windows-latest'
+        if: (matrix.target == null || matrix.target == '') && matrix.os != 'windows-latest'
         run: cargo test --features vendored_openssl --manifest-path oqs/Cargo.toml
 
+      # Test the no_openssl feature on all platforms
+      - name: Cargo test oqs-sys --features no_openssl
+        if: matrix.target == null || matrix.target == ''
+        run: cargo test --features no_openssl --manifest-path oqs-sys/Cargo.toml
+
       - name: Cargo fmt
+        if: matrix.target == null || matrix.target == ''
         run: cargo fmt --all -- --check
 
       - name: Cargo clippy
+        if: matrix.target == null || matrix.target == ''
         run: cargo clippy
 
 #  vim: set ft=yaml ts=2 sw=2 tw=0 et :

@@ -79,6 +79,46 @@ features = ["sigs", "kems"]
 
 You will probably want to change the random-number generator through the [`OQS_RAND` API][] offered by `oqs-sys`.
 
+## OpenSSL Support
+
+By default, `liboqs` is built with OpenSSL support for symmetric cryptography operations. This can be controlled through features:
+
+- Default behavior: OpenSSL enabled (requires system OpenSSL or vendored OpenSSL)
+- `vendored_openssl`: Use bundled OpenSSL instead of system OpenSSL
+- `no_openssl`: Force disable OpenSSL on all platforms
+
+### Platform-specific behavior
+
+- **iOS**: OpenSSL is automatically disabled to avoid build issues. The crate uses iOS Security.framework instead.
+- **Other platforms**: OpenSSL enabled by default but can be overridden.
+
+### Environment variable control
+
+You can override OpenSSL configuration using the `OQS_USE_OPENSSL` environment variable:
+
+```bash
+# Force disable OpenSSL
+OQS_USE_OPENSSL=OFF cargo build
+
+# Force enable OpenSSL  
+OQS_USE_OPENSSL=ON cargo build
+```
+
+### Examples
+
+```toml
+# iOS-compatible build without OpenSSL
+[dependencies.oqs]
+version = "*"
+default-features = false
+features = ["no_openssl", "sigs", "kems"]
+
+# Use vendored OpenSSL (recommended for Windows)
+[dependencies.oqs]
+version = "*"
+features = ["vendored_openssl"]
+```
+
 [`OQS_RAND` API]: https://open-quantum-safe.github.io/liboqs-rust/oqs_sys/rand/index.html
 
 ## `non_portable` feature
