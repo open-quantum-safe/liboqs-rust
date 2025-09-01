@@ -81,9 +81,8 @@ jobs:
       - name: Cargo build (iOS)
         if: matrix.target == 'aarch64-apple-ios' || matrix.target == 'x86_64-apple-ios'
         run: |
-          cargo build --target ${{ matrix.target }} --features ${{ matrix.features }} --manifest-path oqs-sys/Cargo.toml
-          # Also test the high-level oqs crate without openssl
-          cargo build --target ${{ matrix.target }} --no-default-features --features kems,sigs --manifest-path oqs/Cargo.toml
+          # Build the high-level oqs crate without openssl (this will also build oqs-sys)
+          cargo build --target ${{ matrix.target }} --no-default-features --features kems,sigs,std,no_openssl --manifest-path oqs/Cargo.toml
 
       - name: Cargo build (regular)
         if: matrix.target == null || matrix.target == ''
