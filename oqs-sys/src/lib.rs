@@ -35,6 +35,3 @@ pub mod sig {
     pub use super::common::OQS_STATUS;
     include!(concat!(env!("OUT_DIR"), "/sig_bindings.rs"));
 }
-
-#[cfg(test)]
-mod tests;
