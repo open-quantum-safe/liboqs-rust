@@ -25,11 +25,6 @@ jobs:
             target: aarch64-apple-ios
             update-liboqs: false
             features: no_openssl,kems,sigs
-          - os: macos-latest
-            rust: stable
-            target: x86_64-apple-ios
-            update-liboqs: false
-            features: no_openssl,kems,sigs
     env:
       # 20 MiB stack
       RUST_MIN_STACK: 20971520
