@@ -1,5 +1,5 @@
-use std::path::{Path, PathBuf};
 use std::env;
+use std::path::{Path, PathBuf};
 
 fn generate_bindings(includedir: &Path, headerfile: &str, allow_filter: &str, block_filter: &str) {
     let out_path = PathBuf::from(std::env::var("OUT_DIR").unwrap());
@@ -41,7 +41,7 @@ fn generate_bindings(includedir: &Path, headerfile: &str, allow_filter: &str, bl
 
 fn configure_openssl(config: &mut cmake::Config) {
     let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap_or_default();
-    
+
     // Check explicit environment variable first (highest priority)
     if let Ok(use_openssl) = env::var("OQS_USE_OPENSSL") {
         match use_openssl.to_uppercase().as_str() {
@@ -57,11 +57,14 @@ fn configure_openssl(config: &mut cmake::Config) {
                 return;
             }
             _ => {
-                println!("cargo:warning=Invalid OQS_USE_OPENSSL value '{}', ignoring", use_openssl);
+                println!(
+                    "cargo:warning=Invalid OQS_USE_OPENSSL value '{}', ignoring",
+                    use_openssl
+                );
             }
         }
     }
-    
+
     // Platform-specific and feature-based defaults
     if target_os == "ios" {
         println!("cargo:warning=iOS target detected - disabling OpenSSL by default");
