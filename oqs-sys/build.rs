@@ -39,7 +39,7 @@ fn generate_bindings(includedir: &Path, headerfile: &str, allow_filter: &str, bl
         .expect("Couldn't write bindings!");
 }
 
-fn configure_openssl(config: &mut cmake::Config) {
+fn configure_platform_crypto(config: &mut cmake::Config) {
     let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap_or_default();
 
     // Check explicit environment variable first (highest priority)
@@ -71,6 +71,10 @@ fn configure_openssl(config: &mut cmake::Config) {
         config.define("OQS_USE_OPENSSL", "OFF");
         // Link against iOS system frameworks for system random generation
         println!("cargo:rustc-link-lib=framework=Security");
+    } else if target_os == "android" {
+        println!("cargo:warning=Android target detected - disabling OpenSSL by default");
+        config.define("OQS_USE_OPENSSL", "OFF");
+        // Android uses native crypto libraries instead of OpenSSL
     } else if cfg!(feature = "no_openssl") {
         println!("cargo:warning=no_openssl feature enabled - disabling OpenSSL");
         config.define("OQS_USE_OPENSSL", "OFF");
@@ -110,6 +114,65 @@ fn setup_openssl_paths(config: &mut cmake::Config) {
             println!("cargo:rustc-link-search={}", dir.display());
         } else if cfg!(windows) || cfg!(target_os = "macos") {
             println!("cargo:warning=You may need to specify OPENSSL_ROOT_DIR or disable the default `openssl` feature.");
+        }
+    }
+}
+
+fn configure_android_cmake(config: &mut cmake::Config) {
+    let target = env::var("TARGET").unwrap_or_default();
+    let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
+    
+    if !target.contains("android") {
+        return;
+    }
+    
+    println!("cargo:warning=Configuring CMake for Android target: {}", target);
+    
+    // Force Android ABI settings before project() call to override NDK defaults
+    match target_arch.as_str() {
+        "aarch64" => {
+            println!("cargo:warning=Setting Android ARM64 configuration");
+            config.define("ANDROID_ABI", "arm64-v8a");
+            config.define("ANDROID_PLATFORM", "android-21");
+            config.define("CMAKE_ANDROID_ARCH_ABI", "arm64-v8a");
+            config.define("CMAKE_ANDROID_ARM_NEON", "ON");
+            // Override NDK's default ARMv7 settings
+            config.define("CMAKE_ANDROID_ARM_MODE", "OFF"); // Disable ARM mode (use Thumb mode)
+        },
+        "arm" => {
+            println!("cargo:warning=Setting Android ARMv7 configuration");
+            config.define("ANDROID_ABI", "armeabi-v7a");
+            config.define("ANDROID_PLATFORM", "android-21");
+            config.define("CMAKE_ANDROID_ARCH_ABI", "armeabi-v7a");
+            config.define("CMAKE_ANDROID_ARM_NEON", "ON");
+            config.define("CMAKE_ANDROID_ARM_MODE", "ON"); // Enable ARM mode for ARMv7
+        },
+        "x86_64" => {
+            println!("cargo:warning=Setting Android x86_64 configuration");
+            config.define("ANDROID_ABI", "x86_64");
+            config.define("ANDROID_PLATFORM", "android-21");
+            config.define("CMAKE_ANDROID_ARCH_ABI", "x86_64");
+        },
+        "x86" => {
+            println!("cargo:warning=Setting Android x86 configuration");
+            config.define("ANDROID_ABI", "x86");
+            config.define("ANDROID_PLATFORM", "android-21");
+            config.define("CMAKE_ANDROID_ARCH_ABI", "x86");
+        },
+        _ => {
+            println!("cargo:warning=Unknown Android architecture: {}", target_arch);
+        }
+    }
+    
+    // Force CMake to use Android-specific settings
+    config.define("CMAKE_SYSTEM_NAME", "Android");
+    config.define("CMAKE_ANDROID_NDK", env::var("ANDROID_NDK_HOME").unwrap_or_default());
+    
+    // Ensure we use the correct CMake toolchain file for Android
+    if let Ok(toolchain_file) = env::var("CMAKE_TOOLCHAIN_FILE") {
+        if toolchain_file.contains("android.toolchain.cmake") {
+            println!("cargo:warning=Using Android NDK toolchain: {}", toolchain_file);
+            config.define("CMAKE_TOOLCHAIN_FILE", toolchain_file);
         }
     }
 }
@@ -165,11 +228,14 @@ fn build_from_source() -> PathBuf {
         config.define("CMAKE_SYSTEM_VERSION", "10.0");
     }
 
-    // Configure OpenSSL based on platform and features
-    configure_openssl(&mut config);
+    // Configure crypto backend based on platform and features
+    configure_platform_crypto(&mut config);
 
     // Configure vendored OpenSSL paths if needed
     setup_openssl_paths(&mut config);
+
+    // Configure Android-specific CMake settings to override NDK defaults
+    configure_android_cmake(&mut config);
 
     let permit_unsupported = "OQS_PERMIT_UNSUPPORTED_ARCHITECTURE";
     if let Ok(str) = std::env::var(permit_unsupported) {
