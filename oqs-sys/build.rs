@@ -121,13 +121,16 @@ fn setup_openssl_paths(config: &mut cmake::Config) {
 fn configure_android_cmake(config: &mut cmake::Config) {
     let target = env::var("TARGET").unwrap_or_default();
     let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
-    
+
     if !target.contains("android") {
         return;
     }
-    
-    println!("cargo:warning=Configuring CMake for Android target: {}", target);
-    
+
+    println!(
+        "cargo:warning=Configuring CMake for Android target: {}",
+        target
+    );
+
     // Try to detect Android NDK from various sources
     let android_ndk = env::var("ANDROID_NDK_HOME")
         .or_else(|_| env::var("ANDROID_NDK_ROOT"))
@@ -144,7 +147,8 @@ fn configure_android_cmake(config: &mut cmake::Config) {
                         if let Some(ndk_version) = entries
                             .filter_map(|e| e.ok())
                             .filter_map(|e| e.file_name().into_string().ok())
-                            .max() {
+                            .max()
+                        {
                             return Ok(format!("{}/{}", ndk_path, ndk_version));
                         }
                     }
@@ -156,7 +160,7 @@ fn configure_android_cmake(config: &mut cmake::Config) {
             println!("cargo:warning=Android NDK not found in environment variables");
             String::new()
         });
-    
+
     // Force Android ABI settings before project() call to override NDK defaults
     match target_arch.as_str() {
         "aarch64" => {
@@ -167,7 +171,7 @@ fn configure_android_cmake(config: &mut cmake::Config) {
             config.define("CMAKE_ANDROID_ARM_NEON", "ON");
             // Override NDK's default ARMv7 settings
             config.define("CMAKE_ANDROID_ARM_MODE", "OFF"); // Disable ARM mode (use Thumb mode)
-        },
+        }
         "arm" => {
             println!("cargo:warning=Setting Android ARMv7 configuration");
             config.define("ANDROID_ABI", "armeabi-v7a");
@@ -175,45 +179,54 @@ fn configure_android_cmake(config: &mut cmake::Config) {
             config.define("CMAKE_ANDROID_ARCH_ABI", "armeabi-v7a");
             config.define("CMAKE_ANDROID_ARM_NEON", "ON");
             config.define("CMAKE_ANDROID_ARM_MODE", "ON"); // Enable ARM mode for ARMv7
-        },
+        }
         "x86_64" => {
             println!("cargo:warning=Setting Android x86_64 configuration");
             config.define("ANDROID_ABI", "x86_64");
             config.define("ANDROID_PLATFORM", "android-21");
             config.define("CMAKE_ANDROID_ARCH_ABI", "x86_64");
-        },
+        }
         "x86" => {
             println!("cargo:warning=Setting Android x86 configuration");
             config.define("ANDROID_ABI", "x86");
             config.define("ANDROID_PLATFORM", "android-21");
             config.define("CMAKE_ANDROID_ARCH_ABI", "x86");
-        },
+        }
         _ => {
-            println!("cargo:warning=Unknown Android architecture: {}", target_arch);
+            println!(
+                "cargo:warning=Unknown Android architecture: {}",
+                target_arch
+            );
         }
     }
-    
+
     // Force CMake to use Android-specific settings
     config.define("CMAKE_SYSTEM_NAME", "Android");
-    
+
     if !android_ndk.is_empty() {
         println!("cargo:warning=Using Android NDK: {}", android_ndk);
         config.define("CMAKE_ANDROID_NDK", &android_ndk);
         config.define("ANDROID_NDK", &android_ndk);
-        
+
         // Try to find and set the toolchain file
         let toolchain_file = format!("{}/build/cmake/android.toolchain.cmake", android_ndk);
         if std::path::Path::new(&toolchain_file).exists() {
-            println!("cargo:warning=Using Android toolchain file: {}", toolchain_file);
+            println!(
+                "cargo:warning=Using Android toolchain file: {}",
+                toolchain_file
+            );
             config.define("CMAKE_TOOLCHAIN_FILE", toolchain_file);
         }
     } else {
         // Try to use CMAKE_TOOLCHAIN_FILE if provided
         if let Ok(toolchain_file) = env::var("CMAKE_TOOLCHAIN_FILE") {
             if toolchain_file.contains("android.toolchain.cmake") {
-                println!("cargo:warning=Using provided Android NDK toolchain: {}", toolchain_file);
+                println!(
+                    "cargo:warning=Using provided Android NDK toolchain: {}",
+                    toolchain_file
+                );
                 config.define("CMAKE_TOOLCHAIN_FILE", &toolchain_file);
-                
+
                 // Try to extract NDK path from toolchain file path
                 if let Some(ndk_path) = toolchain_file.split("/build/cmake/").next() {
                     config.define("CMAKE_ANDROID_NDK", ndk_path);
@@ -222,7 +235,7 @@ fn configure_android_cmake(config: &mut cmake::Config) {
             }
         }
     }
-    
+
     // Set CMAKE_MAKE_PROGRAM to avoid the error
     config.define("CMAKE_MAKE_PROGRAM", "make");
 }
