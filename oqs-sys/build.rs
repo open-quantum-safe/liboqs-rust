@@ -1,3 +1,4 @@
+use std::env;
 use std::path::{Path, PathBuf};
 
 fn generate_bindings(includedir: &Path, headerfile: &str, allow_filter: &str, block_filter: &str) {
@@ -36,6 +37,207 @@ fn generate_bindings(includedir: &Path, headerfile: &str, allow_filter: &str, bl
         .expect("Unable to generate bindings")
         .write_to_file(out_path.join(format!("{headerfile}_bindings.rs")))
         .expect("Couldn't write bindings!");
+}
+
+fn configure_platform_crypto(config: &mut cmake::Config) {
+    let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap_or_default();
+
+    // Check explicit environment variable first (highest priority)
+    if let Ok(use_openssl) = env::var("OQS_USE_OPENSSL") {
+        match use_openssl.to_uppercase().as_str() {
+            "OFF" | "NO" | "0" | "FALSE" => {
+                println!("cargo:warning=OpenSSL explicitly disabled via OQS_USE_OPENSSL environment variable");
+                config.define("OQS_USE_OPENSSL", "OFF");
+                return;
+            }
+            "ON" | "YES" | "1" | "TRUE" => {
+                println!("cargo:warning=OpenSSL explicitly enabled via OQS_USE_OPENSSL environment variable");
+                config.define("OQS_USE_OPENSSL", "ON");
+                setup_openssl_linking();
+                return;
+            }
+            _ => {
+                println!(
+                    "cargo:warning=Invalid OQS_USE_OPENSSL value '{}', ignoring",
+                    use_openssl
+                );
+            }
+        }
+    }
+
+    // Platform-specific and feature-based defaults
+    if target_os == "ios" {
+        println!("cargo:warning=iOS target detected - disabling OpenSSL by default");
+        config.define("OQS_USE_OPENSSL", "OFF");
+        // Link against iOS system frameworks for system random generation
+        println!("cargo:rustc-link-lib=framework=Security");
+    } else if target_os == "android" {
+        println!("cargo:warning=Android target detected - disabling OpenSSL by default");
+        config.define("OQS_USE_OPENSSL", "OFF");
+        // Android uses native crypto libraries instead of OpenSSL
+    } else if cfg!(feature = "no_openssl") {
+        println!("cargo:warning=no_openssl feature enabled - disabling OpenSSL");
+        config.define("OQS_USE_OPENSSL", "OFF");
+    } else if cfg!(any(feature = "openssl", feature = "vendored_openssl")) {
+        config.define("OQS_USE_OPENSSL", "ON");
+        setup_openssl_linking();
+    } else {
+        config.define("OQS_USE_OPENSSL", "OFF");
+    }
+}
+
+fn setup_openssl_linking() {
+    // Link the openssl libcrypto
+    if cfg!(windows) {
+        // Windows doesn't prefix with lib
+        println!("cargo:rustc-link-lib=libcrypto");
+    } else {
+        println!("cargo:rustc-link-lib=crypto");
+    }
+}
+
+fn setup_openssl_paths(config: &mut cmake::Config) {
+    // Configure vendored OpenSSL paths if needed
+    if cfg!(feature = "vendored_openssl") {
+        // DEP_OPENSSL_ROOT is set by openssl-sys if a vendored build was used.
+        // We point CMake towards this so that the vendored openssl is preferred
+        // over the system openssl.
+        if let Ok(vendored_openssl_root) = env::var("DEP_OPENSSL_ROOT") {
+            config.define("OPENSSL_ROOT_DIR", vendored_openssl_root);
+        } else {
+            println!("cargo:warning=vendored_openssl feature enabled but DEP_OPENSSL_ROOT not set");
+        }
+    } else if cfg!(feature = "openssl") {
+        println!("cargo:rerun-if-env-changed=OPENSSL_ROOT_DIR");
+        if let Ok(dir) = env::var("OPENSSL_ROOT_DIR") {
+            let dir = Path::new(&dir).join("lib");
+            println!("cargo:rustc-link-search={}", dir.display());
+        } else if cfg!(windows) || cfg!(target_os = "macos") {
+            println!("cargo:warning=You may need to specify OPENSSL_ROOT_DIR or disable the default `openssl` feature.");
+        }
+    }
+}
+
+fn configure_android_cmake(config: &mut cmake::Config) {
+    let target = env::var("TARGET").unwrap_or_default();
+    let target_arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
+
+    if !target.contains("android") {
+        return;
+    }
+
+    println!(
+        "cargo:warning=Configuring CMake for Android target: {}",
+        target
+    );
+
+    // Try to detect Android NDK from various sources
+    let android_ndk = env::var("ANDROID_NDK_HOME")
+        .or_else(|_| env::var("ANDROID_NDK_ROOT"))
+        .or_else(|_| env::var("ANDROID_NDK"))
+        .or_else(|_| env::var("NDK_HOME"))
+        .or_else(|_| {
+            // Try to detect from ANDROID_HOME
+            if let Ok(android_home) = env::var("ANDROID_HOME") {
+                // Look for NDK in standard location
+                let ndk_path = format!("{}/ndk", android_home);
+                if std::path::Path::new(&ndk_path).exists() {
+                    // Try to find the latest NDK version
+                    if let Ok(entries) = std::fs::read_dir(&ndk_path) {
+                        if let Some(ndk_version) = entries
+                            .filter_map(|e| e.ok())
+                            .filter_map(|e| e.file_name().into_string().ok())
+                            .max()
+                        {
+                            return Ok(format!("{}/{}", ndk_path, ndk_version));
+                        }
+                    }
+                }
+            }
+            Err(env::VarError::NotPresent)
+        })
+        .unwrap_or_else(|_| {
+            println!("cargo:warning=Android NDK not found in environment variables");
+            String::new()
+        });
+
+    // Force Android ABI settings before project() call to override NDK defaults
+    match target_arch.as_str() {
+        "aarch64" => {
+            println!("cargo:warning=Setting Android ARM64 configuration");
+            config.define("ANDROID_ABI", "arm64-v8a");
+            config.define("ANDROID_PLATFORM", "android-21");
+            config.define("CMAKE_ANDROID_ARCH_ABI", "arm64-v8a");
+            config.define("CMAKE_ANDROID_ARM_NEON", "ON");
+            // Override NDK's default ARMv7 settings
+            config.define("CMAKE_ANDROID_ARM_MODE", "OFF"); // Disable ARM mode (use Thumb mode)
+        }
+        "arm" => {
+            println!("cargo:warning=Setting Android ARMv7 configuration");
+            config.define("ANDROID_ABI", "armeabi-v7a");
+            config.define("ANDROID_PLATFORM", "android-21");
+            config.define("CMAKE_ANDROID_ARCH_ABI", "armeabi-v7a");
+            config.define("CMAKE_ANDROID_ARM_NEON", "ON");
+            config.define("CMAKE_ANDROID_ARM_MODE", "ON"); // Enable ARM mode for ARMv7
+        }
+        "x86_64" => {
+            println!("cargo:warning=Setting Android x86_64 configuration");
+            config.define("ANDROID_ABI", "x86_64");
+            config.define("ANDROID_PLATFORM", "android-21");
+            config.define("CMAKE_ANDROID_ARCH_ABI", "x86_64");
+        }
+        "x86" => {
+            println!("cargo:warning=Setting Android x86 configuration");
+            config.define("ANDROID_ABI", "x86");
+            config.define("ANDROID_PLATFORM", "android-21");
+            config.define("CMAKE_ANDROID_ARCH_ABI", "x86");
+        }
+        _ => {
+            println!(
+                "cargo:warning=Unknown Android architecture: {}",
+                target_arch
+            );
+        }
+    }
+
+    // Force CMake to use Android-specific settings
+    config.define("CMAKE_SYSTEM_NAME", "Android");
+
+    if !android_ndk.is_empty() {
+        println!("cargo:warning=Using Android NDK: {}", android_ndk);
+        config.define("CMAKE_ANDROID_NDK", &android_ndk);
+        config.define("ANDROID_NDK", &android_ndk);
+
+        // Try to find and set the toolchain file
+        let toolchain_file = format!("{}/build/cmake/android.toolchain.cmake", android_ndk);
+        if std::path::Path::new(&toolchain_file).exists() {
+            println!(
+                "cargo:warning=Using Android toolchain file: {}",
+                toolchain_file
+            );
+            config.define("CMAKE_TOOLCHAIN_FILE", toolchain_file);
+        }
+    } else {
+        // Try to use CMAKE_TOOLCHAIN_FILE if provided
+        if let Ok(toolchain_file) = env::var("CMAKE_TOOLCHAIN_FILE") {
+            if toolchain_file.contains("android.toolchain.cmake") {
+                println!(
+                    "cargo:warning=Using provided Android NDK toolchain: {}",
+                    toolchain_file
+                );
+                config.define("CMAKE_TOOLCHAIN_FILE", &toolchain_file);
+
+                // Try to extract NDK path from toolchain file path
+                if let Some(ndk_path) = toolchain_file.split("/build/cmake/").next() {
+                    config.define("CMAKE_ANDROID_NDK", ndk_path);
+                    config.define("ANDROID_NDK", ndk_path);
+                }
+            }
+        }
+    }
+
+    // Set CMAKE_MAKE_PROGRAM to avoid the error
+    config.define("CMAKE_MAKE_PROGRAM", "make");
 }
 
 fn build_from_source() -> PathBuf {
@@ -89,36 +291,14 @@ fn build_from_source() -> PathBuf {
         config.define("CMAKE_SYSTEM_VERSION", "10.0");
     }
 
-    // link the openssl libcrypto
-    if cfg!(any(feature = "openssl", feature = "vendored_openssl")) {
-        config.define("OQS_USE_OPENSSL", "Yes");
-        if cfg!(windows) {
-            // Windows doesn't prefix with lib
-            println!("cargo:rustc-link-lib=libcrypto");
-        } else {
-            println!("cargo:rustc-link-lib=crypto");
-        }
-    } else {
-        config.define("OQS_USE_OPENSSL", "No");
-    }
+    // Configure crypto backend based on platform and features
+    configure_platform_crypto(&mut config);
 
-    // let the linker know where to search for openssl libcrypto
-    if cfg!(feature = "vendored_openssl") {
-        // DEP_OPENSSL_ROOT is set by openssl-sys if a vendored build was used.
-        // We point CMake towards this so that the vendored openssl is preferred
-        // over the system openssl.
-        let vendored_openssl_root = std::env::var("DEP_OPENSSL_ROOT")
-            .expect("The `vendored_openssl` feature was enabled, but DEP_OPENSSL_ROOT was not set");
-        config.define("OPENSSL_ROOT_DIR", vendored_openssl_root);
-    } else if cfg!(feature = "openssl") {
-        println!("cargo:rerun-if-env-changed=OPENSSL_ROOT_DIR");
-        if let Ok(dir) = std::env::var("OPENSSL_ROOT_DIR") {
-            let dir = Path::new(&dir).join("lib");
-            println!("cargo:rustc-link-search={}", dir.display());
-        } else if cfg!(target_os = "windows") || cfg!(target_os = "macos") {
-            println!("cargo:warning=You may need to specify OPENSSL_ROOT_DIR or disable the default `openssl` feature.");
-        }
-    }
+    // Configure vendored OpenSSL paths if needed
+    setup_openssl_paths(&mut config);
+
+    // Configure Android-specific CMake settings to override NDK defaults
+    configure_android_cmake(&mut config);
 
     let permit_unsupported = "OQS_PERMIT_UNSUPPORTED_ARCHITECTURE";
     if let Ok(str) = std::env::var(permit_unsupported) {

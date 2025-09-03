@@ -28,6 +28,7 @@ build-deps = "0.1"
 default = ["openssl", "kems", "sigs"]
 openssl = []
 vendored_openssl = ["openssl", "vendored", "dep:openssl-sys"]
+no_openssl = []  # Force disable OpenSSL on all platforms
 docs = []
 non_portable = []
 vendored = []

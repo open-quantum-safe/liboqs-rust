@@ -25,6 +25,7 @@ std = []
 non_portable = ["oqs-sys/non_portable"]
 vendored = ["oqs-sys/vendored"]
 vendored_openssl = ["oqs-sys/vendored_openssl"]
+no_openssl = ["oqs-sys/no_openssl"]
 
 # algorithms: KEMs
 kems = ["oqs-sys/kems", "classic_mceliece", "frodokem", "hqc", "kyber", "ml_kem", "ntruprime"]
