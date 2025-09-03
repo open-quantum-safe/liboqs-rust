@@ -212,7 +212,7 @@ fn configure_android_cmake(config: &mut cmake::Config) {
         if let Ok(toolchain_file) = env::var("CMAKE_TOOLCHAIN_FILE") {
             if toolchain_file.contains("android.toolchain.cmake") {
                 println!("cargo:warning=Using provided Android NDK toolchain: {}", toolchain_file);
-                config.define("CMAKE_TOOLCHAIN_FILE", toolchain_file);
+                config.define("CMAKE_TOOLCHAIN_FILE", &toolchain_file);
                 
                 // Try to extract NDK path from toolchain file path
                 if let Some(ndk_path) = toolchain_file.split("/build/cmake/").next() {
