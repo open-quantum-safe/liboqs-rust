@@ -170,6 +170,10 @@ The Open Quantum Safe project is led by [Douglas Stebila](https://www.douglas.st
 
 liboqs-rust was developed by [Thom Wiggers](https://thomwiggers.nl) at Radboud University.
 
+Contributors to this repo include:
+
+- Mike Lodder (Tectonic Labs)
+
 ### Support
 
 Financial support for the development of Open Quantum Safe has been provided by Amazon Web Services and the Canadian Centre for Cyber Security.
