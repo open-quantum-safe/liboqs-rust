@@ -76,7 +76,6 @@ fn build_from_source() -> PathBuf {
 
     // signature schemes
     algorithm_feature!("SIG", "cross");
-    algorithm_feature!("SIG", "dilithium");
     algorithm_feature!("SIG", "falcon");
     algorithm_feature!("SIG", "mayo");
     algorithm_feature!("SIG", "ml_dsa");
