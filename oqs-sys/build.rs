@@ -111,7 +111,11 @@ fn build_from_source() -> PathBuf {
         config.define("OPENSSL_ROOT_DIR", vendored_openssl_root);
     } else if cfg!(feature = "openssl") {
         println!("cargo:rerun-if-env-changed=OPENSSL_ROOT_DIR");
-        if let Ok(dir) = std::env::var("OPENSSL_ROOT_DIR") {
+        println!("cargo:rerun-if-env-changed=OPENSSL_LIB_DIR");
+        // OPENSSL_LIB_DIR takes precedence if set (useful for Windows where libs are in subdirs)
+        if let Ok(dir) = std::env::var("OPENSSL_LIB_DIR") {
+            println!("cargo:rustc-link-search={}", dir);
+        } else if let Ok(dir) = std::env::var("OPENSSL_ROOT_DIR") {
             let dir = Path::new(&dir).join("lib");
             println!("cargo:rustc-link-search={}", dir.display());
         } else if cfg!(target_os = "windows") || cfg!(target_os = "macos") {

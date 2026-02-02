@@ -61,7 +61,18 @@ jobs:
 
       - name: Set OPENSSL_ROOT_DIR
         if: startsWith(matrix.os, 'windows')
-        run: echo "OPENSSL_ROOT_DIR=C:/Program Files/OpenSSL" >> $env:GITHUB_ENV
+        run: |
+          $opensslRoot = "C:/Program Files/OpenSSL"
+          echo "OPENSSL_ROOT_DIR=$opensslRoot" >> $env:GITHUB_ENV
+          # Find the actual library directory (Chocolatey puts it in lib/VC/x64/MD or similar)
+          $libcrypto = Get-ChildItem -Path $opensslRoot -Recurse -Filter "libcrypto.lib" -ErrorAction SilentlyContinue | Select-Object -First 1
+          if ($libcrypto) {
+            $libDir = $libcrypto.DirectoryName
+            echo "OPENSSL_LIB_DIR=$libDir" >> $env:GITHUB_ENV
+            echo "Found OpenSSL lib at: $libDir"
+          } else {
+            echo "Warning: libcrypto.lib not found under $opensslRoot"
+          }
 
       - name: Set OPENSSL_ROOT_DIR
         if: startsWith(matrix.os, 'macos')
