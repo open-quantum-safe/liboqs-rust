@@ -46,6 +46,19 @@ jobs:
         if: startsWith(matrix.os, 'windows')
         run: echo "LIBCLANG_PATH=$((gcm clang).source -replace "clang.exe")" >> $env:GITHUB_ENV
 
+      - name: Install OpenSSL
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          if (-not (Test-Path "C:/Program Files/OpenSSL")) {
+            if (Get-Command choco -ErrorAction SilentlyContinue) {
+              choco install openssl -y
+            } elseif (Get-Command winget -ErrorAction SilentlyContinue) {
+              winget install --id ShiningLight.OpenSSL --accept-source-agreements --accept-package-agreements
+            } else {
+              throw "Neither choco nor winget found to install OpenSSL"
+            }
+          }
+
       - name: Set OPENSSL_ROOT_DIR
         if: startsWith(matrix.os, 'windows')
         run: echo "OPENSSL_ROOT_DIR=C:/Program Files/OpenSSL" >> $env:GITHUB_ENV
