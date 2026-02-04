@@ -3,9 +3,13 @@
 //! See [`Kem`] for the main functionality.
 //! [`Algorithm`] lists the available algorithms.
 use alloc::vec::Vec;
+use rand_core::CryptoRngCore;
 
 use core::ptr::NonNull;
 use core::str::FromStr;
+
+use ::kem::Decapsulate as RustCryptoDecapsulate;
+use ::kem::Encapsulate as RustCryptoEncapsulate;
 
 #[cfg(not(feature = "std"))]
 use cstr_core::CStr;
@@ -498,5 +502,93 @@ impl Kem {
         // this is safe to do, as we have initialised them now.
         unsafe { ss.bytes.set_len(kem.length_shared_secret) };
         Ok(ss)
+    }
+}
+
+/// Encapsulator uses the public key of a KEM to encapsulate keys. This struct implements RustCrypto's Encapsulate trait.
+///
+/// # Example
+/// ```rust
+/// # if !cfg!(feature = "ml_kem") { return; }
+/// use oqs;
+/// use kem::{Encapsulate,Decapsulate};
+/// use rand_core::OsRng;
+/// oqs::init();
+/// let kem = oqs::kem::Kem::new(oqs::kem::Algorithm::MlKem512).unwrap();
+/// let (pk, sk) = kem.keypair().unwrap();
+/// let encap = oqs::kem::Encapsulator::new(&kem, pk);
+/// let decap = oqs::kem::Decapsulator::new(&kem, sk);
+/// // Note that encapsulate ignores the provided rng
+/// let (ct, ss) = encap.encapsulate(&mut OsRng).unwrap();
+/// let ss2 = decap.decapsulate(&ct).unwrap();
+/// assert_eq!(ss, ss2);
+/// ```
+pub struct Encapsulator<'a> {
+    scheme: &'a Kem,
+    pk: PublicKey,
+}
+
+impl<'a> Encapsulator<'a> {
+    /// Creates a new [`Encapsulator`].
+    pub fn new(scheme: &'a Kem, pk: PublicKey) -> Self {
+        Encapsulator {
+            scheme: scheme,
+            pk: pk,
+        }
+    }
+}
+
+/// Decapsulator struct containing a kem scheme and a secret key.
+///
+/// # Example
+/// ```rust
+/// # if !cfg!(feature = "ml_kem") { return; }
+/// use oqs;
+/// use kem::{Encapsulate,Decapsulate};
+/// use rand_core::OsRng;
+/// oqs::init();
+/// let kem = oqs::kem::Kem::new(oqs::kem::Algorithm::MlKem512).unwrap();
+/// let (pk, sk) = kem.keypair().unwrap();
+/// let encap = oqs::kem::Encapsulator::new(&kem, pk);
+/// let decap = oqs::kem::Decapsulator::new(&kem, sk);
+/// // Note that encapsulate ignores the provided rng
+/// let (ct, ss) = encap.encapsulate(&mut OsRng).unwrap();
+/// let ss2 = decap.decapsulate(&ct).unwrap();
+/// assert_eq!(ss, ss2);
+/// ```
+pub struct Decapsulator<'a> {
+    scheme: &'a Kem,
+    sk: SecretKey,
+}
+
+impl<'a> Decapsulator<'a> {
+    /// Creates a new [`Decapsulator`].
+    pub fn new(scheme: &'a Kem, sk: SecretKey) -> Self {
+        Decapsulator {
+            scheme: scheme,
+            sk: sk,
+        }
+    }
+}
+
+impl<'a> RustCryptoEncapsulate<Ciphertext, SharedSecret> for Encapsulator<'a> {
+    type Error = crate::Error;
+
+    fn encapsulate(
+        &self,
+        _csprng: &mut impl CryptoRngCore,
+    ) -> core::result::Result<(Ciphertext, SharedSecret), Self::Error> {
+        self.scheme.encapsulate(&self.pk)
+    }
+}
+
+impl<'a> RustCryptoDecapsulate<Ciphertext, SharedSecret> for Decapsulator<'a> {
+    type Error = crate::Error;
+
+    fn decapsulate(
+        &self,
+        encapsulated_key: &Ciphertext,
+    ) -> core::result::Result<SharedSecret, Self::Error> {
+        self.scheme.decapsulate(&self.sk, encapsulated_key)
     }
 }
