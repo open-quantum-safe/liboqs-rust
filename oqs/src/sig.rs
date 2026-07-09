@@ -72,10 +72,26 @@ macro_rules! implement_sigs {
             mod $sig {
                 use super::*;
 
+                fn skip_windows_slh_dsa_sha2_signing() -> bool {
+                    cfg!(windows)
+                        && matches!(
+                            Algorithm::$sig,
+                            Algorithm::SphincsSha2128fSimple
+                                | Algorithm::SphincsSha2128sSimple
+                                | Algorithm::SphincsSha2192fSimple
+                                | Algorithm::SphincsSha2192sSimple
+                                | Algorithm::SphincsSha2256fSimple
+                                | Algorithm::SphincsSha2256sSimple
+                        )
+                }
+
                 #[test]
                 #[cfg(feature = $feat)]
                 fn test_signing() -> Result<()> {
                     crate::init();
+                    if skip_windows_slh_dsa_sha2_signing() {
+                        return Ok(());
+                    }
                     let message = [0u8; 100];
                     let sig = Sig::new(Algorithm::$sig)?;
                     let (pk, sk) = sig.keypair()?;
@@ -87,6 +103,9 @@ macro_rules! implement_sigs {
                 #[cfg(feature = $feat)]
                 fn test_signing_with_empty_context_string() -> Result<()> {
                     crate::init();
+                    if skip_windows_slh_dsa_sha2_signing() {
+                        return Ok(());
+                    }
                     let message = [0u8; 100];
                     let ctx_str: [u8; 0] = [];
                     let sig = Sig::new(Algorithm::$sig)?;
@@ -99,6 +118,9 @@ macro_rules! implement_sigs {
                 #[cfg(feature = $feat)]
                 fn test_signing_with_nonempty_context_string() -> Result<()> {
                     crate::init();
+                    if skip_windows_slh_dsa_sha2_signing() {
+                        return Ok(());
+                    }
                     let message = [0u8; 100];
                     let ctx_str = [0u8; 100];
                     let sig = Sig::new(Algorithm::$sig)?;
