@@ -79,7 +79,14 @@ fn build_from_source() -> PathBuf {
     algorithm_feature!("SIG", "falcon");
     algorithm_feature!("SIG", "mayo");
     algorithm_feature!("SIG", "ml_dsa");
-    algorithm_feature!("SIG", "sphincs");
+    // Keep the Rust feature name `sphincs` for compatibility, but map it
+    // to the renamed liboqs SLH-DSA algorithm family.
+    let slh_dsa_value = if cfg!(feature = "sphincs") {
+        "Yes"
+    } else {
+        "No"
+    };
+    config.define("OQS_ENABLE_SIG_SLH_DSA", slh_dsa_value);
     algorithm_feature!("SIG", "uov");
 
     if cfg!(windows) {
