@@ -43,14 +43,8 @@ fn build_from_source() -> PathBuf {
     config.profile("Release");
     config.define("OQS_BUILD_ONLY_LIB", "Yes");
 
-    if cfg!(feature = "non_portable")
-        && !(cfg!(target_os = "macos") && cfg!(target_arch = "aarch64"))
-    {
-        // Build with CPU feature detection or just enable whatever is available for this CPU.
-        //
-        // On macOS/aarch64, latest liboqs may compile ARMv8 SHA2 intrinsics without
-        // enabling the required compiler target feature when OQS_DIST_BUILD is disabled.
-        // Keep the distribution build there even with the Rust non_portable feature.
+    if cfg!(feature = "non_portable") {
+        // Build with CPU feature detection or just enable whatever is available for this CPU
         config.define("OQS_DIST_BUILD", "No");
     } else {
         config.define("OQS_DIST_BUILD", "Yes");
@@ -85,14 +79,7 @@ fn build_from_source() -> PathBuf {
     algorithm_feature!("SIG", "falcon");
     algorithm_feature!("SIG", "mayo");
     algorithm_feature!("SIG", "ml_dsa");
-    // Keep the Rust feature name `sphincs` for compatibility, but map it
-    // to the renamed liboqs SLH-DSA algorithm family.
-    let slh_dsa_value = if cfg!(feature = "sphincs") {
-        "Yes"
-    } else {
-        "No"
-    };
-    config.define("OQS_ENABLE_SIG_SLH_DSA", slh_dsa_value);
+    algorithm_feature!("SIG", "slh_dsa");
     algorithm_feature!("SIG", "uov");
 
     if cfg!(windows) {

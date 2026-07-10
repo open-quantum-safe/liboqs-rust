@@ -76,12 +76,12 @@ macro_rules! implement_sigs {
                     cfg!(windows)
                         && matches!(
                             Algorithm::$sig,
-                            Algorithm::SphincsSha2128fSimple
-                                | Algorithm::SphincsSha2128sSimple
-                                | Algorithm::SphincsSha2192fSimple
-                                | Algorithm::SphincsSha2192sSimple
-                                | Algorithm::SphincsSha2256fSimple
-                                | Algorithm::SphincsSha2256sSimple
+                            Algorithm::SlhDsaPureSha2128f
+                                | Algorithm::SlhDsaPureSha2128s
+                                | Algorithm::SlhDsaPureSha2192f
+                                | Algorithm::SlhDsaPureSha2192s
+                                | Algorithm::SlhDsaPureSha2256f
+                                | Algorithm::SlhDsaPureSha2256s
                         )
                 }
 
@@ -233,18 +233,18 @@ implement_sigs! {
     ("ml_dsa") MlDsa44: OQS_SIG_alg_ml_dsa_44,
     ("ml_dsa") MlDsa65: OQS_SIG_alg_ml_dsa_65,
     ("ml_dsa") MlDsa87: OQS_SIG_alg_ml_dsa_87,
-    ("sphincs") SphincsSha2128fSimple: OQS_SIG_alg_slh_dsa_pure_sha2_128f,
-    ("sphincs") SphincsSha2128sSimple: OQS_SIG_alg_slh_dsa_pure_sha2_128s,
-    ("sphincs") SphincsSha2192fSimple: OQS_SIG_alg_slh_dsa_pure_sha2_192f,
-    ("sphincs") SphincsSha2192sSimple: OQS_SIG_alg_slh_dsa_pure_sha2_192s,
-    ("sphincs") SphincsSha2256fSimple: OQS_SIG_alg_slh_dsa_pure_sha2_256f,
-    ("sphincs") SphincsSha2256sSimple: OQS_SIG_alg_slh_dsa_pure_sha2_256s,
-    ("sphincs") SphincsShake128fSimple: OQS_SIG_alg_slh_dsa_pure_shake_128f,
-    ("sphincs") SphincsShake128sSimple: OQS_SIG_alg_slh_dsa_pure_shake_128s,
-    ("sphincs") SphincsShake192fSimple: OQS_SIG_alg_slh_dsa_pure_shake_192f,
-    ("sphincs") SphincsShake192sSimple: OQS_SIG_alg_slh_dsa_pure_shake_192s,
-    ("sphincs") SphincsShake256fSimple: OQS_SIG_alg_slh_dsa_pure_shake_256f,
-    ("sphincs") SphincsShake256sSimple: OQS_SIG_alg_slh_dsa_pure_shake_256s,
+    ("slh_dsa") SlhDsaPureSha2128f: OQS_SIG_alg_slh_dsa_pure_sha2_128f,
+    ("slh_dsa") SlhDsaPureSha2128s: OQS_SIG_alg_slh_dsa_pure_sha2_128s,
+    ("slh_dsa") SlhDsaPureSha2192f: OQS_SIG_alg_slh_dsa_pure_sha2_192f,
+    ("slh_dsa") SlhDsaPureSha2192s: OQS_SIG_alg_slh_dsa_pure_sha2_192s,
+    ("slh_dsa") SlhDsaPureSha2256f: OQS_SIG_alg_slh_dsa_pure_sha2_256f,
+    ("slh_dsa") SlhDsaPureSha2256s: OQS_SIG_alg_slh_dsa_pure_sha2_256s,
+    ("slh_dsa") SlhDsaPureShake128f: OQS_SIG_alg_slh_dsa_pure_shake_128f,
+    ("slh_dsa") SlhDsaPureShake128s: OQS_SIG_alg_slh_dsa_pure_shake_128s,
+    ("slh_dsa") SlhDsaPureShake192f: OQS_SIG_alg_slh_dsa_pure_shake_192f,
+    ("slh_dsa") SlhDsaPureShake192s: OQS_SIG_alg_slh_dsa_pure_shake_192s,
+    ("slh_dsa") SlhDsaPureShake256f: OQS_SIG_alg_slh_dsa_pure_shake_256f,
+    ("slh_dsa") SlhDsaPureShake256s: OQS_SIG_alg_slh_dsa_pure_shake_256s,
     ("uov") UovOvIs: OQS_SIG_alg_uov_ov_Is,
     ("uov") UovOvIp: OQS_SIG_alg_uov_ov_Ip,
     ("uov") UovOvIII: OQS_SIG_alg_uov_ov_III,
