@@ -576,10 +576,7 @@ pub struct Signer<'a> {
 impl<'a> Signer<'a> {
     /// Creates a new [`Signer`] with the given signature scheme and secret key.
     pub fn new(scheme: &'a Sig, sk: SecretKey) -> Self {
-        Signer {
-            scheme: scheme,
-            sk: sk,
-        }
+        Signer { scheme, sk }
     }
 }
 
@@ -618,10 +615,7 @@ pub struct Verifier<'a> {
 impl<'a> Verifier<'a> {
     /// Creates a new [`Verifier`] with the given signature scheme and public key.
     pub fn new(scheme: &'a Sig, pk: PublicKey) -> Self {
-        Verifier {
-            scheme: scheme,
-            pk: pk,
-        }
+        Verifier { scheme, pk }
     }
 }
 
