@@ -615,10 +615,10 @@ pub struct Verifier<'a> {
     pk: PublicKey,
 }
 
-impl<'a> Verifier<'a>{
+impl<'a> Verifier<'a> {
     /// Creates a new [`Verifier`] with the given signature scheme and public key.
-    pub fn new(scheme: &'a Sig, pk: PublicKey) -> Self{
-        Verifier{
+    pub fn new(scheme: &'a Sig, pk: PublicKey) -> Self {
+        Verifier {
             scheme: scheme,
             pk: pk,
         }
