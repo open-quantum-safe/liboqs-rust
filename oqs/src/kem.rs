@@ -531,10 +531,7 @@ pub struct Encapsulator<'a> {
 impl<'a> Encapsulator<'a> {
     /// Creates a new [`Encapsulator`].
     pub fn new(scheme: &'a Kem, pk: PublicKey) -> Self {
-        Encapsulator {
-            scheme: scheme,
-            pk: pk,
-        }
+        Encapsulator { scheme, pk }
     }
 }
 
@@ -564,10 +561,7 @@ pub struct Decapsulator<'a> {
 impl<'a> Decapsulator<'a> {
     /// Creates a new [`Decapsulator`].
     pub fn new(scheme: &'a Kem, sk: SecretKey) -> Self {
-        Decapsulator {
-            scheme: scheme,
-            sk: sk,
-        }
+        Decapsulator { scheme, sk }
     }
 }
 
