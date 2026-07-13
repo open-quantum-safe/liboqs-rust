@@ -15,6 +15,8 @@ use std::ffi::CStr;
 use crate::ffi::sig as ffi;
 use crate::newtype_buffer;
 use crate::*;
+use ::signature::Signer as RustCryptoSigner;
+use ::signature::Verifier as RustCryptoVerifier;
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -547,5 +549,85 @@ impl Sig {
             )
         };
         status_to_result(status)
+    }
+}
+
+/// Signer struct containing a signature scheme and a signing key.
+///
+/// # Example
+/// ```rust
+/// # if !cfg!(feature = "ml_dsa") { return; }
+/// use oqs;
+/// use signature::{Signer,Verifier};
+/// oqs::init();
+/// let scheme = oqs::sig::Sig::new(oqs::sig::Algorithm::MlDsa44).unwrap();
+/// let message = [0u8; 100];
+/// let (pk, sk) = scheme.keypair().unwrap();
+/// let signer = oqs::sig::Signer::new(&scheme,sk);
+/// let verifier = oqs::sig::Verifier::new(&scheme,pk);
+/// let signature = signer.try_sign(&message).unwrap();
+/// assert!(verifier.verify(&message, &signature).is_ok());
+/// ```
+pub struct Signer<'a> {
+    scheme: &'a Sig,
+    sk: SecretKey,
+}
+
+impl<'a> Signer<'a> {
+    /// Creates a new [`Signer`] with the given signature scheme and secret key.
+    pub fn new(scheme: &'a Sig, sk: SecretKey) -> Self {
+        Signer { scheme, sk }
+    }
+}
+
+impl<'a> RustCryptoSigner<sig::Signature> for Signer<'a> {
+    fn try_sign(&self, msg: &[u8]) -> core::result::Result<sig::Signature, signature::Error> {
+        match self.scheme.sign(msg, &self.sk) {
+            Ok(s) => Ok(s),
+            Err(_) => Err(signature::Error::new()),
+        }
+    }
+}
+
+/// Verifier struct containing a signature scheme and a public verification key.
+///
+/// # Example
+/// ```rust
+/// # if !cfg!(feature = "ml_dsa") { return; }
+/// use oqs;
+/// use signature::{Signer,Verifier};
+/// oqs::init();
+/// let scheme = oqs::sig::Sig::new(oqs::sig::Algorithm::MlDsa44).unwrap();
+/// let message = [0u8; 100];
+/// let (pk, sk) = scheme.keypair().unwrap();
+/// let signer = oqs::sig::Signer::new(&scheme,sk);
+/// let verifier = oqs::sig::Verifier::new(&scheme,pk);
+/// let signature = signer.try_sign(&message).unwrap();
+/// assert!(verifier.verify(&message, &signature).is_ok());
+/// ```
+///
+/// Used to verify signatures for a given message.
+pub struct Verifier<'a> {
+    scheme: &'a Sig,
+    pk: PublicKey,
+}
+
+impl<'a> Verifier<'a> {
+    /// Creates a new [`Verifier`] with the given signature scheme and public key.
+    pub fn new(scheme: &'a Sig, pk: PublicKey) -> Self {
+        Verifier { scheme, pk }
+    }
+}
+
+impl<'a> RustCryptoVerifier<sig::Signature> for Verifier<'a> {
+    fn verify(
+        &self,
+        msg: &[u8],
+        signature: &sig::Signature,
+    ) -> core::result::Result<(), signature::Error> {
+        match self.scheme.verify(msg, signature, &self.pk) {
+            Ok(_) => Ok(()),
+            Err(_) => Err(signature::Error::new()),
+        }
     }
 }
