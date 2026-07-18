@@ -29,5 +29,5 @@ For the ``ffi`` interface bindings, see ``oqs-sys``.
   * `falcon`
   * `mayo`
   * `ml_dsa`
-  * `slh_dsa`: SLH-DSA
+  * `slh_dsa`: SPHINCS+
   * `uov`

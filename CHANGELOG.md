@@ -2,9 +2,10 @@
 
 ### Changed
 
-- Renamed the Rust wrapper’s SPHINCS+ feature and algorithm variants to SLH-DSA, matching the latest liboqs naming.
-  - `sphincs` is replaced by `slh_dsa`.
-  - `Sphincs*` algorithm variants are replaced by `SlhDsaPure*` variants.
+- Renamed HQC wrapper variants to match latest liboqs naming:
+  - `Hqc128` is replaced by `Hqc1`.
+  - `Hqc192` is replaced by `Hqc3`.
+  - `Hqc256` is replaced by `Hqc5`.
 
 ## v0.11.0 (2025-05-01)
 

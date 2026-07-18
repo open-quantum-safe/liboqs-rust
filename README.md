@@ -109,7 +109,7 @@ tests.
   - `falcon`
   - `mayo`
   - `ml_dsa`
-  - `slh_dsa`: SLH-DSA
+  - `slh_dsa`: SPHINCS<sup>+</sup>
   - `uov`
 
 ## Running
