@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 
 fn generate_bindings(includedir: &Path, headerfile: &str, allow_filter: &str, block_filter: &str) {
     let out_path = PathBuf::from(std::env::var("OUT_DIR").unwrap());
-    let bindings = bindgen::Builder::default()
+    bindgen::Builder::default()
         .clang_arg(format!("-I{}", includedir.display()))
         .header(
             includedir
@@ -33,56 +33,9 @@ fn generate_bindings(includedir: &Path, headerfile: &str, allow_filter: &str, bl
         // Finish the builder and generate the bindings.
         .generate()
         // Unwrap the Result and panic on failure.
-        .expect("Unable to generate bindings");
-
-    let bindings_path = out_path.join(format!("{headerfile}_bindings.rs"));
-    bindings
-        .write_to_file(&bindings_path)
+        .expect("Unable to generate bindings")
+        .write_to_file(out_path.join(format!("{headerfile}_bindings.rs")))
         .expect("Couldn't write bindings!");
-
-    if headerfile == "kem" {
-        let mut bindings =
-            std::fs::read_to_string(&bindings_path).expect("Couldn't read generated KEM bindings");
-
-        if !bindings.contains("pub const OQS_KEM_alg_hqc_1:") {
-            bindings.push_str(
-                r#"
-pub const OQS_KEM_alg_hqc_1: &[u8; 8] = OQS_KEM_alg_hqc_128;
-pub const OQS_KEM_alg_hqc_3: &[u8; 8] = OQS_KEM_alg_hqc_192;
-pub const OQS_KEM_alg_hqc_5: &[u8; 8] = OQS_KEM_alg_hqc_256;
-"#,
-            );
-
-            std::fs::write(&bindings_path, bindings)
-                .expect("Couldn't write generated KEM bindings with HQC aliases");
-        }
-    }
-    if headerfile == "sig" {
-        let mut bindings = std::fs::read_to_string(&bindings_path)
-            .expect("Couldn't read generated signature bindings");
-
-        if !bindings.contains("pub const OQS_SIG_alg_slh_dsa_pure_sha2_128f:") {
-            bindings.push_str(
-                r#"
-pub const OQS_SIG_alg_slh_dsa_pure_sha2_128f: &[u8] = OQS_SIG_alg_sphincs_sha2_128f_simple;
-pub const OQS_SIG_alg_slh_dsa_pure_sha2_128s: &[u8] = OQS_SIG_alg_sphincs_sha2_128s_simple;
-pub const OQS_SIG_alg_slh_dsa_pure_sha2_192f: &[u8] = OQS_SIG_alg_sphincs_sha2_192f_simple;
-pub const OQS_SIG_alg_slh_dsa_pure_sha2_192s: &[u8] = OQS_SIG_alg_sphincs_sha2_192s_simple;
-pub const OQS_SIG_alg_slh_dsa_pure_sha2_256f: &[u8] = OQS_SIG_alg_sphincs_sha2_256f_simple;
-pub const OQS_SIG_alg_slh_dsa_pure_sha2_256s: &[u8] = OQS_SIG_alg_sphincs_sha2_256s_simple;
-pub const OQS_SIG_alg_slh_dsa_pure_shake_128f: &[u8] = OQS_SIG_alg_sphincs_shake_128f_simple;
-pub const OQS_SIG_alg_slh_dsa_pure_shake_128s: &[u8] = OQS_SIG_alg_sphincs_shake_128s_simple;
-pub const OQS_SIG_alg_slh_dsa_pure_shake_192f: &[u8] = OQS_SIG_alg_sphincs_shake_192f_simple;
-pub const OQS_SIG_alg_slh_dsa_pure_shake_192s: &[u8] = OQS_SIG_alg_sphincs_shake_192s_simple;
-pub const OQS_SIG_alg_slh_dsa_pure_shake_256f: &[u8] = OQS_SIG_alg_sphincs_shake_256f_simple;
-pub const OQS_SIG_alg_slh_dsa_pure_shake_256s: &[u8] = OQS_SIG_alg_sphincs_shake_256s_simple;
-"#,
-            );
-
-            std::fs::write(&bindings_path, bindings)
-                .expect("Couldn't write generated signature bindings with SLH-DSA aliases");
-        }
-    }
 }
 
 fn build_from_source() -> PathBuf {
