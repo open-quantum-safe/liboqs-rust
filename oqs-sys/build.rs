@@ -79,19 +79,7 @@ fn build_from_source() -> PathBuf {
     algorithm_feature!("SIG", "falcon");
     algorithm_feature!("SIG", "mayo");
     algorithm_feature!("SIG", "ml_dsa");
-    // Keep the Rust wrapper feature named `slh_dsa`, but enable both the
-    // latest liboqs CMake option and the older bundled-submodule option.
-    //
-    // This lets `update-liboqs=true` use `OQS_ENABLE_SIG_SLH_DSA` while
-    // `update-liboqs=false` still builds the bundled liboqs submodule,
-    // which exposes the older SPHINCS CMake option and constants.
-    let slh_dsa_value = if cfg!(feature = "slh_dsa") {
-        "Yes"
-    } else {
-        "No"
-    };
-    config.define("OQS_ENABLE_SIG_SLH_DSA", slh_dsa_value);
-    config.define("OQS_ENABLE_SIG_SPHINCS", slh_dsa_value);
+    algorithm_feature!("SIG", "slh_dsa");
     algorithm_feature!("SIG", "uov");
 
     if cfg!(windows) {
