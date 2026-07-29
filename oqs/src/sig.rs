@@ -29,7 +29,7 @@ pub type Message = [u8];
 pub type CtxStr = [u8];
 
 macro_rules! implement_sigs {
-    { $(($feat: literal) $sig: ident: $oqs_id: ident),* $(,)? } => (
+    { $($(#[$test_attr:meta])* ($feat: literal) $sig: ident: $oqs_id: ident),* $(,)? } => (
         /// Supported algorithms by liboqs
         ///
         /// They may not all be enabled
@@ -72,29 +72,11 @@ macro_rules! implement_sigs {
             mod $sig {
                 use super::*;
 
-                // SLH-DSA SHA-2 signing currently returns an error on the
-                // windows-latest MSVC CI runner, while the SHAKE variants pass.
-                // Limit the workaround to the affected Windows signing tests.
-                fn skip_windows_slh_dsa_sha2_signing() -> bool {
-                    cfg!(windows)
-                        && matches!(
-                            Algorithm::$sig,
-                            Algorithm::SlhDsaPureSha2128f
-                                | Algorithm::SlhDsaPureSha2128s
-                                | Algorithm::SlhDsaPureSha2192f
-                                | Algorithm::SlhDsaPureSha2192s
-                                | Algorithm::SlhDsaPureSha2256f
-                                | Algorithm::SlhDsaPureSha2256s
-                        )
-                }
-
                 #[test]
                 #[cfg(feature = $feat)]
+                $(#[$test_attr])*
                 fn test_signing() -> Result<()> {
                     crate::init();
-                    if skip_windows_slh_dsa_sha2_signing() {
-                        return Ok(());
-                    }
                     let message = [0u8; 100];
                     let sig = Sig::new(Algorithm::$sig)?;
                     let (pk, sk) = sig.keypair()?;
@@ -104,11 +86,9 @@ macro_rules! implement_sigs {
 
                 #[test]
                 #[cfg(feature = $feat)]
+                $(#[$test_attr])*
                 fn test_signing_with_empty_context_string() -> Result<()> {
                     crate::init();
-                    if skip_windows_slh_dsa_sha2_signing() {
-                        return Ok(());
-                    }
                     let message = [0u8; 100];
                     let ctx_str: [u8; 0] = [];
                     let sig = Sig::new(Algorithm::$sig)?;
@@ -119,11 +99,9 @@ macro_rules! implement_sigs {
 
                 #[test]
                 #[cfg(feature = $feat)]
+                $(#[$test_attr])*
                 fn test_signing_with_nonempty_context_string() -> Result<()> {
                     crate::init();
-                    if skip_windows_slh_dsa_sha2_signing() {
-                        return Ok(());
-                    }
                     let message = [0u8; 100];
                     let ctx_str = [0u8; 100];
                     let sig = Sig::new(Algorithm::$sig)?;
@@ -236,11 +214,17 @@ implement_sigs! {
     ("ml_dsa") MlDsa44: OQS_SIG_alg_ml_dsa_44,
     ("ml_dsa") MlDsa65: OQS_SIG_alg_ml_dsa_65,
     ("ml_dsa") MlDsa87: OQS_SIG_alg_ml_dsa_87,
+    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
     ("slh_dsa") SlhDsaPureSha2128f: OQS_SIG_alg_slh_dsa_pure_sha2_128f,
+    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
     ("slh_dsa") SlhDsaPureSha2128s: OQS_SIG_alg_slh_dsa_pure_sha2_128s,
+    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
     ("slh_dsa") SlhDsaPureSha2192f: OQS_SIG_alg_slh_dsa_pure_sha2_192f,
+    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
     ("slh_dsa") SlhDsaPureSha2192s: OQS_SIG_alg_slh_dsa_pure_sha2_192s,
+    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
     ("slh_dsa") SlhDsaPureSha2256f: OQS_SIG_alg_slh_dsa_pure_sha2_256f,
+    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
     ("slh_dsa") SlhDsaPureSha2256s: OQS_SIG_alg_slh_dsa_pure_sha2_256s,
     ("slh_dsa") SlhDsaPureShake128f: OQS_SIG_alg_slh_dsa_pure_shake_128f,
     ("slh_dsa") SlhDsaPureShake128s: OQS_SIG_alg_slh_dsa_pure_shake_128s,
