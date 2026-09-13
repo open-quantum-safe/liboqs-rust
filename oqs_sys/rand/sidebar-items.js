@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["OQS_RAND_alg_openssl","OQS_RAND_alg_system"],"fn":["OQS_randombytes","OQS_randombytes_custom_algorithm","OQS_randombytes_switch_algorithm"]};

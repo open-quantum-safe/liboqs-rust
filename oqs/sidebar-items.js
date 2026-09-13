@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["Error"],"fn":["init"],"macro":[["newtype_buffer",1]],"mod":["kem","sig"],"type":["Result"]};

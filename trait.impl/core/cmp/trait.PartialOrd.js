@@ -1,0 +1,9 @@
+(function() {
+    const implementors = Object.fromEntries([["cstr_core",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.98.1/core/cmp/trait.PartialOrd.html\" title=\"trait core::cmp::PartialOrd\">PartialOrd</a> for <a class=\"struct\" href=\"cstr_core/struct.CStr.html\" title=\"struct cstr_core::CStr\">CStr</a>",0],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.98.1/core/cmp/trait.PartialOrd.html\" title=\"trait core::cmp::PartialOrd\">PartialOrd</a> for <a class=\"struct\" href=\"cstr_core/struct.CString.html\" title=\"struct cstr_core::CString\">CString</a>",0]]],["proc_macro2",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.98.1/core/cmp/trait.PartialOrd.html\" title=\"trait core::cmp::PartialOrd\">PartialOrd</a> for <a class=\"struct\" href=\"proc_macro2/struct.Ident.html\" title=\"struct proc_macro2::Ident\">Ident</a>",0]]],["syn",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.98.1/core/cmp/trait.PartialOrd.html\" title=\"trait core::cmp::PartialOrd\">PartialOrd</a> for <a class=\"struct\" href=\"syn/struct.Lifetime.html\" title=\"struct syn::Lifetime\">Lifetime</a>",0],["impl&lt;'a&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/1.98.1/core/cmp/trait.PartialOrd.html\" title=\"trait core::cmp::PartialOrd\">PartialOrd</a> for <a class=\"struct\" href=\"syn/buffer/struct.Cursor.html\" title=\"struct syn::buffer::Cursor\">Cursor</a>&lt;'a&gt;",0]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":59,"fragment_lengths":[540,283,555]}

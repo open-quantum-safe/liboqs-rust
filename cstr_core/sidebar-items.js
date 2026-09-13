@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":[["cstr",1]],"struct":["CStr","CString","FromBytesWithNulError","IntoStringError","NulError"],"type":["c_char"]};
