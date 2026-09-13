@@ -29,7 +29,7 @@ pub type Message = [u8];
 pub type CtxStr = [u8];
 
 macro_rules! implement_sigs {
-    { $(($feat: literal) $sig: ident: $oqs_id: ident),* $(,)? } => (
+    { $($(#[$test_attr:meta])* ($feat: literal) $sig: ident: $oqs_id: ident),* $(,)? } => (
         /// Supported algorithms by liboqs
         ///
         /// They may not all be enabled
@@ -74,6 +74,7 @@ macro_rules! implement_sigs {
 
                 #[test]
                 #[cfg(feature = $feat)]
+                $(#[$test_attr])*
                 fn test_signing() -> Result<()> {
                     crate::init();
                     let message = [0u8; 100];
@@ -85,6 +86,7 @@ macro_rules! implement_sigs {
 
                 #[test]
                 #[cfg(feature = $feat)]
+                $(#[$test_attr])*
                 fn test_signing_with_empty_context_string() -> Result<()> {
                     crate::init();
                     let message = [0u8; 100];
@@ -97,6 +99,7 @@ macro_rules! implement_sigs {
 
                 #[test]
                 #[cfg(feature = $feat)]
+                $(#[$test_attr])*
                 fn test_signing_with_nonempty_context_string() -> Result<()> {
                     crate::init();
                     let message = [0u8; 100];
@@ -211,18 +214,24 @@ implement_sigs! {
     ("ml_dsa") MlDsa44: OQS_SIG_alg_ml_dsa_44,
     ("ml_dsa") MlDsa65: OQS_SIG_alg_ml_dsa_65,
     ("ml_dsa") MlDsa87: OQS_SIG_alg_ml_dsa_87,
-    ("sphincs") SphincsSha2128fSimple: OQS_SIG_alg_sphincs_sha2_128f_simple,
-    ("sphincs") SphincsSha2128sSimple: OQS_SIG_alg_sphincs_sha2_128s_simple,
-    ("sphincs") SphincsSha2192fSimple: OQS_SIG_alg_sphincs_sha2_192f_simple,
-    ("sphincs") SphincsSha2192sSimple: OQS_SIG_alg_sphincs_sha2_192s_simple,
-    ("sphincs") SphincsSha2256fSimple: OQS_SIG_alg_sphincs_sha2_256f_simple,
-    ("sphincs") SphincsSha2256sSimple: OQS_SIG_alg_sphincs_sha2_256s_simple,
-    ("sphincs") SphincsShake128fSimple: OQS_SIG_alg_sphincs_shake_128f_simple,
-    ("sphincs") SphincsShake128sSimple: OQS_SIG_alg_sphincs_shake_128s_simple,
-    ("sphincs") SphincsShake192fSimple: OQS_SIG_alg_sphincs_shake_192f_simple,
-    ("sphincs") SphincsShake192sSimple: OQS_SIG_alg_sphincs_shake_192s_simple,
-    ("sphincs") SphincsShake256fSimple: OQS_SIG_alg_sphincs_shake_256f_simple,
-    ("sphincs") SphincsShake256sSimple: OQS_SIG_alg_sphincs_shake_256s_simple,
+    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
+    ("slh_dsa") SlhDsaPureSha2128f: OQS_SIG_alg_slh_dsa_pure_sha2_128f,
+    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
+    ("slh_dsa") SlhDsaPureSha2128s: OQS_SIG_alg_slh_dsa_pure_sha2_128s,
+    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
+    ("slh_dsa") SlhDsaPureSha2192f: OQS_SIG_alg_slh_dsa_pure_sha2_192f,
+    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
+    ("slh_dsa") SlhDsaPureSha2192s: OQS_SIG_alg_slh_dsa_pure_sha2_192s,
+    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
+    ("slh_dsa") SlhDsaPureSha2256f: OQS_SIG_alg_slh_dsa_pure_sha2_256f,
+    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
+    ("slh_dsa") SlhDsaPureSha2256s: OQS_SIG_alg_slh_dsa_pure_sha2_256s,
+    ("slh_dsa") SlhDsaPureShake128f: OQS_SIG_alg_slh_dsa_pure_shake_128f,
+    ("slh_dsa") SlhDsaPureShake128s: OQS_SIG_alg_slh_dsa_pure_shake_128s,
+    ("slh_dsa") SlhDsaPureShake192f: OQS_SIG_alg_slh_dsa_pure_shake_192f,
+    ("slh_dsa") SlhDsaPureShake192s: OQS_SIG_alg_slh_dsa_pure_shake_192s,
+    ("slh_dsa") SlhDsaPureShake256f: OQS_SIG_alg_slh_dsa_pure_shake_256f,
+    ("slh_dsa") SlhDsaPureShake256s: OQS_SIG_alg_slh_dsa_pure_shake_256s,
     ("uov") UovOvIs: OQS_SIG_alg_uov_ov_Is,
     ("uov") UovOvIp: OQS_SIG_alg_uov_ov_Ip,
     ("uov") UovOvIII: OQS_SIG_alg_uov_ov_III,

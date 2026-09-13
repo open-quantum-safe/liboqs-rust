@@ -24,7 +24,7 @@ This crate provides the unsafe `ffi` bindings to [liboqs][].
     * `falcon`
     * `mayo`
     * `ml_dsa`
-    * `sphincs`: SPHINCS+
+    * `slh_dsa`: SPHINCS+
     * `uov`
 
 [oqs]: https://openquantumsafe.org

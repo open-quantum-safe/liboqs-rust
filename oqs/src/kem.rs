@@ -3,7 +3,6 @@
 //! See [`Kem`] for the main functionality.
 //! [`Algorithm`] lists the available algorithms.
 use alloc::vec::Vec;
-
 use core::ptr::NonNull;
 use core::str::FromStr;
 
@@ -180,9 +179,9 @@ implement_kems! {
     ("classic_mceliece") ClassicMcEliece6960119f: OQS_KEM_alg_classic_mceliece_6960119f,
     ("classic_mceliece") ClassicMcEliece8192128: OQS_KEM_alg_classic_mceliece_8192128,
     ("classic_mceliece") ClassicMcEliece8192128f: OQS_KEM_alg_classic_mceliece_8192128f,
-    ("hqc") Hqc128: OQS_KEM_alg_hqc_128,
-    ("hqc") Hqc192: OQS_KEM_alg_hqc_192,
-    ("hqc") Hqc256: OQS_KEM_alg_hqc_256,
+    ("hqc") Hqc1: OQS_KEM_alg_hqc_1,
+    ("hqc") Hqc3: OQS_KEM_alg_hqc_3,
+    ("hqc") Hqc5: OQS_KEM_alg_hqc_5,
     ("kyber") Kyber512: OQS_KEM_alg_kyber_512,
     ("kyber") Kyber768: OQS_KEM_alg_kyber_768,
     ("kyber") Kyber1024: OQS_KEM_alg_kyber_1024,

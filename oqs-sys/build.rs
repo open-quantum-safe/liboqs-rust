@@ -79,7 +79,7 @@ fn build_from_source() -> PathBuf {
     algorithm_feature!("SIG", "falcon");
     algorithm_feature!("SIG", "mayo");
     algorithm_feature!("SIG", "ml_dsa");
-    algorithm_feature!("SIG", "sphincs");
+    algorithm_feature!("SIG", "slh_dsa");
     algorithm_feature!("SIG", "uov");
 
     if cfg!(windows) {

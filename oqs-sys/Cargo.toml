@@ -1,7 +1,6 @@
 [package]
 name = "oqs-sys"
-version = "0.11.0+liboqs-0.13.0"
-authors = ["Thom Wiggers <thom@thomwiggers.nl>"]
+version = "0.11.0+liboqs-0.16.0-rc1"
 edition = "2021"
 links = "oqs"
 description = "Bindings to liboqs"
@@ -41,12 +40,12 @@ kyber = []
 ml_kem = []
 ntruprime = []
 # algorithms: Signature schemes
-sigs = ["cross", "falcon", "mayo", "ml_dsa", "sphincs", "uov"]
+sigs = ["cross", "falcon", "mayo", "ml_dsa", "slh_dsa", "uov"]
 cross = []
 falcon = []
 mayo = []
 ml_dsa = []
-sphincs = []
+slh_dsa = []
 uov = []
 
 [package.metadata.docs.rs]

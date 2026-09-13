@@ -1,3 +1,12 @@
+## Unreleased
+
+### Changed
+
+- Renamed HQC wrapper variants to match latest liboqs naming:
+  - `Hqc128` is replaced by `Hqc1`.
+  - `Hqc192` is replaced by `Hqc3`.
+  - `Hqc256` is replaced by `Hqc5`.
+
 ## v0.11.0 (2025-05-01)
 
 - Sync with liboqs 0.13.0.
