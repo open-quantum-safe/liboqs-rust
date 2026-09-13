@@ -207,6 +207,8 @@ implement_sigs! {
     ("cross") CrossRsdpg256Small: OQS_SIG_alg_cross_rsdpg_256_small,
     ("falcon") Falcon512: OQS_SIG_alg_falcon_512,
     ("falcon") Falcon1024: OQS_SIG_alg_falcon_1024,
+    ("falcon") FalconPadded512: OQS_SIG_alg_falcon_padded_512,
+    ("falcon") FalconPadded1024: OQS_SIG_alg_falcon_padded_1024,
     ("mayo") Mayo1: OQS_SIG_alg_mayo_1,
     ("mayo") Mayo2: OQS_SIG_alg_mayo_2,
     ("mayo") Mayo3: OQS_SIG_alg_mayo_3,
