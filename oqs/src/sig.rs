@@ -15,7 +15,9 @@ use std::ffi::CStr;
 use crate::ffi::sig as ffi;
 use crate::newtype_buffer;
 use crate::*;
+#[cfg(feature = "rustcrypto")]
 use ::signature::Signer as RustCryptoSigner;
+#[cfg(feature = "rustcrypto")]
 use ::signature::Verifier as RustCryptoVerifier;
 
 #[cfg(feature = "serde")]
@@ -503,6 +505,7 @@ impl Sig {
     }
 }
 
+#[cfg(feature = "rustcrypto")]
 /// Signer struct containing a signature scheme and a signing key.
 ///
 /// # Example
@@ -519,11 +522,13 @@ impl Sig {
 /// let signature = signer.try_sign(&message).unwrap();
 /// assert!(verifier.verify(&message, &signature).is_ok());
 /// ```
+#[cfg(feature = "rustcrypto")]
 pub struct Signer<'a> {
     scheme: &'a Sig,
     sk: SecretKey,
 }
 
+#[cfg(feature = "rustcrypto")]
 impl<'a> Signer<'a> {
     /// Creates a new [`Signer`] with the given signature scheme and secret key.
     pub fn new(scheme: &'a Sig, sk: SecretKey) -> Self {
@@ -531,6 +536,7 @@ impl<'a> Signer<'a> {
     }
 }
 
+#[cfg(feature = "rustcrypto")]
 impl<'a> RustCryptoSigner<sig::Signature> for Signer<'a> {
     fn try_sign(&self, msg: &[u8]) -> core::result::Result<sig::Signature, signature::Error> {
         match self.scheme.sign(msg, &self.sk) {
@@ -540,6 +546,7 @@ impl<'a> RustCryptoSigner<sig::Signature> for Signer<'a> {
     }
 }
 
+#[cfg(feature = "rustcrypto")]
 /// Verifier struct containing a signature scheme and a public verification key.
 ///
 /// # Example
@@ -558,11 +565,13 @@ impl<'a> RustCryptoSigner<sig::Signature> for Signer<'a> {
 /// ```
 ///
 /// Used to verify signatures for a given message.
+#[cfg(feature = "rustcrypto")]
 pub struct Verifier<'a> {
     scheme: &'a Sig,
     pk: PublicKey,
 }
 
+#[cfg(feature = "rustcrypto")]
 impl<'a> Verifier<'a> {
     /// Creates a new [`Verifier`] with the given signature scheme and public key.
     pub fn new(scheme: &'a Sig, pk: PublicKey) -> Self {
@@ -570,6 +579,7 @@ impl<'a> Verifier<'a> {
     }
 }
 
+#[cfg(feature = "rustcrypto")]
 impl<'a> RustCryptoVerifier<sig::Signature> for Verifier<'a> {
     fn verify(
         &self,
