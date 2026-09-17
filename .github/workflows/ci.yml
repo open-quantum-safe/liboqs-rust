@@ -114,6 +114,11 @@ jobs:
         if: matrix.os != 'windows-latest'
         run: cargo test --features vendored_openssl --manifest-path oqs/Cargo.toml
 
+      - name: Check generated signature algorithms
+        run: |
+          python3 scripts/generate_sig_algorithms.py
+          git diff --exit-code -- oqs/src/generated_sig_algorithms.rs
+
       - name: Cargo fmt
         run: cargo fmt --all -- --check
 

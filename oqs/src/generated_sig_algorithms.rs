@@ -3,6 +3,17 @@
 // Do not edit manually.
 
 implement_sigs! {
+    ("ml_dsa") MlDsa44: OQS_SIG_alg_ml_dsa_44,
+    ("ml_dsa") MlDsa65: OQS_SIG_alg_ml_dsa_65,
+    ("ml_dsa") MlDsa87: OQS_SIG_alg_ml_dsa_87,
+    ("falcon") Falcon512: OQS_SIG_alg_falcon_512,
+    ("falcon") Falcon1024: OQS_SIG_alg_falcon_1024,
+    ("falcon") FalconPadded512: OQS_SIG_alg_falcon_padded_512,
+    ("falcon") FalconPadded1024: OQS_SIG_alg_falcon_padded_1024,
+    ("mayo") Mayo1: OQS_SIG_alg_mayo_1,
+    ("mayo") Mayo2: OQS_SIG_alg_mayo_2,
+    ("mayo") Mayo3: OQS_SIG_alg_mayo_3,
+    ("mayo") Mayo5: OQS_SIG_alg_mayo_5,
     ("cross") CrossRsdp128Balanced: OQS_SIG_alg_cross_rsdp_128_balanced,
     ("cross") CrossRsdp128Fast: OQS_SIG_alg_cross_rsdp_128_fast,
     ("cross") CrossRsdp128Small: OQS_SIG_alg_cross_rsdp_128_small,
@@ -21,35 +32,6 @@ implement_sigs! {
     ("cross") CrossRsdpg256Balanced: OQS_SIG_alg_cross_rsdpg_256_balanced,
     ("cross") CrossRsdpg256Fast: OQS_SIG_alg_cross_rsdpg_256_fast,
     ("cross") CrossRsdpg256Small: OQS_SIG_alg_cross_rsdpg_256_small,
-    ("falcon") Falcon512: OQS_SIG_alg_falcon_512,
-    ("falcon") Falcon1024: OQS_SIG_alg_falcon_1024,
-    ("falcon") FalconPadded512: OQS_SIG_alg_falcon_padded_512,
-    ("falcon") FalconPadded1024: OQS_SIG_alg_falcon_padded_1024,
-    ("mayo") Mayo1: OQS_SIG_alg_mayo_1,
-    ("mayo") Mayo2: OQS_SIG_alg_mayo_2,
-    ("mayo") Mayo3: OQS_SIG_alg_mayo_3,
-    ("mayo") Mayo5: OQS_SIG_alg_mayo_5,
-    ("ml_dsa") MlDsa44: OQS_SIG_alg_ml_dsa_44,
-    ("ml_dsa") MlDsa65: OQS_SIG_alg_ml_dsa_65,
-    ("ml_dsa") MlDsa87: OQS_SIG_alg_ml_dsa_87,
-    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
-    ("slh_dsa") SlhDsaPureSha2128f: OQS_SIG_alg_slh_dsa_pure_sha2_128f,
-    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
-    ("slh_dsa") SlhDsaPureSha2128s: OQS_SIG_alg_slh_dsa_pure_sha2_128s,
-    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
-    ("slh_dsa") SlhDsaPureSha2192f: OQS_SIG_alg_slh_dsa_pure_sha2_192f,
-    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
-    ("slh_dsa") SlhDsaPureSha2192s: OQS_SIG_alg_slh_dsa_pure_sha2_192s,
-    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
-    ("slh_dsa") SlhDsaPureSha2256f: OQS_SIG_alg_slh_dsa_pure_sha2_256f,
-    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
-    ("slh_dsa") SlhDsaPureSha2256s: OQS_SIG_alg_slh_dsa_pure_sha2_256s,
-    ("slh_dsa") SlhDsaPureShake128f: OQS_SIG_alg_slh_dsa_pure_shake_128f,
-    ("slh_dsa") SlhDsaPureShake128s: OQS_SIG_alg_slh_dsa_pure_shake_128s,
-    ("slh_dsa") SlhDsaPureShake192f: OQS_SIG_alg_slh_dsa_pure_shake_192f,
-    ("slh_dsa") SlhDsaPureShake192s: OQS_SIG_alg_slh_dsa_pure_shake_192s,
-    ("slh_dsa") SlhDsaPureShake256f: OQS_SIG_alg_slh_dsa_pure_shake_256f,
-    ("slh_dsa") SlhDsaPureShake256s: OQS_SIG_alg_slh_dsa_pure_shake_256s,
     ("uov") UovOvIs: OQS_SIG_alg_uov_ov_Is,
     ("uov") UovOvIp: OQS_SIG_alg_uov_ov_Ip,
     ("uov") UovOvIII: OQS_SIG_alg_uov_ov_III,
@@ -62,4 +44,22 @@ implement_sigs! {
     ("uov") UovOvIpPkcSkc: OQS_SIG_alg_uov_ov_Ip_pkc_skc,
     ("uov") UovOvIIIPkcSkc: OQS_SIG_alg_uov_ov_III_pkc_skc,
     ("uov") UovOvVPkcSkc: OQS_SIG_alg_uov_ov_V_pkc_skc,
+    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
+    ("slh_dsa") SlhDsaPureSha2128s: OQS_SIG_alg_slh_dsa_pure_sha2_128s,
+    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
+    ("slh_dsa") SlhDsaPureSha2128f: OQS_SIG_alg_slh_dsa_pure_sha2_128f,
+    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
+    ("slh_dsa") SlhDsaPureSha2192s: OQS_SIG_alg_slh_dsa_pure_sha2_192s,
+    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
+    ("slh_dsa") SlhDsaPureSha2192f: OQS_SIG_alg_slh_dsa_pure_sha2_192f,
+    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
+    ("slh_dsa") SlhDsaPureSha2256s: OQS_SIG_alg_slh_dsa_pure_sha2_256s,
+    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]
+    ("slh_dsa") SlhDsaPureSha2256f: OQS_SIG_alg_slh_dsa_pure_sha2_256f,
+    ("slh_dsa") SlhDsaPureShake128s: OQS_SIG_alg_slh_dsa_pure_shake_128s,
+    ("slh_dsa") SlhDsaPureShake128f: OQS_SIG_alg_slh_dsa_pure_shake_128f,
+    ("slh_dsa") SlhDsaPureShake192s: OQS_SIG_alg_slh_dsa_pure_shake_192s,
+    ("slh_dsa") SlhDsaPureShake192f: OQS_SIG_alg_slh_dsa_pure_shake_192f,
+    ("slh_dsa") SlhDsaPureShake256s: OQS_SIG_alg_slh_dsa_pure_shake_256s,
+    ("slh_dsa") SlhDsaPureShake256f: OQS_SIG_alg_slh_dsa_pure_shake_256f,
 }

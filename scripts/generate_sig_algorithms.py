@@ -1,38 +1,12 @@
 #!/usr/bin/env python3
 
+import re
 from pathlib import Path
-
-# Generate the signature algorithms currently exposed by the Rust wrapper.
-# Additional liboqs variants are intentionally excluded until they are
-# explicitly supported by the wrapper API.
 
 ROOT = Path(__file__).resolve().parents[1]
 HEADER = ROOT / "oqs-sys/liboqs/src/sig/sig.h"
+CARGO_TOML = ROOT / "oqs/Cargo.toml"
 OUTPUT = ROOT / "oqs/src/generated_sig_algorithms.rs"
-
-FEATURE_ORDER = [
-    "cross",
-    "falcon",
-    "mayo",
-    "ml_dsa",
-    "slh_dsa",
-    "uov",
-]
-
-SLH_DSA_ORDER = [
-    "OQS_SIG_alg_slh_dsa_pure_sha2_128f",
-    "OQS_SIG_alg_slh_dsa_pure_sha2_128s",
-    "OQS_SIG_alg_slh_dsa_pure_sha2_192f",
-    "OQS_SIG_alg_slh_dsa_pure_sha2_192s",
-    "OQS_SIG_alg_slh_dsa_pure_sha2_256f",
-    "OQS_SIG_alg_slh_dsa_pure_sha2_256s",
-    "OQS_SIG_alg_slh_dsa_pure_shake_128f",
-    "OQS_SIG_alg_slh_dsa_pure_shake_128s",
-    "OQS_SIG_alg_slh_dsa_pure_shake_192f",
-    "OQS_SIG_alg_slh_dsa_pure_shake_192s",
-    "OQS_SIG_alg_slh_dsa_pure_shake_256f",
-    "OQS_SIG_alg_slh_dsa_pure_shake_256s",
-]
 
 
 def rust_variant(symbol: str) -> str:
@@ -50,35 +24,46 @@ def rust_variant(symbol: str) -> str:
     return "".join(convert(part) for part in parts)
 
 
-def signature_feature(symbol: str):
-    if symbol.startswith("OQS_SIG_alg_cross_"):
-        return "cross"
-    if symbol.startswith("OQS_SIG_alg_falcon_"):
-        return "falcon"
-    if symbol.startswith("OQS_SIG_alg_mayo_"):
-        return "mayo"
-    if symbol.startswith("OQS_SIG_alg_ml_dsa_") and not symbol.endswith("_extmu"):
-        return "ml_dsa"
-    if symbol.startswith("OQS_SIG_alg_slh_dsa_pure_"):
-        return "slh_dsa"
-    if symbol.startswith("OQS_SIG_alg_uov_"):
-        return "uov"
+def supported_signature_features():
+    text = CARGO_TOML.read_text()
+
+    match = re.search(
+        r'^sigs\s*=\s*\[(.*?)\]',
+        text,
+        re.MULTILINE,
+    )
+    if not match:
+        raise RuntimeError("could not find sigs feature in oqs/Cargo.toml")
+
+    return [
+        item.strip().strip('"')
+        for item in match.group(1).split(",")
+        if item.strip() and not item.strip().startswith('"oqs-sys/')
+    ]
+
+
+def signature_feature(symbol: str, features):
+    suffix = symbol.removeprefix("OQS_SIG_alg_")
+
+    for feature in sorted(features, key=len, reverse=True):
+        if not suffix.startswith(feature + "_"):
+            continue
+
+        # Keep the currently exposed Rust API while the additional
+        # liboqs variants are evaluated separately.
+        if feature == "ml_dsa" and suffix.endswith("_extmu"):
+            return None
+
+        if feature == "slh_dsa" and not suffix.startswith("slh_dsa_pure_"):
+            return None
+
+        return feature
+
     return None
 
 
-def sort_key(entry):
-    feature, _, symbol = entry
-    family_order = FEATURE_ORDER.index(feature)
-
-    if feature == "slh_dsa":
-        algorithm_order = SLH_DSA_ORDER.index(symbol)
-    else:
-        algorithm_order = 0
-
-    return family_order, algorithm_order
-
-
 def main():
+    features = supported_signature_features()
     algorithms = []
 
     for line in HEADER.read_text().splitlines():
@@ -92,14 +77,12 @@ def main():
             continue
 
         symbol = fields[1]
-        feature = signature_feature(symbol)
+        feature = signature_feature(symbol, features)
 
         if feature is None:
             continue
 
         algorithms.append((feature, rust_variant(symbol), symbol))
-
-    algorithms.sort(key=sort_key)
 
     if len(algorithms) != 53:
         raise RuntimeError(
