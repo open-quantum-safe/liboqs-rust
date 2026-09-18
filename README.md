@@ -112,6 +112,12 @@ tests.
   - `slh_dsa`: SPHINCS<sup>+</sup>
   - `uov`
 
+The Rust signature algorithm list is generated from liboqs metadata. Two
+intentional exclusions remain: ML-DSA `extmu` variants are not exposed because
+they represent a separate external-mu API surface, and SLH-DSA prehash variants
+are not exposed because the Rust wrapper currently exposes only the pure
+SLH-DSA variants.
+
 ## Running
 
 ```rust
