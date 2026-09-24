@@ -11,6 +11,7 @@ jobs:
           - macos-latest
           - ubuntu-latest
           - windows-latest
+          - windows-11-arm
         rust:
           - stable
           - beta
