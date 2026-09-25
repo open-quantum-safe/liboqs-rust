@@ -94,7 +94,10 @@ def main():
     ]
 
     for feature, variant, symbol in algorithms:
-        if symbol.startswith("OQS_SIG_alg_slh_dsa_pure_sha2_"):
+        if (
+            symbol.startswith("OQS_SIG_alg_slh_dsa_pure_sha2_")
+            or "_prehash_sha2_" in symbol
+        ):
             lines.append(
                 '    #[cfg_attr(windows, ignore = "SLH-DSA SHA-2 signing currently fails on the windows-latest MSVC runner")]'
             )
