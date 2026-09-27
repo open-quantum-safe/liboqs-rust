@@ -47,6 +47,31 @@ oqs = "0.10.1"
 The default-on `kems` and `sigs` features turn on all supported KEMs and signature schemes. If you want a smaller build, turn off these default features and opt-in to individual algorithms.
 Note that if you specify `default-features = false`, you may also want to re-include the `oqs-sys/openssl` feature.
 
+## macOS OpenSSL setup
+
+On macOS, especially Apple Silicon, tests may fail during linking if OpenSSL is installed through Homebrew but is not visible to the linker:
+
+```text
+ld: library 'crypto' not found
+```
+Install OpenSSL and export the required paths before building:
+
+```bash
+brew install openssl@3
+
+export OPENSSL_ROOT_DIR="$(brew --prefix openssl@3)"
+export OPENSSL_LIB_DIR="$(brew --prefix openssl@3)/lib"
+export OPENSSL_INCLUDE_DIR="$(brew --prefix openssl@3)/include"
+export LIBRARY_PATH="$(brew --prefix openssl@3)/lib:$LIBRARY_PATH"
+export CPATH="$(brew --prefix openssl@3)/include:$CPATH"
+
+cargo test
+```
+If dependency warnings from older transitive crates are promoted to errors by a newer Rust toolchain, you can cap dependency lints while testing:
+
+```bash
+CARGO_BUILD_JOBS=2 RUSTFLAGS="--cap-lints=allow" cargo test
+```
 ## Vendored `liboqs`
 
 By default `oqs-sys` attempts to find a system-provided version of `liboqs` and build against it,
