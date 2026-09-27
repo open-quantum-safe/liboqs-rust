@@ -112,6 +112,11 @@ tests.
   - `slh_dsa`: SPHINCS<sup>+</sup>
   - `uov`
 
+The Rust signature algorithm list is generated from liboqs metadata. ML-DSA
+`extmu` variants are intentionally not exposed through the ordinary
+message-signing API because they expect an externally computed 64-byte `mu`
+value rather than an arbitrary message.
+
 ## Running
 
 ```rust
