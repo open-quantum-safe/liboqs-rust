@@ -216,7 +216,7 @@ impl Algorithm {
     /// This is the same as the `to_id`, but as a safe Rust string.
     pub fn name(&self) -> &'static str {
         // SAFETY: The id from ffi must be a proper null terminated C string
-        let id = unsafe { CStr::from_ptr(self.to_id()) };
+        let id = unsafe { CStr::from_ptr(self.to_id() as *const _) };
         id.to_str().expect("OQS algorithm names must be UTF-8")
     }
 }
@@ -281,7 +281,7 @@ impl Kem {
     pub fn version(&self) -> &'static str {
         let kem = unsafe { self.kem.as_ref() };
         // SAFETY: The alg_version from ffi must be a proper null terminated C string
-        let cstr = unsafe { CStr::from_ptr(kem.alg_version) };
+        let cstr = unsafe { CStr::from_ptr(kem.alg_version as *const _) };
         cstr.to_str()
             .expect("Algorithm version strings must be UTF-8")
     }
