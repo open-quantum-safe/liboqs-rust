@@ -40,6 +40,28 @@ fn generate_bindings(includedir: &Path, headerfile: &str, allow_filter: &str, bl
 
 fn build_from_source() -> PathBuf {
     let mut config = cmake::Config::new("liboqs");
+    println!("cargo:rerun-if-env-changed=OQS_REPRODUCIBLE_BUILD");
+
+    if std::env::var_os("OQS_REPRODUCIBLE_BUILD").as_deref() == Some(std::ffi::OsStr::new("1")) {
+        let source_dir = std::env::current_dir()
+            .expect("Unable to determine oqs-sys source directory")
+            .canonicalize()
+            .expect("Unable to canonicalize oqs-sys source directory");
+
+        let source_dir = source_dir.to_str().expect("Non-UTF-8 source directory");
+
+        let target = std::env::var("TARGET").expect("Cargo TARGET is not set");
+
+        if target.contains("-apple-darwin") {
+            config.env("ZERO_AR_DATE", "1");
+        }
+
+        if target.contains("-apple-darwin") || target.contains("-linux-") {
+            let flag = format!("-ffile-prefix-map={source_dir}=/src");
+            config.cflag(&flag);
+        }
+    }
+
     config.profile("Release");
     config.define("OQS_BUILD_ONLY_LIB", "Yes");
 
