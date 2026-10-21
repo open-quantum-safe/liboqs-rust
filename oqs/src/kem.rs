@@ -15,14 +15,14 @@ use std::ffi::CStr;
 use serde::{Deserialize, Serialize};
 
 use crate::ffi::kem as ffi;
-use crate::newtype_buffer;
 use crate::*;
+use crate::{newtype_buffer, newtype_secret_buffer};
 
 newtype_buffer!(PublicKey, PublicKeyRef);
-newtype_buffer!(SecretKey, SecretKeyRef);
+newtype_secret_buffer!(SecretKey, SecretKeyRef);
 newtype_buffer!(Ciphertext, CiphertextRef);
-newtype_buffer!(SharedSecret, SharedSecretRef);
-newtype_buffer!(KeypairSeed, KeypairSeedRef);
+newtype_secret_buffer!(SharedSecret, SharedSecretRef);
+newtype_secret_buffer!(KeypairSeed, KeypairSeedRef);
 
 macro_rules! implement_kems {
     { $(($feat: literal) $kem: ident: $oqs_id: ident),* $(,)? } => (

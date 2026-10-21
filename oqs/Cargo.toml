@@ -13,6 +13,7 @@ libc = "0.2"
 cstr_core = { version = "0.2", default-features = false, features = ["alloc"] }
 serde = { version = "1.0", optional = true, default-features = false, features = ["derive", "alloc"] }
 signature = { version = "2.2.0", optional = true }
+zeroize = { version = "1.9.1", default-features = false, features = ["alloc"] }
 
 [dependencies.oqs-sys]
 path = "../oqs-sys"

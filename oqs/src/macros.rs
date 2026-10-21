@@ -80,6 +80,104 @@ macro_rules! newtype_buffer {
     };
 }
 
+/// Implements a buffer for sensitive cryptographic objects.
+///
+/// The owned buffer is zeroized before its allocation is released.
+#[macro_export]
+macro_rules! newtype_secret_buffer {
+    ($name: ident, $name_ref: ident) => {
+        /// New owned sensitive buffer
+        ///
+        /// Construct the reference version of this type through the algorithm API functions.
+        ///
+        /// Optional support for `serde` if that feature is enabled.
+        #[derive(Debug, Clone, PartialEq, Eq)]
+        #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+        pub struct $name {
+            bytes: Vec<u8>,
+        }
+
+        impl $name {
+            /// Obtain the contained vector.
+            ///
+            /// Ownership of the sensitive bytes is transferred to the caller,
+            /// so this wrapper can no longer zeroize them on drop.
+            pub fn into_vec(mut self) -> Vec<u8> {
+                core::mem::take(&mut self.bytes)
+            }
+        }
+
+        impl zeroize::Zeroize for $name {
+            fn zeroize(&mut self) {
+                zeroize::Zeroize::zeroize(&mut self.bytes);
+            }
+        }
+
+        impl Drop for $name {
+            fn drop(&mut self) {
+                zeroize::Zeroize::zeroize(&mut self.bytes);
+            }
+        }
+
+        /// Reference version of this type.
+        ///
+        /// Allows for copy-less usage
+        /// Construct it through the algorithm API functions
+        #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+        pub struct $name_ref<'a> {
+            bytes: &'a [u8],
+        }
+
+        impl<'a> $name_ref<'a> {
+            /// Construct a new container around this reference version
+            fn new(bytes: &'a [u8]) -> $name_ref<'a> {
+                $name_ref { bytes }
+            }
+
+            /// Clone this into the owned variant
+            pub fn to_owned(self) -> $name {
+                $name {
+                    bytes: self.bytes.to_vec(),
+                }
+            }
+        }
+
+        impl<'a> From<&'a $name> for $name_ref<'a> {
+            fn from(buf: &'a $name) -> $name_ref<'a> {
+                $name_ref::new(&buf.bytes)
+            }
+        }
+
+        impl<'a> From<&'a $name_ref<'a>> for $name_ref<'a> {
+            fn from(buf: &'a $name_ref) -> $name_ref<'a> {
+                *buf
+            }
+        }
+
+        impl<'a> core::ops::Deref for $name_ref<'a> {
+            type Target = [u8];
+
+            fn deref(&self) -> &Self::Target {
+                &self.bytes
+            }
+        }
+
+        impl AsRef<[u8]> for $name {
+            fn as_ref(&self) -> &[u8] {
+                self.bytes.as_ref()
+            }
+        }
+
+        impl $name {
+            /// Length in bytes
+            #[allow(clippy::len_without_is_empty)]
+            pub fn len(&self) -> usize {
+                self.bytes.len()
+            }
+        }
+    };
+}
+
 #[cfg(test)]
 mod test {
     use alloc::vec;
@@ -90,6 +188,39 @@ mod test {
     use serde::{Deserialize, Serialize};
 
     newtype_buffer!(TestBuf, TestBufRef);
+    newtype_secret_buffer!(TestSecretBuf, TestSecretBufRef);
+
+    #[test]
+    fn test_secret_reference_and_len() {
+        let bytes = vec![1, 2, 3];
+        let refbuf = TestSecretBufRef::new(bytes.as_ref());
+        let buf = refbuf.to_owned();
+
+        assert_eq!(buf.len(), bytes.len());
+        assert_eq!(buf.as_ref(), bytes.as_slice());
+    }
+
+    #[test]
+    fn test_secret_zeroize() {
+        use zeroize::Zeroize;
+
+        let mut buf = TestSecretBuf {
+            bytes: vec![1, 2, 3],
+        };
+
+        buf.zeroize();
+
+        assert!(buf.bytes.iter().all(|byte| *byte == 0));
+    }
+
+    #[test]
+    fn test_secret_into_vec() {
+        let buf = TestSecretBuf {
+            bytes: vec![1, 2, 3],
+        };
+
+        assert_eq!(buf.into_vec(), vec![1, 2, 3]);
+    }
 
     #[test]
     fn test_get_reference() {
