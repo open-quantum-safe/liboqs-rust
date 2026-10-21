@@ -13,8 +13,8 @@ use cstr_core::CStr;
 use std::ffi::CStr;
 
 use crate::ffi::sig as ffi;
-use crate::newtype_buffer;
 use crate::*;
+use crate::{newtype_buffer, newtype_secret_buffer};
 #[cfg(feature = "rustcrypto")]
 use ::signature::Signer as RustCryptoSigner;
 #[cfg(feature = "rustcrypto")]
@@ -24,7 +24,7 @@ use ::signature::Verifier as RustCryptoVerifier;
 use serde::{Deserialize, Serialize};
 
 newtype_buffer!(PublicKey, PublicKeyRef);
-newtype_buffer!(SecretKey, SecretKeyRef);
+newtype_secret_buffer!(SecretKey, SecretKeyRef);
 newtype_buffer!(Signature, SignatureRef);
 
 /// Message type
