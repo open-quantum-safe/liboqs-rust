@@ -25,8 +25,11 @@ This crate provides the unsafe `ffi` bindings to [liboqs][].
     * `mayo`
     * `ml_dsa`
     * `mqom`
+    * `qruov`
+    * `sdith`
     * `slh_dsa`
     * `snova`
+    * `sqisign` (not on MSVC targets unless selected explicitly)
     * `uov`
 
 [oqs]: https://openquantumsafe.org

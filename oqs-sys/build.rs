@@ -81,8 +81,19 @@ fn build_from_source() -> PathBuf {
     algorithm_feature!("SIG", "mayo");
     algorithm_feature!("SIG", "ml_dsa");
     algorithm_feature!("SIG", "mqom");
+    algorithm_feature!("SIG", "qruov");
+    algorithm_feature!("SIG", "sdith");
     algorithm_feature!("SIG", "slh_dsa");
     algorithm_feature!("SIG", "snova");
+    // SQIsign does not compile with MSVC (it uses the POSIX `ssize_t`), so on MSVC
+    // targets it is opt-in explicitly rather than through the default sigs feature.
+    // CARGO_CFG_TARGET_ENV describes the target; cfg!() in a build script sees the host.
+    let target_is_msvc = std::env::var("CARGO_CFG_TARGET_ENV").as_deref() == Ok("msvc");
+    if cfg!(feature = "sigs") && !target_is_msvc {
+        config.define("OQS_ENABLE_SIG_SQISIGN", "Yes");
+    } else {
+        algorithm_feature!("SIG", "sqisign");
+    }
     algorithm_feature!("SIG", "uov");
 
     if cfg!(windows) {

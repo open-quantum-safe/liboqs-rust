@@ -41,14 +41,17 @@ ml_kem = []
 ntru = []
 ntruprime = []
 # algorithms: Signature schemes
-sigs = ["cross", "falcon", "mayo", "ml_dsa", "mqom", "slh_dsa", "snova", "uov"]
+sigs = ["cross", "falcon", "mayo", "ml_dsa", "mqom", "qruov", "sdith", "slh_dsa", "snova", "uov"]
 cross = []
 falcon = []
 mayo = []
 ml_dsa = []
 mqom = []
+qruov = []
+sdith = []
 slh_dsa = []
 snova = []
+sqisign = []  # SQIsign is enabled by build.rs on non-MSVC targets
 uov = []
 
 [package.metadata.docs.rs]
