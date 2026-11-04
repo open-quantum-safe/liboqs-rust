@@ -72,6 +72,7 @@ fn build_from_source() -> PathBuf {
     algorithm_feature!("KEM", "hqc");
     algorithm_feature!("KEM", "kyber");
     algorithm_feature!("KEM", "ml_kem");
+    algorithm_feature!("KEM", "ntru");
     algorithm_feature!("KEM", "ntruprime");
 
     // signature schemes
@@ -79,7 +80,9 @@ fn build_from_source() -> PathBuf {
     algorithm_feature!("SIG", "falcon");
     algorithm_feature!("SIG", "mayo");
     algorithm_feature!("SIG", "ml_dsa");
+    algorithm_feature!("SIG", "mqom");
     algorithm_feature!("SIG", "slh_dsa");
+    algorithm_feature!("SIG", "snova");
     algorithm_feature!("SIG", "uov");
 
     if cfg!(windows) {

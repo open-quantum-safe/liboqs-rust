@@ -17,14 +17,16 @@ This crate provides the unsafe `ffi` bindings to [liboqs][].
     * `hqc`
     * `kyber`
     * `ml_kem`
+    * `ntru`
     * `ntruprime`
 * `sigs` (default): Compile with all signature schemes enabled
     * `cross`
-    * `dilithium`
     * `falcon`
     * `mayo`
     * `ml_dsa`
-    * `slh_dsa`: SPHINCS+
+    * `mqom`
+    * `slh_dsa`
+    * `snova`
     * `uov`
 
 [oqs]: https://openquantumsafe.org
