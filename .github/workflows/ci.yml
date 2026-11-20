@@ -108,6 +108,15 @@ jobs:
       - name: Cargo test --no-default-features --features non_portable,kems,sigs,std
         run: cargo test --no-default-features --features non_portable,kems,sigs,std --manifest-path oqs/Cargo.toml
 
+      - name: ML-DSA Wycheproof regression (pinned liboqs)
+        if: matrix.os == 'ubuntu-latest' && matrix.rust == 'stable' && matrix.update-liboqs == false
+        run: |
+          cargo test \
+            --manifest-path oqs/Cargo.toml \
+            --no-default-features \
+            --features std,ml_dsa,vendored \
+            --test mldsa_wycheproof_regression
+
       # skip windows, because the default image doesn't include several of the
       # system dependencies (e.g. Perl) required for the openssl-sys/vendored
       - name: Cargo test --features vendored_openssl
