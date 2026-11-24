@@ -213,3 +213,8 @@ We'd like to make a special acknowledgement to the companies who have dedicated 
 Research projects which developed specific components of OQS have been supported by various research grants, including funding from the Natural Sciences and Engineering Research Council of Canada (NSERC); see the source papers for funding acknowledgments.
 
 Thom Wiggers' contributions before May 2023 were supported by the European Research Council through Starting Grant No. 805031 (EPOQUE).
+
+## Security
+
+See the [Security Policy](SECURITY.md) for security support,
+vulnerability reporting, and coordinated release information.
